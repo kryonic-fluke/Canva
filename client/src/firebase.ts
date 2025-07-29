@@ -1,6 +1,7 @@
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { FirebaseError, initializeApp } from "firebase/app";
+import { createUserWithEmailAndPassword, getAuth, type UserCredential } from "firebase/auth";
+import type { SignupFormValues } from "./lib/schemas";
+// import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -14,5 +15,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+
+
+export const signUpWithEmail=async({email,password}:SignupFormValues): Promise<UserCredential
+>=>{
+try{
+  const UserCredential = await createUserWithEmailAndPassword(auth,email,password);
+  return UserCredential;
+
+}
+catch(error){
+  throw error as FirebaseError;
+}
+}
+// export const db = getFirestore(app);
 export default app;
