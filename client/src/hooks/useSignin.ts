@@ -1,10 +1,12 @@
 import { FirebaseError } from "firebase/app"
 import { useMutation } from '@tanstack/react-query';
-import {startRedirectSignIn} from "../firebase";
 import {type AuthProviderName } from "../firebase";
+import { signInWithProvider } from "../firebase";
+import type { UserCredential } from "firebase/auth";
+
 export const useSignInWithRedirect = () => {
-    return useMutation<void, FirebaseError, AuthProviderName>({
-        mutationFn: startRedirectSignIn,
+    return useMutation<UserCredential, FirebaseError, AuthProviderName>({
+        mutationFn: signInWithProvider,
         onSuccess: () => {
             console.log("Redirecting to provider for sign-in...");
         },
