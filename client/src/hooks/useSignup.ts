@@ -1,7 +1,7 @@
 import type { FirebaseError } from "firebase/app";
 import type { UserCredential } from "firebase/auth";
 import type { SignupFormValues } from "../lib/schemas";
-import { signUpWithEmail } from "../firebase";
+import { signUpWithEmail } from "../services/firebase";
 import { useMutation } from '@tanstack/react-query';
 
 

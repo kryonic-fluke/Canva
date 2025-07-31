@@ -1,14 +1,13 @@
 import { useState } from "react";
-import Signup from "./singUp";
-import SignIn from './SignIn'
 
-const AuthPage=()=>{
+
+export const AuthPage=()=>{
     const [isLoginView,setIsLoginView] = useState(true);
 
     return (
         <div>
             <div>
-                {isLoginView? <SignIn/> : <Signup/>}
+                {isLoginView? <Login/> : <Signup/>}
             </div>
         </div>
     )

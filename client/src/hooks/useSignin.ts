@@ -1,7 +1,7 @@
 import { FirebaseError } from "firebase/app"
 import { useMutation } from '@tanstack/react-query';
-import {type AuthProviderName } from "../firebase";
-import { signInWithProvider } from "../firebase";
+import {type AuthProviderName } from "../services/firebase";
+import { signInWithProvider } from "../services/firebase";
 import type { UserCredential } from "firebase/auth";
 
 export const useSignInWithRedirect = () => {

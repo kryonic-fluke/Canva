@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'; // Don't forget to import React if you're using JSX
+import { Routes, Route } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Assuming these components are defined elsewhere
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute'; // Or wherever it's located
+import AppLayout from './layouts/AppLayout'; // Or Applayout if that's the name
+import CanvasView from './views/CanvasView';
+import KabanView from './views/KabanView'; // Corrected typo: Kaban
+import StatisticsView from './views/StatisticsView';
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const App = () => {
+  return ( 
+    <Routes>
+      <Route path='/' element={<HomePage />} />
+      <Route path='/login' element={<AuthPage/>} />
 
-export default App
+      <Route path="/app" element={
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      }>
+        <Route path="canvas/:canvasId" element={<CanvasView />} />
+        <Route path="kaban/:canvasId" element={<KabanView />} />
+        <Route path="stats/:canvasId" element={<StatisticsView />} />
+        <Route index element={<div>Welcome to the App! Choose a section.</div>} />
+      </Route>
+
+      <Route path="*" element={<div>404 - Page Not Found</div>} />
+    </Routes>
+  );
+};
+
+export default App; 
