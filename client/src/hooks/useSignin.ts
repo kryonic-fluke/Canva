@@ -4,14 +4,16 @@ import {type AuthProviderName } from "../services/firebase";
 import { signInWithProvider } from "../services/firebase";
 import type { UserCredential } from "firebase/auth";
 
-export const useSignInWithRedirect = () => {
+
+export const useSocialSignIn = () => {
     return useMutation<UserCredential, FirebaseError, AuthProviderName>({
         mutationFn: signInWithProvider,
-        onSuccess: () => {
-            console.log("Redirecting to provider for sign-in...");
+        
+        onSuccess: (data) => {
+            console.log(`Successfully signed in with ${data.providerId}:`, data.user.displayName);
         },
         onError: (error) => {
-            console.error("Error starting redirect sign-in:", error.message);
+            console.error("Error during social sign-in:", error.message);
         }
     });
-}
+};

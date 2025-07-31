@@ -1,5 +1,5 @@
 import {onAuthStateChanged, type User } from "firebase/auth";
-import { createContext, useEffect, useState ,type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState ,type ReactNode } from "react";
 import { auth } from "../services/firebase";
 
 
@@ -40,8 +40,10 @@ const value = {
 
 
 
-export const useAuth = (context:AuthContextType)=>{
-if(context ==undefined) return new Error('calling context out of scope')
-
+export const useAuth = ():AuthContextType=>{
+    const context = useContext(AuthContext);
+ if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
     return context;
 }

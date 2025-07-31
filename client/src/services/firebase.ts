@@ -1,14 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { 
     getAuth, 
-    signInWithPopup, // We use this now
+    signInWithPopup, 
     GoogleAuthProvider, 
     GithubAuthProvider,
     type UserCredential,
     type AuthProvider
 } from "firebase/auth";
 
-// Vite uses import.meta.env, not process.env
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

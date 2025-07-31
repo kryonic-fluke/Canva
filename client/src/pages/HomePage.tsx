@@ -5,7 +5,7 @@
 export const HomePage = ()=>{
     return (
         <div>
-            Home
+            home
         </div>
     )
 }

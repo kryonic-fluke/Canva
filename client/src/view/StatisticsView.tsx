@@ -1,6 +1,6 @@
 
 
-export const StaticticsView = ()=>{
+export const StatisticsView = ()=>{
     return (
         <div>
             StaticticsView

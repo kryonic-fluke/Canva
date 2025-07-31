@@ -4,7 +4,7 @@ import { Sidebar } from "../components/SideBAr"
 
 
 
-const AppLayout=()=>{
+export const AppLayout=()=>{
     return(
         <div>
             <Sidebar/>
