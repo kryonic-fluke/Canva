@@ -1,20 +1,16 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
+export const Navbar = () => {
+  return (
+    <nav className="bg-white shadow-sm p-4 flex items-center justify-between">
+      <Link to="/">App logo here </Link>
 
-
- export const Navbar = ()=>{
-    return (
-        <div className="bg-blue-300">
-            <Link to='/'>App logo here </Link>
-            <Link to='/login' replace={true}>
-            
-            Login</Link>
-
-            <Link to='/info'>
-            
-            About </Link>
-
-           
-        </div>
-    )
-}
+      <div>
+        <Link to="/info">About </Link>
+        <Link to="/login" replace={true}>
+          Login
+        </Link>
+      </div>
+    </nav>
+  );
+};
