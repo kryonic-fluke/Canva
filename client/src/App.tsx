@@ -41,7 +41,7 @@ const App = () => {
     <Route index element={<Navigate to="canvas/123" replace />} />
     <Route path="canvas/:canvasId" element={<CanvasView />} />
     <Route path="kanban/:canvasId" element={<KabanView />} />
-    <Route path="StatisticsView" element={<StatisticsView />} />
+    <Route path="stats/:canvasId" element={<StatisticsView />} />
   </Route>
 
   <Route path="*" element={<NotFoundPage/>} />
