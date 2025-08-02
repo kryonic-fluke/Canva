@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { FirebaseError } from 'firebase/app';
 import {type  UserCredential, getAdditionalUserInfo } from 'firebase/auth'; 
-import { userBackEndSyncDaata } from '../api/users'; 
+import { userBackEndSyncData } from '../api/users'; 
 import { signInWithProvider, type AuthProviderName } from '../services/firebase';
 
 export const useSocialSignIn = () => {
@@ -12,7 +12,7 @@ export const useSocialSignIn = () => {
 
       if (additionalInfo?.isNewUser) {
         console.log("New user detected, syncing with backend...");
-        await userBackEndSyncDaata({
+        await userBackEndSyncData({
           firebaseUid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
