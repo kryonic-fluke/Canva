@@ -29,8 +29,10 @@ export const createCanvas = async (req: Request, res: Response) => {
 
 export const getCanvases = async(req:Request , res:Response)=>{
     try{
-      const userId = req.user!.uid;
-    const user = await User.findOne({ userId });
+      console.log("request hit for get canvas");
+      
+      const firebaseUid = req.user!.uid;
+    const user = await User.findOne({ firebaseUid });
 
       if(!user){
         return res.status(404).json({message:"User not found"});
