@@ -11,7 +11,7 @@ export const createCanvasRequestAPI = async (canvasData: NewCanvasData) => {
     if (auth.currentUser) {
       const idToken = await auth.currentUser.getIdToken();
       const response = await axios.post(
-        "http://localhost:5001/api/canvas",
+        "http://localhost:5001/api/canvases",
         canvasData,
         {
           headers: {

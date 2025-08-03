@@ -9,7 +9,7 @@ export const useSocialSignIn = () => {
     mutationFn: signInWithProvider,
     onSuccess: async (result) => {
       const additionalInfo = getAdditionalUserInfo(result);
-
+        
       if (additionalInfo?.isNewUser) {
         console.log("New user detected, syncing with backend...");
         await userBackEndSyncData({

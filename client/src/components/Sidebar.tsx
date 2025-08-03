@@ -8,7 +8,12 @@ export const Sidebar = () => {
       "My New Project"
     );
     if (canvasName) {
-      createCanvasRequestAPI(canvasName);
+      createCanvasRequestAPI(canvasName,{
+        onSuccess:(canvasName)=>{
+            console.log("new canvas:", canvasName.name,"sucessfully created");
+            
+        }
+      });
     }
   };
 
@@ -17,9 +22,9 @@ export const Sidebar = () => {
       <div className="p-4">
         <h2 className="text-lg font-bold">My Canvases</h2>
 
-        <button onClick={handleNewCanvasReq} disabled={isPending}>
-          {isPending ? "Creating..." : "New Canvas &plus;"}
-        </button>
+        <button onClick={handleNewCanvasReq} disabled={isPending} className="bg-blue-400 px-3 py-3 hover:bg-blue-500 active:bg-blue-700">
+  {isPending ? "Creating..." : "New Canvas +"}
+</button>
       </div>
     </aside>
   );

@@ -1,18 +1,13 @@
 import { Router } from 'express';
-import { createOrUpdateUser } from '../controllers/userControl';
-import { createCanvas } from '../controllers/canvasControl';
 
-
+import { createCanvas, getCanvases } from '../controllers/canvasControl';
+import { protect } from '../middleware/authMiddleWare';
 const router = Router();
 
 
+router.post('/',protect,createCanvas);
 
-
-
-
-router.post('/',createCanvas);
-
-
+router.get('/',protect,getCanvases)
 
 export default router;
 

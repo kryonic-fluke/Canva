@@ -1,32 +1,17 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { User } from "../models/userModal";
 import { Canvas } from "../models/canvaModel";
-import {type AuthentucatedRequestCheck} from '../middleware/authMIddleWare'
 
-
-export const createCanvas = async (
-  req: AuthentucatedRequestCheck,
-  res: Response
-) => {
+export const createCanvas = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
 
+    const firebaseUid = req.user!.uid; 
 
-    const firebaseUid = req.user.uid;
-
-    
-
-    if (!firebaseUid) {
-      return res
-        .status(401)
-        .json({ message: "Not authorized, no user UID found." });
-    }
     const user = await User.findOne({ firebaseUid });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ message: "User not found in our database." });
+      return res.status(404).json({ message: "Authenticated user not found in database." });
     }
 
     const newCanvas = await Canvas.create({
@@ -40,3 +25,24 @@ export const createCanvas = async (
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const getCanvases = async(req:Request , res:Response)=>{
+    try{
+      const userId = req.user!.uid;
+    const user = await User.findOne({ userId });
+
+      if(!user){
+        return res.status(404).json({message:"User not found"});
+
+      }
+
+      const userRelatedCanvases = await Canvas.find({owner:user}).sort({createdAt:-1});
+      res.status(201).json(userRelatedCanvases);
+
+    }
+    catch (error) {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+
+}
