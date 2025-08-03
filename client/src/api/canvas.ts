@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getAuth } from "firebase/auth";
-import { useAuth } from "../context/AuthContext";
-import { auth } from "../services/firebase";
+
 
 interface NewCanvasData {
   name: string;

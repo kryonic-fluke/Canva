@@ -18,6 +18,7 @@ if (admin.apps.length === 0) {
   console.log('Firebase Admin SDK Initialized.');
 }
 
+export const firestoreDb = admin.firestore();
 
 const app = express();
 const port = process.env.PORT || 5001;

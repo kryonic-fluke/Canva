@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/userModal";
 import { Canvas } from "../models/canvaModel";
-
+import { firestoreDb } from ".."; 
 export const createCanvas = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
@@ -13,11 +13,30 @@ export const createCanvas = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: "Authenticated user not found in database." });
     }
+    const canvasName = name || "Untitled Canvas"; 
 
     const newCanvas = await Canvas.create({
-      name: name || "Untitled Canvas",
+      name: canvasName || "Untitled Canvas",
+      
       owner: user._id,
     });
+     const canvasDocRef = firestoreDb.collection('canvases').doc(newCanvas._id.toString()); 
+await canvasDocRef.set({
+      name: canvasName,
+      ownerId: user._id.toString(),
+      
+      zoom: 1, 
+      viewport: { x: 0, y: 0 }, 
+      
+      theme: 'light', 
+      backgroundColor: '#F8F9FA', 
+      
+      nodes: [],
+      edges: [],
+    });
+        console.log('Firestore document created successfully.');
+
+
 
     res.status(201).json(newCanvas);
   } catch (error) {

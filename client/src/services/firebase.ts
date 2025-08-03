@@ -1,4 +1,6 @@
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
 import { 
     getAuth, 
     signInWithPopup, 
@@ -44,4 +46,7 @@ export const signInWithProvider = async (providerName: AuthProviderName): Promis
         throw error;
     }
 };
+
+
+export const db = getFirestore(app);
 

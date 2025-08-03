@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 
-// This defines the shape of the 'canvas' prop
 interface CanvasListItemProps {
   canvas: {
     _id: string;
