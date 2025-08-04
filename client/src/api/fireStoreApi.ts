@@ -1,25 +1,23 @@
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { type Node } from 'reactflow';
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../services/firebase";
+import { type Node } from "reactflow";
 
 export const addNodeToFirestore = async (canvasId: string, newNode: Node) => {
   if (!canvasId) return;
-  const docRef = doc(db, 'canvases', canvasId);
+  const docRef = doc(db, "canvases", canvasId);  //this will give me foloowing ref to document of canvas 
 
   await updateDoc(docRef, {
-    nodes: arrayUnion(newNode)
+    nodes: arrayUnion(newNode),
   });
 };
 
-
-
-
-
-
-export const updateNodesInFirestore = async (canvasId: string, nodes: Node[]) => {
-    if (!canvasId) return;
-    const docRef = doc(db, 'canvases', canvasId);
-    await updateDoc(docRef, {
-        nodes: nodes
-    });
+export const updateNodesInFirestore = async (
+  canvasId: string,
+  nodes: Node[]
+) => {
+  if (!canvasId) return;
+  const docRef = doc(db, "canvases", canvasId);
+  await updateDoc(docRef, {
+    nodes: nodes,
+  });
 };

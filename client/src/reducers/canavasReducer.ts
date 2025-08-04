@@ -11,7 +11,7 @@ export interface CanvasState {
   name: string;
   nodes: Node[];
   edges: Edge[];
-  // We can add viewport, theme, etc. here later
+  // We can add viewport, thme, etc. here later
 }
 
 export type CanvasAction = | { type: "SET_CANVAS"; payload: CanvasState }

@@ -3,6 +3,10 @@
     "@hookform/resolvers": "^5.2.1",
     "@tanstack/react-query": "^5.83.0",
     "firebase-admin": "^13.4.0",
+    "lodash": "^4.17.21",
     "zod": "^4.0.13"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.20"
   }
 }
