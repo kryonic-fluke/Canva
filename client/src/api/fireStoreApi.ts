@@ -1,23 +1,39 @@
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
-import { db } from "../services/firebase";
-import { type Node } from "reactflow";
+// api/fireStoreApi.ts
+import { doc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { type Node, type Edge } from 'reactflow'; 
 
-export const addNodeToFirestore = async (canvasId: string, newNode: Node) => {
-  if (!canvasId) return;
-  const docRef = doc(db, "canvases", canvasId);  //this will give me foloowing ref to document of canvas 
+interface CanvasData {
+    nodes: Node[];
+    edges: Edge[];
+}
 
-  await updateDoc(docRef, {
-    nodes: arrayUnion(newNode),
-  });
+export const syncCanvasToFirestore = async (canvasId: string, dataToSync: Partial<CanvasData>) => {
+    if (!canvasId) {
+        console.error("Canvas ID is missing, cannot sync.");
+        return;
+    }
+    const docRef = doc(db, "canvases", canvasId);
+
+    try {
+        await setDoc(docRef, dataToSync, { merge: true });
+        console.log("Successfully synced to Firestore");
+    } catch (error) {
+        console.error("Error syncing to Firestore:", error);
+        throw error;
+    }
 };
 
-export const updateNodesInFirestore = async (
-  canvasId: string,
-  nodes: Node[]
-) => {
-  if (!canvasId) return;
-  const docRef = doc(db, "canvases", canvasId);
-  await updateDoc(docRef, {
-    nodes: nodes,
-  });
+export const addNodeToFirestore = async (canvasId: string, newNode: Node) => {
+    if (!canvasId) return;
+    const docRef = doc(db, "canvases", canvasId);
+
+    try {
+        await updateDoc(docRef, {
+            nodes: arrayUnion(newNode),
+        });
+    } catch (error) {
+        console.error("Error adding node to Firestore:", error);
+        throw error;
+    }
 };

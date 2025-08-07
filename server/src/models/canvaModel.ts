@@ -8,6 +8,11 @@ const canvasSchema = new Schema({
     ref: "User",
     required: true,
   }
+,
+  collaborators: [{ type: Schema.Types.ObjectId, ref: "User" }],  // ADD THIS
+  inviteToken: { type: String, unique: true }
+
+
 
 
 }, {timestamps: true });

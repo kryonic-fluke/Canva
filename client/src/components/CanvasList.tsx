@@ -1,7 +1,6 @@
 import { CanvasListItem } from './CanvasListItem';
 interface Canvas {
   _id: string;
-  name: string;
 }
 
 export const CanvasList = ({ canvases }: { canvases: Canvas[] }) => {

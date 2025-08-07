@@ -5,6 +5,8 @@ const userSchema = new Schema(
     firebaseUid: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     displayName: { type: String },
+      joinedCanvases: [{ type: Schema.Types.ObjectId, ref: "Canvas" }], // ADD THIS
+    pendingInvites: [{ type: Schema.Types.ObjectId, ref: "Canvas" }]
   },
   { timestamps: true }
 );

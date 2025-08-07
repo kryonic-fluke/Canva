@@ -1,19 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useEffect } from "react";
 
 export const Navbar =  () => {
   const { user: currentUser,logout } = useAuth();
 
-useEffect(()=>{
-  const loginUserToken = async()=>{
- const usertoken =await currentUser?.getIdToken();
-
-  console.log("token" , usertoken);
-  }
- loginUserToken();
-  
-},[currentUser])
 const navigate = useNavigate();
   const handleLogout = async()=>{
      logout();

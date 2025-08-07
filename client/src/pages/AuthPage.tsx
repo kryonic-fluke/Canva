@@ -1,64 +1,59 @@
-import { useSocialSignIn } from '../hooks/useSignin'; 
-import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { FirebaseError } from 'firebase/app';
+// src/pages/AuthPage.tsx
 
-
+import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
+import { app } from '../services/firebase';
 
 export const AuthPage = () => {
-    const { mutate: performSignIn, isPending, error } = useSocialSignIn();
-    
-    const { user:currentUser, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const auth = getAuth(app);
 
-    const handleSignIn = (provider: 'google' | 'github') => {
-        performSignIn(provider);
-    };
+  const handleSignIn = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      
+      console.log("User successfully signed in:", result.user);
 
-    if (isLoading) {
-        return <div>Loading session...</div>;
+    //get the url stored in local storage
+      const postLoginRedirect = localStorage.getItem('postLoginRedirect');
+
+      if (postLoginRedirect) {
+        console.log(`Redirecting to stored destination: ${postLoginRedirect}`);
+       
+        localStorage.removeItem('postLoginRedirect');            //navigate to stored url, user came through invite link
+        navigate(postLoginRedirect, { replace: true });
+      } else {
+        console.log("Redirecting to default dashboard.");
+        navigate('/app', { replace: true });        //usual login , give acess to the app
+      }
+
+    } catch (error) {
+      console.error("Authentication failed:", error);
+      // Handle login errors here (e.g., show a message to the user)      
     }
+  };
 
-    if (currentUser) {
-        return <Navigate to="/app" replace />;
-    }
-    
-    const errorMessage = (error as FirebaseError)?.code === 'auth/popup-closed-by-user' 
-        ? 'Sign-in cancelled.' 
-        : error?.message;
+  const handleGoogleSignIn = () => {
+    handleSignIn(new GoogleAuthProvider());
+  };
 
-   return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-50">
-            <div className="w-full max-w-sm p-8 space-y-6 bg-white shadow-md rounded-lg">
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-                    <p className="mt-2 text-sm text-gray-600">to continue to Creative Canvas</p>
-                </div>
-                
-                <div className="space-y-4">
-                    {/* Google Button */}
-                    <button
-                        onClick={() => handleSignIn('google')}
-                        disabled={isPending}
-                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                    >
-                                             <p>google</p>
+  const handleGitHubSignIn = () => {
+    handleSignIn(new GithubAuthProvider());
+  };
 
-                        {isPending ? 'Signing In...' : 'Sign In with Google'}
-                    </button>
-                    
-                    {/* GitHub Button */}
-                    <button
-                        onClick={() => handleSignIn('github')}
-                        disabled={isPending}
-                        className="w-full flex items-center justify-center px-4 py-2 border border-gray-800 rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50"
-                    >
-                      <p>github</p>
-                        {isPending ? 'Signing In...' : 'Sign In with GitHub'}
-                    </button>
-                </div>
-
-                {error && (<div className="text-center text-sm text-red-500"><p>{errorMessage}</p></div>)}
-            </div>
+  return (
+    <div className="flex items-center justify-center h-screen bg-gray-900">
+      <div className="p-10 bg-gray-800 rounded-lg shadow-xl">
+        <h1 className="text-3xl font-bold text-white mb-6 text-center">Login to Creative Canvas</h1>
+        <div className="flex flex-col gap-4">
+          <button onClick={handleGoogleSignIn} className="p-3 bg-red-600 text-white rounded font-semibold hover:bg-red-500">
+            Sign in with Google
+          </button>
+          <button onClick={handleGitHubSignIn} className="p-3 bg-gray-600 text-white rounded font-semibold hover:bg-gray-500">
+            Sign in with GitHub
+          </button>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
