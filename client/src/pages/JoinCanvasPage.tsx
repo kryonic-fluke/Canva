@@ -12,7 +12,7 @@ export const JoinCanvasPage = () => {
 
   const { mutate: requestAccessApi, isPending } = useRequestAccess();
 
-  const [statusMessage, setStatusMessage] = useState("Processing your invitation...");
+  const [statusMessage, setStatusMessage] = useState("waiting to owner to allow access ...");
 
   useEffect(() => {
   
@@ -26,7 +26,7 @@ export const JoinCanvasPage = () => {
       navigate('/'); 
       return;
     }
-
+//save the current url to local storage , to be able to navigate to this page wehn access is allowed
 
     setStatusMessage("You have been invited to a canvas!");
 

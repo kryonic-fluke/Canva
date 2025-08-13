@@ -12,6 +12,7 @@ import { DemoPage } from "./pages/DemoPage";
 import { AboutPage } from "./pages/About";
 import { NotFoundPage } from "./pages/PageNotFound";
 import { ReactFlowProvider } from "reactflow";
+import { JoinCanvasPage } from "./pages/JoinCanvasPage";
 const App = () => {
   const queryClient = new QueryClient();
   return (
@@ -37,17 +38,20 @@ const App = () => {
           >
             <Route index element={<Navigate to="canvas/123" replace />} />
             <Route
-              path="canvas/:canvasId"
+              path="canvas/:_id"
               element={
                 <ReactFlowProvider>
                   <CanvasView />
                 </ReactFlowProvider>
               }
             />
-            <Route path="kanban/:canvasId" element={<KabanView />} />
-            <Route path="stats/:canvasId" element={<StatisticsView />} />
+            <Route path="kanban/:_id" element={<KabanView />} />
+            <Route path="stats/:_id" element={<StatisticsView />} />
           </Route>
-
+ <Route 
+            path="/join/:_id/:inviteToken" 
+            element={<JoinCanvasPage />}
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </QueryClientProvider>

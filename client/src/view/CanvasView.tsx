@@ -1,225 +1,77 @@
-import "reactflow/dist/style.css";
+import {  useCallback } from "react";
 import ReactFlow, {
   Controls,
   Background,
-  type NodeChange,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge,
   type Node,
-  type EdgeChange,
-  useReactFlow,
-  type Edge,
+  type OnNodesChange,
+  type OnEdgesChange,
+  type Connection,
 } from "reactflow";
-import { useParams } from "react-router-dom";
-import { useReducer, useEffect, useState, useMemo, useCallback } from "react";
-import { syncCanvasToFirestore } from "../api/fireStoreApi";
 
-import { doc, onSnapshot } from "firebase/firestore";
-import { db } from "../services/firebase";
-import { v4 as uuidv4 } from "uuid";
-import { canvasReducer, type CanvasState } from "../reducers/canavasReducer";
-import { throttle } from "lodash";
+import "reactflow/dist/style.css";
+import { useCanvasNodes } from '../hooks/useCanvasNodes';
+import { useCanvasEdges } from '../hooks/useCanvasEdges';
+const initialNodes: Node[] = [
+  { id: "1", position: { x: 0, y: 0 }, data: { label: "Hello" } },
+  { id: "2", position: { x: 100, y: 100 }, data: { label: "World" } },
+];
 
-const initialState: CanvasState = {
-  name: "Loading...",
-  nodes: [],
-  edges: [],
-};
-
-interface LocalState {
-  pendingOperations: Set<string>;
-}
 
 export const CanvasView = () => {
-  const { canvasId } = useParams<{ canvasId: string }>();
-  const [state, dispatch] = useReducer(canvasReducer, initialState);
-  const { fitView } = useReactFlow();
-  
-  const [localState, setLocalState] = useState<LocalState>({
-    pendingOperations: new Set()
-  });
+  const { nodes, setNodes, isLoading: isNodesLoading } = useCanvasNodes();
+  const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
 
-  // Create a stable sync function that uses current state
-  const syncToFirestore = useCallback(async (nodes: Node[], edges: Edge[], operationIds: string[]) => {
-    if (!canvasId) return;
-    
-    console.log("SYNCING TO FIRESTORE");
-    try {
-      await syncCanvasToFirestore(canvasId, { nodes, edges });
-      
-      // Remove completed operations from pending set
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => !operationIds.includes(id)))
-      }));
-    } catch (error) {
-      console.error("Failed to sync:", error);
-      // Remove failed operations from pending set
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => !operationIds.includes(id)))
-      }));
-    }
-  }, [canvasId]);
-
-  // Throttled sync function
-  const throttledSync = useMemo(
-    () => throttle(syncToFirestore, 300),
-    [syncToFirestore]
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
   );
 
-  // Listen to Firestore changes
-  useEffect(() => {
-    if (!canvasId) return;
-    
-    const docRef = doc(db, "canvases", canvasId);
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        // Only update from remote if we don't have pending local operations
-        if (localState.pendingOperations.size === 0) {
-          dispatch({
-            type: "SET_CANVAS",
-            payload: docSnap.data() as CanvasState,
-          });
-        }
-      } else {
-        console.error("Canvas not found");
-      }
-    });
-    
-    return () => unsubscribe();
-  }, [canvasId, localState.pendingOperations.size]);
+  const onEdgesChange: OnEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
+  );
 
-  // Handle real-time sync for continuous operations
-  useEffect(() => {
-    if (state.nodes.length > 0 && canvasId && localState.pendingOperations.size > 0) {
-      const operationIds = Array.from(localState.pendingOperations);
-      throttledSync(state.nodes, state.edges, operationIds);
-    }
-  }, [state.nodes, state.edges, canvasId, localState.pendingOperations, throttledSync]);
+  let id = initialNodes.length;
+  const getNextId = () => `${++id}`;
 
-  const onNodesChange = (changes: NodeChange[]) => {
-    // Handle drag operations
-    const dragChanges = changes.filter(change => change.type === 'position' && change.dragging === false);
-    
-    if (dragChanges.length > 0) {
-      // Add drag operations to pending set
-      const dragNodeIds = dragChanges.map(change => change.id);
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations, ...dragNodeIds])
-      }));
-    }
-    
-    dispatch({ type: "ON_NODES_CHANGE", payload: changes });
-  };
-
-  const onEdgesChange = (changes: EdgeChange[]) => {
-    dispatch({ type: "ON_EDGES_CHANGE", payload: changes });
-  };
-
-  const handleNodesDelete = async (deletedNodes: Node[]) => {
-    if (!canvasId) return;
-    
-    const deletedNodeIds = deletedNodes.map(node => node.id);
-    
-    // Add to pending operations
-    setLocalState(prev => ({
-      pendingOperations: new Set([...prev.pendingOperations, ...deletedNodeIds])
-    }));
-    
-    // Update local state immediately
-    dispatch({ type: "DELETE_NODES", payload: deletedNodes });
-    
-    try {
-      // Sync to Firestore - use current state after deletion
-      const updatedNodes = state.nodes.filter(node => !deletedNodeIds.includes(node.id));
-      await syncCanvasToFirestore(canvasId, { 
-        nodes: updatedNodes, 
-        edges: state.edges 
-      });
-      
-      // Remove from pending operations
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => !deletedNodeIds.includes(id)))
-      }));
-      
-    } catch (error) {
-      console.error("Failed to delete nodes:", error);
-      // Rollback on error - add nodes back
-      dispatch({ type: "ADD_MULTIPLE_NODES", payload: deletedNodes });
-      
-      // Remove from pending operations
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => !deletedNodeIds.includes(id)))
-      }));
-    }
-  };
-
-  const handleAddNode = async () => {
-    if (!canvasId) return;
-
-    const newNode: Node = {
-      id: uuidv4(),
-      position: { x: Math.random() * 500, y: Math.random() * 500 },
+  const handleAdd = useCallback(() => {
+    const newNode = {
+      id: getNextId(),
+      position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: { label: "New Node" },
     };
 
-    // Add to pending operations
-    setLocalState(prev => ({
-      pendingOperations: new Set([...prev.pendingOperations, newNode.id])
-    }));
+    setNodes((currentNodes) => [...currentNodes, newNode]);
+  }, [getNextId]);
 
-    // Update local state immediately (optimistic update)
-    dispatch({ type: "ADD_NODE", payload: newNode });
+  const onConnect: (connection: Connection) => void = useCallback(
+    (connection) => {
+      setEdges((currentEdges) => addEdge(connection, currentEdges));
+    },
+    []
+  );
 
-    try {
-      // Sync to Firestore
-      const updatedNodes = [...state.nodes, newNode];
-      await syncCanvasToFirestore(canvasId, { 
-        nodes: updatedNodes, 
-        edges: state.edges 
-      });
-      
-      // Remove from pending operations
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => id !== newNode.id))
-      }));
-      
-    } catch (error) {
-      console.error("Failed to add node:", error);
-      
-      // Fixed: Use correct variable name and action type
-      dispatch({ type: "REMOVE_NODE", payload: newNode.id });
-      
-      // Remove from pending operations
-      setLocalState(prev => ({
-        pendingOperations: new Set([...prev.pendingOperations].filter(id => id !== newNode.id))
-      }));
-    }
-  };
-
+  //connection is object containing info source an target node
+ if (isNodesLoading || isEdgesLoading) {
+    return <div>Loading your canvas...</div>;
+  }
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <div className="flex flex-end">
-        <button
-          onClick={handleAddNode}
-          disabled={localState.pendingOperations.size > 10}
-          className="bg-green-500 text-white px-3 py-2 font-semibold rounded-md hover:-translate-y-[1px] transition-all duration-300 ease-in-out hover:shadow-[0px_10px_20px_black] active:bg-green-700 hover:bg-green-600 disabled:opacity-50"
-        >
-          Add Node {localState.pendingOperations.size > 0 && `(${localState.pendingOperations.size} syncing...)`}
-        </button>
-      </div>
-
+    <div style={{ width: "100%", height: "100%" }} className="relative">
+      <button
+        onClick={handleAdd}
+        className="bg-green-400 px-6 py-2 font-medium active:opacity-5 hover:bg-green-600 absolute top-2 left-0 z-20"
+      >
+        Add
+      </button>
       <ReactFlow
-        nodes={state.nodes.map((node) => ({
-          ...node,
-          style: {
-            ...node.style,
-            border: "3px solid red",
-            background: "rgba(255, 0, 0, 0.2)",
-          },
-        }))}
-        edges={state.edges}
+        nodes={nodes}
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        onNodesDelete={handleNodesDelete}
-        fitView
+        onConnect={onConnect}
       >
         <Controls />
         <Background />

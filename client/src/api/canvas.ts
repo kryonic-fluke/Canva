@@ -1,5 +1,8 @@
 import axios from "axios";
 import { getAuth } from "firebase/auth";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../services/firebase";
+import type { Edge, Node } from "reactflow";
 
 interface NewCanvasData {
   name: string;
@@ -71,6 +74,7 @@ export const deleteCanvasApi = async (_id: string) => {
 
 export const getinviteLinkAPi= async(_id:string)=>{
    const auth = getAuth();
+console.log("ran invitelink api");
 
    if(auth.currentUser){
     const idToken = await auth.currentUser.getIdToken();
@@ -107,7 +111,7 @@ export const requestAccessApi  =  async(data:{_id:string,inviteToken:string})=>{
     const response = await axios.post(
        `http://localhost:5001/api/canvases/${_id}/request-access`,
 
-       {_id,inviteToken},
+       {inviteToken},
 
        {headers:{
          Authorization: `Bearer ${idToken}`
@@ -116,4 +120,116 @@ export const requestAccessApi  =  async(data:{_id:string,inviteToken:string})=>{
 
     return response.data;
 
+}
+
+
+
+export const approveRequestApi = async (data: { canvasId: string, userIdToApprove: string }) => {
+    const { canvasId, userIdToApprove } = data;
+
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error('You must be logged in to approve requests.');
+    }
+    const idToken = await currentUser.getIdToken();
+
+    const response = await axios.post(
+      `http://localhost:5001/api/canvases/${canvasId}/approve-request`, 
+      { userIdToApprove }, 
+      {
+        headers: { Authorization: `Bearer ${idToken}` }
+      }
+    );
+    return response.data;
+};
+
+
+export const declineRequest = async(data:{canvasId:string,userIdToDecline:string})=>{
+
+  const {canvasId,userIdToDecline}= data;
+  const auth = getAuth();
+
+  if(!auth.currentUser) throw new Error('You must be logged in');
+
+
+    const idToken = await auth.currentUser.getIdToken();
+
+     const response = await axios.post(
+        `http://localhost:5001/api/canvases/${canvasId}/decline-request`,
+        { userIdToDecline },
+        { headers: { Authorization: `Bearer ${idToken}` } }
+    );
+    return response.data;
+
+
+}
+
+
+export interface PendingRequest {
+  id: string;
+  userName: string;
+  userEmail: string;
+}
+
+export const listenForPendingRequests = (
+  canvasId: string, 
+  callback: (requests: PendingRequest[]) => void
+) => {
+  const requestsCollectionRef = collection(db, 'canvases', canvasId, 'pendingRequests');
+
+  const unsubscribe = onSnapshot(requestsCollectionRef, (querySnapshot) => {
+    const pendingRequests: PendingRequest[] = [];
+    querySnapshot.forEach((doc) => {
+      if (doc.id !== '_init') {
+        pendingRequests.push({
+          id: doc.id,
+          ...doc.data(),
+        } as PendingRequest);
+      }
+    });
+    callback(pendingRequests);
+  });
+
+  return unsubscribe;
+};
+
+
+export const listenForNodes=(_id:string,callback:(node:Node[])=>void)=>{
+  const nodeCollectionRef =collection(db,"canvases",_id,"nodes");  
+  const unsubscribe = onSnapshot(nodeCollectionRef, (snapshot) => {
+    const nodes: Node[] = [];
+    snapshot.forEach((doc) => {
+      if (doc.id === '_init') return; 
+      nodes.push({ id: doc.id, ...doc.data() } as Node);
+    });
+    callback(nodes);
+  });
+
+  return unsubscribe;
+};
+
+
+export const listenForEdges =(
+  _id:string,
+  callback:(edges:Edge[])=>void
+)=>{
+
+  const edgeCollectionRef=collection(db,'canvases',_id,
+    'edges'
+  )
+
+  const unsubscribe=onSnapshot(edgeCollectionRef,(snapshot)=>{
+    const edges: Edge[] = [];
+    snapshot.forEach((doc)=>{
+      if(doc.id==='_init')return;
+      edges.push({id:doc.id,...doc.data()} as Edge);
+    })
+
+  callback(edges)
+
+  })
+
+return unsubscribe;
 }

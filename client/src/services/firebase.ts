@@ -7,7 +7,8 @@ import {
     GoogleAuthProvider, 
     GithubAuthProvider,
     type UserCredential,
-    type AuthProvider
+    type AuthProvider,
+    type Auth
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -27,24 +28,27 @@ export type AuthProviderName = 'google' | 'github';
 
 
 export const signInWithProvider = async (providerName: AuthProviderName): Promise<UserCredential> => {
-    let provider: AuthProvider;
 
-    if (providerName === 'google') {
-        provider = new GoogleAuthProvider();
-    } else if (providerName === 'github') {
-        provider = new GithubAuthProvider();
-    } else {
-        throw new Error("Unsupported provider specified.");
-    }
+   let provider:AuthProvider;
 
-    try {
-        const result = await signInWithPopup(auth, provider);
-        console.log(`Successfully signed in with ${providerName}:`, result.user.displayName);
-        return result;
-    } catch (error) {
-        console.error(`Error during ${providerName} sign-in:`, error);
-        throw error;
-    }
+   if(providerName=="github"){
+    provider = new GithubAuthProvider();
+
+   }
+   else if(providerName =="google"){
+    provider = new GoogleAuthProvider();
+
+   }
+
+   try{
+  const result   =await signInWithPopup(auth,provider);
+  console.log(`Successfull signin with ${result.user.displayName}`);
+  return result;
+   }
+   catch(error){
+    console.log(`Error during ${providerName} sign-In`,error);
+    
+   }
 };
 
 

@@ -3,43 +3,40 @@
 import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { app } from '../services/firebase';
+import { useSocialSignIn } from '../hooks/useSignin';
 
 export const AuthPage = () => {
   const navigate = useNavigate();
   const auth = getAuth(app);
 
-  const handleSignIn = async (provider: GoogleAuthProvider | GithubAuthProvider) => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      
-      console.log("User successfully signed in:", result.user);
+   const redirect=()=>{
+                const postLoginRedirect  = localStorage.getItem('postLoginRedirect');
+                if(postLoginRedirect){
+                  localStorage.removeItem('postLoginRedirect');
+                  navigate(postLoginRedirect,{replace:true})
+                }
+                else{
+                  navigate('/app',{replace:true})
+                }
+          }
+const handleGoogleSignIn = () => {
+  
+        performSignIn('google'
+        );
+    };
 
-    //get the url stored in local storage
-      const postLoginRedirect = localStorage.getItem('postLoginRedirect');
 
-      if (postLoginRedirect) {
-        console.log(`Redirecting to stored destination: ${postLoginRedirect}`);
-       
-        localStorage.removeItem('postLoginRedirect');            //navigate to stored url, user came through invite link
-        navigate(postLoginRedirect, { replace: true });
-      } else {
-        console.log("Redirecting to default dashboard.");
-        navigate('/app', { replace: true });        //usual login , give acess to the app
-      }
+const {mutate:performSignIn,isPending:isSigningIn} =useSocialSignIn({onSuccess:()=>redirect()});
 
-    } catch (error) {
-      console.error("Authentication failed:", error);
-      // Handle login errors here (e.g., show a message to the user)      
-    }
-  };
 
-  const handleGoogleSignIn = () => {
-    handleSignIn(new GoogleAuthProvider());
-  };
 
-  const handleGitHubSignIn = () => {
-    handleSignIn(new GithubAuthProvider());
-  };
+  
+
+    const handleGitHubSignIn = () => {
+        performSignIn('github'
+        );
+    };
+
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-900">
