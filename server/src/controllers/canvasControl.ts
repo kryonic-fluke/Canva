@@ -282,7 +282,7 @@ export const deleteCanvas = async (req: Request, res: Response) => {
     await Canvas.findByIdAndDelete(_id);
     console.log(`Deleted canvas ${_id} from MongoDB.`);
 
-    const canvasDocRef = firestoreDb.collection("canvases").doc("_id");
+    const canvasDocRef = firestoreDb.collection("canvases").doc(_id);
     await canvasDocRef.delete();
     console.log(`Deleted canvas ${_id} from Firestore.`);
 

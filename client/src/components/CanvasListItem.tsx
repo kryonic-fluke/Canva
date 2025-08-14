@@ -29,6 +29,7 @@ export const CanvasListItem = ({ canvas }: CanvasListItemProps) => {
     const { user } = useAuth();
 
 const { _id: canvasId, name, owner } = canvas;
+console.log("id 😡😡😡",canvasId);
 
     const { mutate: deleteCanvas, isPending: isDeleting } = useDeleteCanvas();
 const { mutate: getInviteLink, isPending: isGettingLink } = useGetInviteLink();
@@ -52,7 +53,6 @@ const handleApprove = (userIdToApprove: string) => {
       <div className="flex justify-between items-center">
         <Link to={`/app/canvas/${canvasId}`} className="text-white hover:text-blue-400 font-semibold flex-grow mr-2 truncate">
           {name}
-        </Link>
 
         <div className="flex items-center space-x-2 flex-shrink-0">
           
@@ -65,8 +65,8 @@ const handleApprove = (userIdToApprove: string) => {
                       ? 'bg-yellow-500 hover:bg-yellow-400 animate-pulse'
                       : 'bg-gray-600'
                     }`}
-                  disabled={!requests || requests.length === 0}
-                >
+                    disabled={!requests || requests.length === 0}
+                    >
                   {isLoadingRequests ? '...' : `Requests (${requests?.length || 0})`}
                 </Menu.Button>
 
@@ -87,13 +87,13 @@ const handleApprove = (userIdToApprove: string) => {
                                 <button
                                   onClick={() => handleApprove(req.id)}
                                   className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-500"
-                                >
+                                  >
                                   Approve
                                 </button>
                                 <button
                                   onClick={() => handleDecline(req.id)}
                                   className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-500"
-                                >
+                                  >
                                   Decline
                                 </button>
                               </div>
@@ -123,8 +123,9 @@ const handleApprove = (userIdToApprove: string) => {
             </button>
             </>
              
-          )}
+            )}
         </div>
+            </Link>
       </div>
     </li>
   );

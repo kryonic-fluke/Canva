@@ -22,5 +22,5 @@ export const useCanvasNodes = () => {
     return () => unsubscribe();
   }, [canvasId]);
 
-  return { nodes, setNodes, isLoading }; // Return setNodes so we can still use it
+  return { nodes, setNodes, isLoading }; 
 };

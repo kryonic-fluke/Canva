@@ -11,6 +11,7 @@ import { PublicLayout } from "./pages/PublicLayout";
 import { DemoPage } from "./pages/DemoPage";
 import { AboutPage } from "./pages/About";
 import { NotFoundPage } from "./pages/PageNotFound";
+import { AppIndexRedirect } from './components/AppIndexRedirect'; 
 import { ReactFlowProvider } from "reactflow";
 import { JoinCanvasPage } from "./pages/JoinCanvasPage";
 const App = () => {
@@ -19,15 +20,12 @@ const App = () => {
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          {/* All of these routes will share the PublicLayout */}
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/demo" element={<DemoPage />} />
+            <Route path="/" element={<HomePage />}/>
+            <Route path="/about" element={<AboutPage />}/>
+            <Route path="/demo" element={<DemoPage />}/>
           </Route>
-
-          <Route path="/login" element={<AuthPage />} />
-
+          <Route path="/login" element={<AuthPage />}/>
           <Route
             path="/app"
             element={
@@ -36,9 +34,9 @@ const App = () => {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="canvas/123" replace />} />
+           <Route index element={<AppIndexRedirect />} />
             <Route
-              path="canvas/:_id"
+              path="/app/canvas/:_id"
               element={
                 <ReactFlowProvider>
                   <CanvasView />
@@ -48,10 +46,7 @@ const App = () => {
             <Route path="kanban/:_id" element={<KabanView />} />
             <Route path="stats/:_id" element={<StatisticsView />} />
           </Route>
- <Route 
-            path="/join/:_id/:inviteToken" 
-            element={<JoinCanvasPage />}
-          />
+          <Route path="/join/:_id/:inviteToken" element={<JoinCanvasPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </QueryClientProvider>

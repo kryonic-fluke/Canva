@@ -1,6 +1,12 @@
 import axios from "axios";
 import { getAuth } from "firebase/auth";
-import { collection, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../services/firebase";
 import type { Edge, Node } from "reactflow";
 
@@ -53,119 +59,111 @@ export const getCanvasesApi = async () => {
 
 export const deleteCanvasApi = async (_id: string) => {
   const auth = getAuth();
-  
 
   if (auth.currentUser) {
     const idToken = await auth.currentUser.getIdToken();
 
-   const response = await axios.delete(
-    `http://localhost:5001/api/canvases/${_id}`,
-    {
-      headers: { Authorization: `Bearer ${idToken}` }
-    }
-  );
-
-    return response.data;
-  }
-
- 
-};
-
-
-export const getinviteLinkAPi= async(_id:string)=>{
-   const auth = getAuth();
-console.log("ran invitelink api");
-
-   if(auth.currentUser){
-    const idToken = await auth.currentUser.getIdToken();
-
-    const response =  await axios.get(
-
-      `http://localhost:5001/api/canvases/${_id}/invite-link`,
-
+    const response = await axios.delete(
+      `http://localhost:5001/api/canvases/${_id}`,
       {
-       headers: { Authorization: `Bearer ${idToken}` }
+        headers: { Authorization: `Bearer ${idToken}` },
       }
-
     );
 
     return response.data;
-   }
-  
-}
+  }
+};
 
+export const getinviteLinkAPi = async (_id: string) => {
+  const auth = getAuth();
+  console.log("ran invitelink api");
 
-export const requestAccessApi  =  async(data:{_id:string,inviteToken:string})=>{
+  if (auth.currentUser) {
+    const idToken = await auth.currentUser.getIdToken();
 
-  const {_id,inviteToken}=  data;
+    const response = await axios.get(
+      `http://localhost:5001/api/canvases/${_id}/invite-link`,
+
+      {
+        headers: { Authorization: `Bearer ${idToken}` },
+      }
+    );
+
+    return response.data;
+  }
+};
+
+export const requestAccessApi = async (data: {
+  _id: string;
+  inviteToken: string;
+}) => {
+  const { _id, inviteToken } = data;
 
   const auth = getAuth();
-
 
   if (!auth.currentUser) {
     throw new Error("User must be logged in to request access.");
   }
 
-    const idToken = await auth.currentUser.getIdToken();
+  const idToken = await auth.currentUser.getIdToken();
 
-    const response = await axios.post(
-       `http://localhost:5001/api/canvases/${_id}/request-access`,
+  const response = await axios.post(
+    `http://localhost:5001/api/canvases/${_id}/request-access`,
 
-       {inviteToken},
+    { inviteToken },
 
-       {headers:{
-         Authorization: `Bearer ${idToken}`
-       }}
-    )
-
-    return response.data;
-
-}
-
-
-
-export const approveRequestApi = async (data: { canvasId: string, userIdToApprove: string }) => {
-    const { canvasId, userIdToApprove } = data;
-
-    const auth = getAuth();
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      throw new Error('You must be logged in to approve requests.');
+    {
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
     }
-    const idToken = await currentUser.getIdToken();
+  );
 
-    const response = await axios.post(
-      `http://localhost:5001/api/canvases/${canvasId}/approve-request`, 
-      { userIdToApprove }, 
-      {
-        headers: { Authorization: `Bearer ${idToken}` }
-      }
-    );
-    return response.data;
+  return response.data;
 };
 
+export const approveRequestApi = async (data: {
+  canvasId: string;
+  userIdToApprove: string;
+}) => {
+  const { canvasId, userIdToApprove } = data;
 
-export const declineRequest = async(data:{canvasId:string,userIdToDecline:string})=>{
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
-  const {canvasId,userIdToDecline}= data;
+  if (!currentUser) {
+    throw new Error("You must be logged in to approve requests.");
+  }
+  const idToken = await currentUser.getIdToken();
+
+  const response = await axios.post(
+    `http://localhost:5001/api/canvases/${canvasId}/approve-request`,
+    { userIdToApprove },
+    {
+      headers: { Authorization: `Bearer ${idToken}` },
+    }
+  );
+  return response.data;
+};
+
+export const declineRequest = async (data: {
+  canvasId: string;
+  userIdToDecline: string;
+}) => {
+  const { canvasId, userIdToDecline } = data;
   const auth = getAuth();
 
-  if(!auth.currentUser) throw new Error('You must be logged in');
+  if (!auth.currentUser) throw new Error("You must be logged in");
 
+  const idToken = await auth.currentUser.getIdToken();
 
-    const idToken = await auth.currentUser.getIdToken();
-
-     const response = await axios.post(
-        `http://localhost:5001/api/canvases/${canvasId}/decline-request`,
-        { userIdToDecline },
-        { headers: { Authorization: `Bearer ${idToken}` } }
-    );
-    return response.data;
-
-
-}
-
+  const response = await axios.post(
+    `http://localhost:5001/api/canvases/${canvasId}/decline-request`,
+    { userIdToDecline },
+    { headers: { Authorization: `Bearer ${idToken}` } }
+  );
+  return response.data;
+};
 
 export interface PendingRequest {
   id: string;
@@ -174,15 +172,20 @@ export interface PendingRequest {
 }
 
 export const listenForPendingRequests = (
-  canvasId: string, 
+  canvasId: string,
   callback: (requests: PendingRequest[]) => void
 ) => {
-  const requestsCollectionRef = collection(db, 'canvases', canvasId, 'pendingRequests');
+  const requestsCollectionRef = collection(
+    db,
+    "canvases",
+    canvasId,
+    "pendingRequests"
+  );
 
   const unsubscribe = onSnapshot(requestsCollectionRef, (querySnapshot) => {
     const pendingRequests: PendingRequest[] = [];
     querySnapshot.forEach((doc) => {
-      if (doc.id !== '_init') {
+      if (doc.id !== "_init") {
         pendingRequests.push({
           id: doc.id,
           ...doc.data(),
@@ -195,13 +198,15 @@ export const listenForPendingRequests = (
   return unsubscribe;
 };
 
-
-export const listenForNodes=(_id:string,callback:(node:Node[])=>void)=>{
-  const nodeCollectionRef =collection(db,"canvases",_id,"nodes");  
+export const listenForNodes = (
+  _id: string,
+  callback: (node: Node[]) => void
+) => {
+  const nodeCollectionRef = collection(db, "canvases", _id, "nodes");
   const unsubscribe = onSnapshot(nodeCollectionRef, (snapshot) => {
     const nodes: Node[] = [];
     snapshot.forEach((doc) => {
-      if (doc.id === '_init') return; 
+      if (doc.id === "_init") return;
       nodes.push({ id: doc.id, ...doc.data() } as Node);
     });
     callback(nodes);
@@ -210,26 +215,67 @@ export const listenForNodes=(_id:string,callback:(node:Node[])=>void)=>{
   return unsubscribe;
 };
 
+export const listenForEdges = (
+  _id: string,
+  callback: (edges: Edge[]) => void
+) => {
+  const edgeCollectionRef = collection(db, "canvases", _id, "edges");
 
-export const listenForEdges =(
-  _id:string,
-  callback:(edges:Edge[])=>void
-)=>{
-
-  const edgeCollectionRef=collection(db,'canvases',_id,
-    'edges'
-  )
-
-  const unsubscribe=onSnapshot(edgeCollectionRef,(snapshot)=>{
+  const unsubscribe = onSnapshot(edgeCollectionRef, (snapshot) => {
     const edges: Edge[] = [];
-    snapshot.forEach((doc)=>{
-      if(doc.id==='_init')return;
-      edges.push({id:doc.id,...doc.data()} as Edge);
-    })
+    snapshot.forEach((doc) => {
+      if (doc.id === "_init") return;
+      edges.push({ id: doc.id, ...doc.data() } as Edge);
+    });
 
-  callback(edges)
+    callback(edges);
+  });
 
-  })
+  return unsubscribe;
+};
 
-return unsubscribe;
+export interface NodeData {
+  label: string;
 }
+
+export const createNode = async (
+  canvasId: string,
+  newData: { position: { x: number; y: number }; data: NodeData }
+) => {
+  //using node id get the node doc and then if exists update the changes or if not create a new doc
+
+  if (!canvasId)
+    throw new Error("Canvas ID must be provided to create a node.");
+
+  const nodeCollectionRef = collection(db, "canvases", canvasId, "nodes");
+
+  try {
+    const docRef = await addDoc(nodeCollectionRef, newData);
+
+    console.log("Successfully created new node with ID:", docRef.id);
+
+    return docRef;
+  } catch (error) {
+    console.log("Error creating node:", error);
+    throw Error;
+  }
+};
+
+export const updateNodes = async (
+  canvasId: string,
+  nodeId: string,
+  dataToUpadte: Partial<Node>
+) => {
+  if (!canvasId || !nodeId) {
+    throw new Error("canvas ID and Node ID must be provided for an update");
+  }
+
+  const nodeDocRef = doc(db, "canvases", canvasId, "nodes", nodeId);
+
+  try {
+    await updateDoc(nodeDocRef, dataToUpadte);
+  } catch (error) {
+    console.error("Error updating node:", nodeId, error);
+    throw error;
+  }
+};
