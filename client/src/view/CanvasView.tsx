@@ -4,8 +4,6 @@ import ReactFlow, {
   Background,
   applyNodeChanges,
   applyEdgeChanges,
-  
-  addEdge,
  
   type OnEdgesChange,
    type NodeChange,
@@ -16,7 +14,7 @@ import { throttle } from 'lodash';
 import "reactflow/dist/style.css";
 import { useCanvasNodes } from '../hooks/useCanvasNodes';
 import { useCanvasEdges } from '../hooks/useCanvasEdges';
-import { createNode, updateNodes } from "../api/canvas";
+import { createEdge, createNode, deleteEdge, deleteNode, updateNodes } from "../api/canvas";
 import { useParams } from "react-router-dom";
 
 
@@ -57,7 +55,7 @@ export const CanvasView = () => {
             position:change.position
           }).catch(err=>console.error('final position update fialed',err))
         }
-
+       
           if (change.dragging === false && change.position) {
                     updateNodes(canvasId, change.id, { position: change.position })
                         .catch(err => console.error("Final position update failed:", err));
@@ -68,6 +66,11 @@ export const CanvasView = () => {
         
 
         }
+
+         if (change.type === 'remove') {
+            deleteNode(canvasId, change.id).catch(err => console.error("Failed to delete node:", err));
+        }
+
 
        
        });
@@ -80,8 +83,18 @@ export const CanvasView = () => {
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
+    (changes) =>{
+
+      if(!canvasId )return;
+       setEdges((eds) => applyEdgeChanges(changes, eds))
+       changes.forEach((change) => {
+         if (change.type === 'remove') {
+            deleteEdge(canvasId, change.id).catch(err => console.error("Failed to delete edge:", err));
+        }
+
+       })
+      },
+    [canvasId,setEdges]
   );
 
 
@@ -99,13 +112,19 @@ export const CanvasView = () => {
     })
   },[canvasId])
 
-  
-  const onConnect: (connection: Connection) => void = useCallback(
-    (connection) => {
-      setEdges((currentEdges) => addEdge(connection, currentEdges));
+  const onConnect = useCallback(
+    (connection: Connection) => {
+        if (!canvasId) {
+            console.error("onConnect called before canvasId was available.");
+            return;
+        }
+         console.log(`Creating edge for canvas: ${canvasId}`);
+        createEdge(canvasId, connection).catch(err => {
+            console.error("Failed to create edge in database:", err);
+        });
     },
-    [setEdges]
-  );
+    [canvasId]
+  )
 
   //connection is object containing info source an target node
   if (isNodesLoading || isEdgesLoading) {

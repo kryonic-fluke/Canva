@@ -3,12 +3,13 @@ import { getAuth } from "firebase/auth";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
-import type { Edge, Node } from "reactflow";
+import type { Connection, Edge, Node } from "reactflow";
 
 interface NewCanvasData {
   name: string;
@@ -278,4 +279,37 @@ export const updateNodes = async (
     console.error("Error updating node:", nodeId, error);
     throw error;
   }
+};
+
+
+export const createEdge=async(canvasId:string, connection:Connection)=>{
+  if(!canvasId || !connection.source || !connection.target ){
+    throw new Error ("Missing data for edge coreation");
+
+  }
+
+  const edgesCollectionRef =collection(db,'canvases',canvasId,'edges');
+
+  const newEdgeData = {
+        source: connection.source,
+        target: connection.target,
+    };
+
+
+        await addDoc(edgesCollectionRef, newEdgeData);
+
+}
+
+
+export const deleteNode = async (canvasId: string, nodeId: string) => {
+    if (!canvasId || !nodeId) throw new Error("Missing IDs for node deletion");
+    const nodeDocRef = doc(db, 'canvases', canvasId, 'nodes', nodeId);
+    await deleteDoc(nodeDocRef);
+};
+
+
+export const deleteEdge = async (canvasId: string, edgeId: string) => {
+    if (!canvasId || !edgeId) throw new Error("Missing IDs for edge deletion");
+    const edgeDocRef = doc(db, 'canvases', canvasId, 'edges', edgeId);
+    await deleteDoc(edgeDocRef);
 };
