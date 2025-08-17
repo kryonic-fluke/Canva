@@ -1,130 +1,165 @@
-import {  useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   Controls,
   Background,
   applyNodeChanges,
   applyEdgeChanges,
- 
   type OnEdgesChange,
-   type NodeChange,
+  type NodeChange,
   type Connection,
 } from "reactflow";
-import { throttle } from 'lodash';
-
+import { throttle } from "lodash";
 import "reactflow/dist/style.css";
-import { useCanvasNodes } from '../hooks/useCanvasNodes';
-import { useCanvasEdges } from '../hooks/useCanvasEdges';
-import { createEdge, createNode, deleteEdge, deleteNode, updateNodes } from "../api/canvas";
+import { useCanvasNodes } from "../hooks/useCanvasNodes";
+import { useCanvasEdges } from "../hooks/useCanvasEdges";
+import {
+  createEdge,
+  createNode,
+  deleteEdge,
+  deleteNode,
+  updateNodes,
+} from "../api/canvas";
 import { useParams } from "react-router-dom";
-
+import { EditableNode } from "../components/EditableNode";
 
 export const CanvasView = () => {
-  const { nodes, setNodes, isLoading: isNodesLoading } = useCanvasNodes();
+  const {nodes: rawNodes, setNodes, isLoading: isNodesLoading } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
- const { _id: canvasId } = useParams<{ _id: string }>();
+  const { _id: canvasId } = useParams<{ _id: string }>();
+
+  const NodeChangeThrottle = useRef(
+    throttle(
+      (
+        canvasId: string,
+        nodeId: string,
+        position: { x: number; y: number }
+      ) => {
+        updateNodes(canvasId, nodeId, { position }).catch((err) => {
+          console.error("Throttled update failed", err);
+        });
+      },
+      100
+    )
+  ).current; 
 
 
 
 
- const NodeChangeThrottle=useRef(
-  throttle((canvasId:string,nodeId:string,position:{x:number,y:number})=>{
-    updateNodes(canvasId,nodeId,{position}).catch(err=>{
-      console.error("Throttled update failed",err);
-      
-      
-    })
-  },1)
- ).current;
+const onNodeLabelChange = useCallback((nodeId:string,newLabel:string)=>{
+  if(!canvasId ||!nodeId || !newLabel) return ;
+    updateNodes(canvasId,nodeId,{data:{label:newLabel}})
+},[canvasId])
 
- useEffect(()=>{
-  return()=>{
-    NodeChangeThrottle.cancel();
-  }
- },[NodeChangeThrottle])
-  const onNodesChange: (changes: NodeChange[])  =>void= useCallback(
-    (changes) =>{
-      if(!canvasId) return ;
-       setNodes((nds) => applyNodeChanges(changes, nds))
-        
-       changes.forEach((change)=>{
-        if(change.type==='position' &&change.position){
-          NodeChangeThrottle(canvasId,change.id,change.position)
 
-       if(change.position ){
-          updateNodes(canvasId,change.id,{
-            position:change.position
-          }).catch(err=>console.error('final position update fialed',err))
-        }
+const hydratedNodes = useMemo(() => {
+    return rawNodes.map((node) => {
+      return {
+        ...node,
        
+           data: {
+          ...node.data, 
+          onLabelChange: onNodeLabelChange, 
+        },
+      };
+    });
+  }, [rawNodes, onNodeLabelChange]);
+
+  const nodeTypes=useMemo(()=>(
+    {editableNode:EditableNode}
+  ),[])
+//its a memoized function 
+  useEffect(() => {
+    return () => {
+      NodeChangeThrottle.cancel();
+    };
+  }, [NodeChangeThrottle]);
+
+
+  const onNodesChange: (changes: NodeChange[]) => void = useCallback(
+    (changes) => {
+      if (!canvasId) return;
+      setNodes((nds) => applyNodeChanges(changes, nds));
+
+      changes.forEach((change) => {
+        if (change.type === "position" && change.position) {
+          NodeChangeThrottle(canvasId, change.id, change.position);
+
+         
+
           if (change.dragging === false && change.position) {
-                    updateNodes(canvasId, change.id, { position: change.position })
-                        .catch(err => console.error("Final position update failed:", err));
-                }
-
-
-
-        
-
+              NodeChangeThrottle.flush();
+            updateNodes(canvasId, change.id, {
+              position: change.position,
+            }).catch((err) =>
+              console.error("Final position update failed:", err)
+            );
+          }
         }
 
-         if (change.type === 'remove') {
-            deleteNode(canvasId, change.id).catch(err => console.error("Failed to delete node:", err));
+        if (change.type === "remove") {
+          deleteNode(canvasId, change.id).catch((err) =>
+            console.error("Failed to delete node:", err)
+          );
         }
-
-
-       
-       });
-
-       
-       
-  
-}, [canvasId, setNodes, NodeChangeThrottle]
-
+      });
+    },
+    [canvasId, setNodes, NodeChangeThrottle]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) =>{
-
-      if(!canvasId )return;
-       setEdges((eds) => applyEdgeChanges(changes, eds))
-       changes.forEach((change) => {
-         if (change.type === 'remove') {
-            deleteEdge(canvasId, change.id).catch(err => console.error("Failed to delete edge:", err));
+    (changes) => {
+      if (!canvasId) return;
+      setEdges((eds) => applyEdgeChanges(changes, eds));
+      changes.forEach((change) => {
+        if (change.type === "remove") {
+          deleteEdge(canvasId, change.id).catch((err) =>
+            console.error("Failed to delete edge:", err)
+          );
         }
-
-       })
-      },
-    [canvasId,setEdges]
+      });
+    },
+    [canvasId, setEdges]
   );
 
+  const addNode = useCallback(() => {
+    if (!canvasId) return;
 
-  const addNode=useCallback(()=>{
-    if(!canvasId) return;
+    const optimisticNode  = {
+        id: `node_${+new Date()}`,
+      type:"editableNode",
+      position: { x: Math.random() * 400, y: Math.random() * 400 },
+      data: { label: "New Node" ,    onLabelChange: onNodeLabelChange 
+},
+    };
+    setNodes((currentNodes) => [...currentNodes, optimisticNode]);
 
-    const newDate={
-      position:{x:Math.random()*400,y:Math.random()*400},
-      data:{label:'New Node'}
+     const { data, ...nodeProps } = optimisticNode  ;
+    const { onLabelChange: _, ...sanitizedData } = data;
+     const nodeForFirestore = {
+
+        ...nodeProps,
+        data: sanitizedData
     }
-
-    createNode(canvasId , newDate).catch(err=>{
-      console.error("failed to add a node",err);
-      
-    })
-  },[canvasId])
+    createNode(canvasId, nodeForFirestore).catch((err) => {
+         setNodes((nds) => nds.filter((n) => n.id !== optimisticNode.id));
+    
+      console.error("failed to add a node", err);
+    });
+  }, [canvasId,onNodeLabelChange,setNodes]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
-        if (!canvasId) {
-            console.error("onConnect called before canvasId was available.");
-            return;
-        }
-         console.log(`Creating edge for canvas: ${canvasId}`);
-        createEdge(canvasId, connection).catch(err => {
-            console.error("Failed to create edge in database:", err);
-        });
+      if (!canvasId) {
+        console.error("onConnect called before canvasId was available.");
+        return;
+      }
+      console.log(`Creating edge for canvas: ${canvasId}`);
+      createEdge(canvasId, connection).catch((err) => {
+        console.error("Failed to create edge in database:", err);
+      });
     },
     [canvasId]
-  )
+  );
 
   //connection is object containing info source an target node
   if (isNodesLoading || isEdgesLoading) {
@@ -138,12 +173,13 @@ export const CanvasView = () => {
       >
         Add
       </button>
-     
+
       <ReactFlow
-        nodes={nodes}
+        nodes={hydratedNodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
         onConnect={onConnect}
       >
         <Controls />

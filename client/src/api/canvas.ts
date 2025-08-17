@@ -6,6 +6,7 @@ import {
   deleteDoc,
   doc,
   onSnapshot,
+  setDoc,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
@@ -239,23 +240,27 @@ export interface NodeData {
   label: string;
 }
 
+
+type NewNodeData = Partial<Node> & { id: string };
+
 export const createNode = async (
   canvasId: string,
-  newData: { position: { x: number; y: number }; data: NodeData }
+  newData: NewNodeData
 ) => {
   //using node id get the node doc and then if exists update the changes or if not create a new doc
 
   if (!canvasId)
     throw new Error("Canvas ID must be provided to create a node.");
+console.log("new Data",newData);
 
-  const nodeCollectionRef = collection(db, "canvases", canvasId, "nodes");
 
   try {
-    const docRef = await addDoc(nodeCollectionRef, newData);
+    const nodeDocRef = doc(db, "canvases", canvasId, "nodes", newData.id);
+      await setDoc(nodeDocRef, newData);
 
-    console.log("Successfully created new node with ID:", docRef.id);
+    console.log("Successfully created new node with ID:", newData.id);
 
-    return docRef;
+    return nodeDocRef;
   } catch (error) {
     console.log("Error creating node:", error);
     throw Error;
@@ -281,35 +286,29 @@ export const updateNodes = async (
   }
 };
 
-
-export const createEdge=async(canvasId:string, connection:Connection)=>{
-  if(!canvasId || !connection.source || !connection.target ){
-    throw new Error ("Missing data for edge coreation");
-
+export const createEdge = async (canvasId: string, connection: Connection) => {
+  if (!canvasId || !connection.source || !connection.target) {
+    throw new Error("Missing data for edge coreation");
   }
 
-  const edgesCollectionRef =collection(db,'canvases',canvasId,'edges');
+  const edgesCollectionRef = collection(db, "canvases", canvasId, "edges");
 
   const newEdgeData = {
-        source: connection.source,
-        target: connection.target,
-    };
+    source: connection.source,
+    target: connection.target,
+  };
 
-
-        await addDoc(edgesCollectionRef, newEdgeData);
-
-}
-
-
-export const deleteNode = async (canvasId: string, nodeId: string) => {
-    if (!canvasId || !nodeId) throw new Error("Missing IDs for node deletion");
-    const nodeDocRef = doc(db, 'canvases', canvasId, 'nodes', nodeId);
-    await deleteDoc(nodeDocRef);
+  await addDoc(edgesCollectionRef, newEdgeData);
 };
 
+export const deleteNode = async (canvasId: string, nodeId: string) => {
+  if (!canvasId || !nodeId) throw new Error("Missing IDs for node deletion");
+  const nodeDocRef = doc(db, "canvases", canvasId, "nodes", nodeId);
+  await deleteDoc(nodeDocRef);
+};
 
 export const deleteEdge = async (canvasId: string, edgeId: string) => {
-    if (!canvasId || !edgeId) throw new Error("Missing IDs for edge deletion");
-    const edgeDocRef = doc(db, 'canvases', canvasId, 'edges', edgeId);
-    await deleteDoc(edgeDocRef);
+  if (!canvasId || !edgeId) throw new Error("Missing IDs for edge deletion");
+  const edgeDocRef = doc(db, "canvases", canvasId, "edges", edgeId);
+  await deleteDoc(edgeDocRef);
 };
