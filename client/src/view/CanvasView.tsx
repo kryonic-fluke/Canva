@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { act, useCallback, useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -21,6 +21,8 @@ import {
 } from "../api/canvas";
 import { useParams } from "react-router-dom";
 import { EditableNode } from "../components/EditableNode";
+import { usePresence } from "../hooks/usePresence";
+import { getAuth } from "firebase/auth";
 
 export const CanvasView = () => {
   const {
@@ -30,7 +32,8 @@ export const CanvasView = () => {
   } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
-
+  const activePresenceMap  = usePresence(canvasId!);
+const currentUserId = getAuth().currentUser?.uid
   const NodeChangeThrottle = useRef(
     throttle(
       (
@@ -56,16 +59,22 @@ export const CanvasView = () => {
 
   const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
+
+       const isBeingEdited = activePresenceMap.has(node.id);
+        const editorId  = activePresenceMap.get(node.id)
+      
+ const isBeingEditedByAnotherUser = isBeingEdited && (editorId !== currentUserId);
       return {
         ...node,
 
         data: {
           ...node.data,
           onLabelChange: onNodeLabelChange,
+           isBeingEditedByAnotherUser: isBeingEditedByAnotherUser,
         },
       };
     });
-  }, [rawNodes, onNodeLabelChange]);
+  }, [rawNodes, onNodeLabelChange,activePresenceMap,currentUserId]);
 
   const nodeTypes = useMemo(() => ({ editableNode: EditableNode }), []);
   //its a memoized function
@@ -126,7 +135,7 @@ export const CanvasView = () => {
       id: `node_${+new Date()}`,
       type: "editableNode",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: "New Node", onLabelChange: onNodeLabelChange },
+      data: { label: "New Node", onLabelChange: onNodeLabelChange},
     };
     setNodes((currentNodes) => [...currentNodes, optimisticNode]);
 
