@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import type { Connection, Edge, Node } from "reactflow";
+import { use, useId } from "react";
 
 interface NewCanvasData {
   name: string;
@@ -90,6 +91,7 @@ export const getinviteLinkAPi = async (_id: string) => {
         headers: { Authorization: `Bearer ${idToken}` },
       }
     );
+
 
     return response.data;
   }
@@ -256,8 +258,7 @@ console.log("new Data",newData);
 
   try {
     const nodeDocRef = doc(db, "canvases", canvasId, "nodes", newData.id);
-      await setDoc(nodeDocRef, newData);
-
+    await setDoc(nodeDocRef, newData);
     console.log("Successfully created new node with ID:", newData.id);
 
     return nodeDocRef;
@@ -312,3 +313,28 @@ export const deleteEdge = async (canvasId: string, edgeId: string) => {
   const edgeDocRef = doc(db, "canvases", canvasId, "edges", edgeId);
   await deleteDoc(edgeDocRef);
 };
+
+
+
+export const setEditingPresence=async(canvasId:string, userId:string, nodeId: string)=>{
+ if (!canvasId || !userId || !nodeId) throw new Error("Mising Ids for node or user or Canvas")
+
+    const presenceDocRef =doc(db,"canvases",canvasId,'presence',userId)
+//got the 
+    await setDoc(presenceDocRef,{editingNodeId:nodeId});
+
+
+}
+
+
+export const clearEditingPresence=async(canvasId:string ,userId:string)=>{
+ if (!canvasId || !userId) {
+        throw new Error("Missing canvasId or userId for clearing presence");
+    }    const signalDoc= doc(db,'canvases',canvasId,'editIndicator',userId);
+
+  await deleteDoc(signalDoc);
+}
+
+
+
+

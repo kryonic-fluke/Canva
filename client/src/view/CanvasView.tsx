@@ -23,7 +23,11 @@ import { useParams } from "react-router-dom";
 import { EditableNode } from "../components/EditableNode";
 
 export const CanvasView = () => {
-  const {nodes: rawNodes, setNodes, isLoading: isNodesLoading } = useCanvasNodes();
+  const {
+    nodes: rawNodes,
+    setNodes,
+    isLoading: isNodesLoading,
+  } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
 
@@ -40,40 +44,36 @@ export const CanvasView = () => {
       },
       100
     )
-  ).current; 
+  ).current;
 
+  const onNodeLabelChange = useCallback(
+    (nodeId: string, newLabel: string) => {
+      if (!canvasId || !nodeId || !newLabel) return;
+      updateNodes(canvasId, nodeId, { data: { label: newLabel } });
+    },
+    [canvasId]
+  );
 
-
-
-const onNodeLabelChange = useCallback((nodeId:string,newLabel:string)=>{
-  if(!canvasId ||!nodeId || !newLabel) return ;
-    updateNodes(canvasId,nodeId,{data:{label:newLabel}})
-},[canvasId])
-
-
-const hydratedNodes = useMemo(() => {
+  const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
       return {
         ...node,
-       
-           data: {
-          ...node.data, 
-          onLabelChange: onNodeLabelChange, 
+
+        data: {
+          ...node.data,
+          onLabelChange: onNodeLabelChange,
         },
       };
     });
   }, [rawNodes, onNodeLabelChange]);
 
-  const nodeTypes=useMemo(()=>(
-    {editableNode:EditableNode}
-  ),[])
-//its a memoized function 
+  const nodeTypes = useMemo(() => ({ editableNode: EditableNode }), []);
+  //its a memoized function
   useEffect(() => {
     return () => {
       NodeChangeThrottle.cancel();
     };
   }, [NodeChangeThrottle]);
-
 
   const onNodesChange: (changes: NodeChange[]) => void = useCallback(
     (changes) => {
@@ -84,10 +84,8 @@ const hydratedNodes = useMemo(() => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);
 
-         
-
           if (change.dragging === false && change.position) {
-              NodeChangeThrottle.flush();
+            NodeChangeThrottle.flush();
             updateNodes(canvasId, change.id, {
               position: change.position,
             }).catch((err) =>
@@ -124,28 +122,26 @@ const hydratedNodes = useMemo(() => {
   const addNode = useCallback(() => {
     if (!canvasId) return;
 
-    const optimisticNode  = {
-        id: `node_${+new Date()}`,
-      type:"editableNode",
+    const optimisticNode = {
+      id: `node_${+new Date()}`,
+      type: "editableNode",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: "New Node" ,    onLabelChange: onNodeLabelChange 
-},
+      data: { label: "New Node", onLabelChange: onNodeLabelChange },
     };
     setNodes((currentNodes) => [...currentNodes, optimisticNode]);
 
-     const { data, ...nodeProps } = optimisticNode  ;
+    const { data, ...nodeProps } = optimisticNode;
     const { onLabelChange: _, ...sanitizedData } = data;
-     const nodeForFirestore = {
-
-        ...nodeProps,
-        data: sanitizedData
-    }
+    const nodeForFirestore = {
+      ...nodeProps,
+      data: sanitizedData,
+    };
     createNode(canvasId, nodeForFirestore).catch((err) => {
-         setNodes((nds) => nds.filter((n) => n.id !== optimisticNode.id));
-    
+      setNodes((nds) => nds.filter((n) => n.id !== optimisticNode.id));
+
       console.error("failed to add a node", err);
     });
-  }, [canvasId,onNodeLabelChange,setNodes]);
+  }, [canvasId, onNodeLabelChange, setNodes]);
 
   const onConnect = useCallback(
     (connection: Connection) => {
