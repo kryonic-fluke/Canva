@@ -329,9 +329,12 @@ export const setEditingPresence=async(canvasId:string, userId:string, nodeId: st
 
 export const clearEditingPresence=async(canvasId:string ,userId:string)=>{
  if (!canvasId || !userId) {
-        throw new Error("Missing canvasId or userId for clearing presence");
-    }    const signalDoc= doc(db,'canvases',canvasId,'editIndicator',userId);
 
+        throw new Error("Missing canvasId or userId for clearing presence");
+    }  
+    
+    const signalDoc= doc(db,'canvases',canvasId,'presence',userId);
+console.log(`API: Clearing presence for user ${userId} in canvas ${canvasId}`);
   await deleteDoc(signalDoc);
 }
 

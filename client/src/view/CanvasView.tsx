@@ -7,6 +7,7 @@ import ReactFlow, {
   type OnEdgesChange,
   type NodeChange,
   type Connection,
+  useReactFlow,
 } from "reactflow";
 import { throttle } from "lodash";
 import "reactflow/dist/style.css";
@@ -130,19 +131,18 @@ const currentUserId = getAuth().currentUser?.uid
 
   const addNode = useCallback(() => {
     if (!canvasId) return;
-
     const optimisticNode = {
       id: `node_${+new Date()}`,
       type: "editableNode",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { label: "New Node", onLabelChange: onNodeLabelChange},
+      data: { label: "New Node", onLabelChange: onNodeLabelChange, isBeingEditedByAnotherUser: false, },
     };
     setNodes((currentNodes) => [...currentNodes, optimisticNode]);
-
     const { data, ...nodeProps } = optimisticNode;
-    const { onLabelChange: _, ...sanitizedData } = data;
+    const { onLabelChange: _,isBeingEditedByAnotherUser: __, ...sanitizedData } = data;
     const nodeForFirestore = {
       ...nodeProps,
+      
       data: sanitizedData,
     };
     createNode(canvasId, nodeForFirestore).catch((err) => {
@@ -165,6 +165,7 @@ const currentUserId = getAuth().currentUser?.uid
     },
     [canvasId]
   );
+const { fitView } = useReactFlow();
 
   //connection is object containing info source an target node
   if (isNodesLoading || isEdgesLoading) {
@@ -176,6 +177,7 @@ const currentUserId = getAuth().currentUser?.uid
         onClick={addNode}
         className="bg-green-400 px-6 py-2 font-medium active:opacity-5 hover:bg-green-600 absolute top-2 left-0 z-20"
       >
+
         Add
       </button>
 
@@ -190,6 +192,7 @@ const currentUserId = getAuth().currentUser?.uid
         <Controls />
         <Background />
       </ReactFlow>
+      <button onClick={() => fitView()} className="bg-black text-white p-2 rounded-md absolute bottom-2 right-2 hover:opacity-80 hover:active:opacity-70">Fit View</button>
     </div>
   );
 };
