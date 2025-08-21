@@ -253,6 +253,7 @@ const { data, ...nodeProps } = optimisticNode;
 const { 
     onLabelChange, 
     onChecklistChange, 
+    onStickyChange,
     ...dataForFirestore 
 } = data;
 
