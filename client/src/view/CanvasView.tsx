@@ -1,4 +1,4 @@
-import {  Fragment, useCallback, useEffect, useMemo, useRef } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -52,7 +52,7 @@ export const CanvasView = () => {
       100
     )
   ).current;
-//for updating a position real time 
+  //for updating a position real time
   const onNodeLabelChange = useCallback(
     (nodeId: string, newLabel: string) => {
       if (!canvasId || !nodeId || !newLabel) return;
@@ -61,81 +61,113 @@ export const CanvasView = () => {
     [canvasId]
   );
 
+  const handleImageChange = useCallback(
+    (
+      nodeId: string,
+      updates: { url?: string; width?: number; height?: number }
+    ) => {
+      if (!canvasId || !nodeId) return;
 
+      const currentNode = rawNodes.find((node) => node.id === nodeId);
+      if (!currentNode) return;
 
-const handleChecklistChange = useCallback((
-    nodeId: string, 
-    updates: {
+      const mergedData = {
+        ...currentNode.data,
+        ...updates,
+      };
+
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
+        console.error(`Failed to update image node ${nodeId}`, err)
+      );
+    },
+    [canvasId, rawNodes]
+  );
+  const handleChecklistChange = useCallback(
+    (
+      nodeId: string,
+      updates: {
         title?: string;
         items?: { id: string; text: string; completed: boolean }[];
-    }
-) => {
-    if (!canvasId || !nodeId) return;
-    
-    const currentNode = rawNodes.find(node => node.id === nodeId);
-    if (!currentNode) return;
-    
-    const mergedData = {
-        ...currentNode.data, 
-        ...updates        
-    };
-    
-    updateNodes(canvasId, nodeId, { data: mergedData })
-      .catch(err => console.error(`Failed to update checklist node ${nodeId}`, err));
+      }
+    ) => {
+      if (!canvasId || !nodeId) return;
 
-}, [canvasId, rawNodes]); 
+      const currentNode = rawNodes.find((node) => node.id === nodeId);
+      if (!currentNode) return;
 
-const handleStickyChange = useCallback((
-  nodeId: string,
-  updates: { text?: string; color?: string }
-) => {
-  if (!canvasId || !nodeId) return;
-  
-  const currentNode = rawNodes.find(node => node.id === nodeId);
-  if (!currentNode) return;
-  
-  const mergedData = {
-    ...currentNode.data,
-    ...updates
-  };
-  updateNodes(canvasId, nodeId, { data: mergedData })
-    .catch(err => console.error(`Failed to update sticky note ${nodeId}`, err));
-}, [canvasId, rawNodes]);
+      const mergedData = {
+        ...currentNode.data,
+        ...updates,
+      };
+
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
+        console.error(`Failed to update checklist node ${nodeId}`, err)
+      );
+    },
+    [canvasId, rawNodes]
+  );
+
+  const handleStickyChange = useCallback(
+    (nodeId: string, updates: { text?: string; color?: string }) => {
+      if (!canvasId || !nodeId) return;
+
+      const currentNode = rawNodes.find((node) => node.id === nodeId);
+      if (!currentNode) return;
+
+      const mergedData = {
+        ...currentNode.data,
+        ...updates,
+      };
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
+        console.error(`Failed to update sticky note ${nodeId}`, err)
+      );
+    },
+    [canvasId, rawNodes]
+  );
 
   const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
-      console.log("nodes here ===>",node);
-      
+      console.log("nodes here ===>", node);
+
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
-     let finalNodeData;
-        switch (node.type) {
-            case "checklist":
-                finalNodeData = {
-                    ...node.data,
-                    onChecklistChange: (updates) => handleChecklistChange(node.id, updates),
-                };
-                break;
-                 case "sticky":
-    finalNodeData = {
-      ...node.data,
-      onStickyChange: (updates) => handleStickyChange(node.id, updates),
-    };
-    break;
-            case "editableNode": 
-            default:
-                finalNodeData = {
-                    ...node.data,
-                    onLabelChange: onNodeLabelChange,
-                };
-                break;
+      let finalNodeData;
+      switch (node.type) {
+        case "checklist":
+          finalNodeData = {
+            ...node.data,
+            onChecklistChange: (updates) =>
+              handleChecklistChange(node.id, updates),
+          };
+          break;
+        case "sticky":
+       
+
+          finalNodeData = {
+            ...node.data,
+            onStickyChange: (updates) => handleStickyChange(node.id, updates),
+          };
+          break;
+           case "image":
+          finalNodeData = {
+            ...node.data,
+            onImageChange: (updates) => handleImageChange(node.id, updates),
+          };
+          break;
+        case "editableNode":
+        default:
+          finalNodeData = {
+            ...node.data,
+            onLabelChange: onNodeLabelChange,
+          };
+          break;
       }
 
       //adding functoinality to raw data
       const isBeingEditedByAnotherUser =
         isBeingEdited && editorId !== currentUserId;
-     
-// console.log("final data😡",finalNodeData);
+
+      console.log("final data😡", finalNodeData);
 
       return {
         ...node,
@@ -145,9 +177,24 @@ const handleStickyChange = useCallback((
         },
       };
     });
-  }, [rawNodes, onNodeLabelChange, activePresenceMap, currentUserId,handleChecklistChange,handleStickyChange]);
+  }, [
+    rawNodes,
+    onNodeLabelChange,
+    activePresenceMap,
+    currentUserId,
+    handleChecklistChange,
+    handleStickyChange,
+    handleImageChange
+  ]);
 
-  const nodeTypes = useMemo(() => ({ editableNode: EditableNode ,checklist:ChecklistNode,sticky:StickyNote}), []);
+  const nodeTypes = useMemo(
+    () => ({
+      editableNode: EditableNode,
+      checklist: ChecklistNode,
+      sticky: StickyNote,
+    }),
+    []
+  );
   //its a memoized function
   useEffect(() => {
     return () => {
@@ -159,7 +206,7 @@ const handleStickyChange = useCallback((
     (changes) => {
       if (!canvasId) return;
       setNodes((nds) => applyNodeChanges(changes, nds));
-   //updates the ui optimistically 
+      //updates the ui optimistically
       changes.forEach((change) => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);
@@ -199,14 +246,14 @@ const handleStickyChange = useCallback((
   );
 
   const addNode = useCallback(
-    (nodeType: "editableNode" | "checklist"|"sticky") => {
+    (nodeType: "editableNode" | "checklist" | "sticky" | "image") => {
       if (!canvasId) return;
- const newNodeId = `node_${+new Date()}`;
+      const newNodeId = `node_${+new Date()}`;
       let nodeData: any;
 
       switch (nodeType) {
         case "checklist":
-          nodeData = { 
+          nodeData = {
             title: "New Checklist",
             items: [
               {
@@ -215,18 +262,28 @@ const handleStickyChange = useCallback((
                 completed: false,
               },
             ],
-             onChecklistChange: (updates) => handleChecklistChange(newNodeId, updates),
+            onChecklistChange: (updates) =>
+              handleChecklistChange(newNodeId, updates),
             isBeingEditedByAnotherUser: false,
           };
           break;
-          case "sticky":
-      nodeData = {
-        text: "",
-        color: "yellow",
-        onStickyChange: (updates) => handleStickyChange(newNodeId, updates),
-        isBeingEditedByAnotherUser: false,
-      };
-      break;
+        case "image":
+          nodeData = {
+            url: "",
+            width: 200,
+            height: 150,
+            onImageChange: (updates) => handleImageChange(newNodeId, updates),
+            isBeingEditedByAnotherUser: false,
+          };
+          break;
+        case "sticky":
+          nodeData = {
+            text: "",
+            color: "yellow",
+            onStickyChange: (updates) => handleStickyChange(newNodeId, updates),
+            isBeingEditedByAnotherUser: false,
+          };
+          break;
 
         case "editableNode":
         default:
@@ -245,28 +302,34 @@ const handleStickyChange = useCallback((
         position: { x: Math.random() * 450, y: Math.random() * 450 },
         data: nodeData,
       };
-const { data, ...nodeProps } = optimisticNode;
-
+      const { data, ...nodeProps } = optimisticNode;
 
       setNodes((currentNodes) => [...currentNodes, optimisticNode]);
-//for instant ui feedback
-const { 
-    onLabelChange, 
-    onChecklistChange, 
-    onStickyChange,
-    ...dataForFirestore 
-} = data;
+      //for instant ui feedback
+      const {
+        onLabelChange,
+        onChecklistChange,
+        onStickyChange,
+        ...dataForFirestore
+      } = data;
 
-     const nodeForFirestore = {
-    ...nodeProps,         
-    data: dataForFirestore, 
-};
+      const nodeForFirestore = {
+        ...nodeProps,
+        data: dataForFirestore,
+      };
       createNode(canvasId, nodeForFirestore).catch((err) => {
         setNodes((nds) => nds.filter((n) => n.id !== optimisticNode.id));
         console.error("failed to add a node", err);
       });
     },
-    [canvasId, onNodeLabelChange, setNodes,handleChecklistChange,handleStickyChange]
+    [
+      canvasId,
+      onNodeLabelChange,
+      setNodes,
+      handleChecklistChange,
+      handleStickyChange,
+      handleImageChange
+    ]
   );
   const onConnect = useCallback(
     (connection: Connection) => {
@@ -289,60 +352,70 @@ const {
   return (
     <>
       <div style={{ width: "100%", height: "100%" }} className="relative">
-       <div className="absolute top-4 left-4 z-10">
-        <Menu as={Fragment}>
-        <div className="relative inline-block text-left">
+        <div className="absolute top-4 left-4 z-10">
+          <Menu as={Fragment}>
+            <div className="relative inline-block text-left">
+              <div>
+                <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Add Node
+                </Menu.Button>
+              </div>
 
-          <div>
-            <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Add Node
-            </Menu.Button>
-          </div>
-
-          <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <div className="px-1 py-1 ">
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                  onClick={() => addNode("editableNode")}
-                  className={`${
-                    active ? "bg-indigo-500 text-white" : "text-gray-900"
-                  } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                  >
-                    Text Note
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                  onClick={() => addNode("checklist")}
-                  className={`${
-                    active ? "bg-indigo-500 text-white" : "text-gray-900"
-                  } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                  >
-                    Checklist
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-  {({ active }) => (
-    <button
-      onClick={() => addNode("sticky")}
-      className={`${
-        active ? "bg-indigo-500 text-white" : "text-gray-900"
-      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-    >
-      Sticky Note
-    </button>
-  )}
-</Menu.Item>
+              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="px-1 py-1 ">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("editableNode")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Text Note
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("checklist")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Checklist
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("sticky")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Sticky Note
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("image")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        📸 Image
+                      </button>
+                    )}
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
             </div>
-          </Menu.Items>
-      </div>
-        </Menu>
-      </div>
-
+          </Menu>
+        </div>
 
         <ReactFlow
           nodes={hydratedNodes}

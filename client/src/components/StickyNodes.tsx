@@ -1,3 +1,4 @@
+// src/components/StickyNote.tsx
 import { memo, useState, useEffect, useRef } from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
 import { useParams } from "react-router-dom";
@@ -48,14 +49,14 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
   }, [isEditing, canvasId, id]);
 
   useEffect(() => {
-    setText(data.text || '');
-  }, [data.text]);
+    if (!isEditing) {
+      setText(data.text || '');
+    }
+  }, [data.text, isEditing]);
 
   useEffect(() => {
-    if (isEditing) {
-      textareaRef.current?.focus();
-    }
-  }, [isEditing]);
+    console.log('Color updated to:', data.color);
+  }, [data.color]);
 
   const handleDoubleClick = () => {
     setIsEditing(true);
@@ -63,9 +64,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
 
   const saveAndExit = () => {
     setIsEditing(false);
-    if (text !== data.text) {
-      data.onStickyChange(id, { text });
-    }
+    data.onStickyChange(id, { text });
   };
 
   const handleColorChange = (newColor: string) => {
@@ -74,8 +73,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && e.shiftKey) {
-      // Allow line breaks with Shift+Enter
+    if (e.key === "Enter") {
       return;
     }
     if (e.key === "Enter") {
