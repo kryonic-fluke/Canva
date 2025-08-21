@@ -323,7 +323,6 @@ export const setEditingPresence=async(canvasId:string, userId:string, nodeId: st
 //got the 
     await setDoc(presenceDocRef,{editingNodeId:nodeId});
 
-
 }
 
 
