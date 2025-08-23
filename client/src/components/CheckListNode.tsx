@@ -66,7 +66,6 @@ export const ChecklistNode = memo(
         item.id === itemId ? { ...item, text: newText } : item
       );
       setItems(newItems);
-      data.onChecklistChange?.({ items: newItems });
     };
 
     const handleAddItem = () => {
@@ -77,7 +76,15 @@ export const ChecklistNode = memo(
       };
       const newItems = [...items, newItem];
       setItems(newItems);
-      data.onChecklistChange?.({ items: newItems });
+    };
+
+     const handleItemBlur = () => {
+        setFocusedInput(null);
+         const validItems = items.filter(item => item.text.trim() !== '');
+
+        if (JSON.stringify(validItems) !== JSON.stringify(data.items)) {
+             data.onChecklistChange?.({ items: validItems });
+        }
     };
 
     const isBeingEditedByAnotherUser = data.isBeingEditedByAnotherUser ?? false;
@@ -128,11 +135,12 @@ export const ChecklistNode = memo(
                 value={item.text}
                 onChange={(e) => handleItemTextChange(item.id, e.target.value)}
                 onFocus={() => setFocusedInput(item.id)}
-                onBlur={() => setFocusedInput(null)}
                 className={`flex-grow outline-none bg-transparent ${
                   item.completed ? "line-through text-gray-500" : ""
                 }`}
-                placeholder="List item"
+                 onBlur={handleItemBlur} 
+                onKeyDown={(e) => { if(e.key === 'Enter') { e.currentTarget.blur() } }}
+                placeholder="List task"
               />
               {index === items.length - 1 && (
                 <button
@@ -149,7 +157,7 @@ export const ChecklistNode = memo(
               onClick={handleAddItem}
               className="text-gray-500 hover:text-gray-800"
             >
-              + Add item
+              + Add 
             </button>
           )}
         </div>
