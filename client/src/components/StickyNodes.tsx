@@ -31,19 +31,15 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
     const currentUser = getAuth().currentUser;
     const userId = currentUser?.uid;
 
-    if (isEditing) {
-      if (canvasId && userId) {
-        setEditingPresence(canvasId, userId, id).catch((err) =>
-          console.error("Failed to set presence:", err)
-        );
-      }
+    if (isEditing && canvasId && userId) {
+      setEditingPresence(canvasId, userId, id).catch((err) =>
+        console.error("Failed to set presence:", err)
+      );
 
       return () => {
-        if (canvasId && userId) {
-          clearEditingPresence(canvasId, userId).catch((err) =>
-            console.error("Failed to clear presence:", err)
-          );
-        }
+        clearEditingPresence(canvasId, userId).catch((err) =>
+          console.error("Failed to clear presence:", err)
+        );
       };
     }
   }, [isEditing, canvasId, id]);
@@ -55,32 +51,50 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
   }, [data.text, isEditing]);
 
   useEffect(() => {
-    console.log('Color updated to:', data.color);
-  }, [data.color]);
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleDoubleClick = () => {
-    setIsEditing(true);
+    if (!data.isBeingEditedByAnotherUser) {
+      setIsEditing(true);
+    }
   };
 
   const saveAndExit = () => {
     setIsEditing(false);
+    console.log("text===>",text);
+    
     data.onStickyChange(id, { text });
   };
 
-  const handleColorChange = (newColor: string) => {
+  const handleColorChange = (newColor: keyof typeof colorClasses) => {
+    console.log("color here  🌈=>", newColor);
     data.onStickyChange(id, { color: newColor });
     setShowColorPicker(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      return;
-    }
-    if (e.key === "Enter") {
+    if (e.key === "Enter" ) {
       e.preventDefault();
       saveAndExit();
     }
+  
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showColorPicker && !(event.target as Element)?.closest('.color-picker-container')) {
+        setShowColorPicker(false);
+      }
+    };
+
+    if (showColorPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showColorPicker]);
 
   const isBeingEditedByAnotherUser = data.isBeingEditedByAnotherUser ?? false;
   const baseClasses = colorClasses[data.color] || colorClasses.yellow;
@@ -92,7 +106,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
     transition-all duration-200
     ${isEditing ? "ring-2 ring-blue-300 border-blue-400" : ""}
     ${isBeingEditedByAnotherUser ? "animate-pulse ring-2 ring-green-400" : ""}
-    ${!isEditing ? "hover:shadow-lg cursor-pointer" : ""}
+    ${!isEditing && !isBeingEditedByAnotherUser ? "hover:shadow-lg cursor-pointer" : ""}
   `;
 
   return (
@@ -100,23 +114,24 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
       <Handle type="source" position={Position.Bottom} />
       <Handle type="target" position={Position.Top} />
       
-      {/* Color picker button */}
-      <div className="absolute top-1 right-1">
+      <div className="absolute top-1 right-1 color-picker-container">
         <button
           onClick={() => setShowColorPicker(!showColorPicker)}
-          className="w-4 h-4 rounded-full bg-gray-400 hover:bg-gray-600 opacity-60 hover:opacity-100"
+          className="w-4 h-4 rounded-full bg-gray-400 hover:bg-gray-600 opacity-60 hover:opacity-100 transition-all"
+          title="Change color"
         >
         </button>
         
         {showColorPicker && (
           <div className="absolute top-6 right-0 bg-white border rounded-lg p-2 shadow-lg z-10 flex gap-1">
-            {Object.keys(colorClasses).map((color) => (
+            {(Object.keys(colorClasses) as Array<keyof typeof colorClasses>).map((color) => (
               <button
                 key={color}
                 onClick={() => handleColorChange(color)}
-                className={`w-6 h-6 rounded-full border-2 ${colorClasses[color as keyof typeof colorClasses]} 
+                className={`w-6 h-6 rounded-full border-2 ${colorClasses[color]} 
                   ${data.color === color ? 'border-gray-800' : 'border-gray-300'}
                   hover:scale-110 transition-transform`}
+                title={`Change to ${color}`}
               />
             ))}
           </div>
@@ -132,7 +147,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
             onBlur={saveAndExit}
             onKeyDown={handleKeyDown}
             className="w-full h-full resize-none outline-none bg-transparent text-sm placeholder-gray-500"
-            placeholder="Double-click to edit..."
+            placeholder="Type your note here... (Ctrl+Enter to save, Esc to cancel)"
           />
         ) : (
           <p className="text-sm text-gray-800 whitespace-pre-wrap break-words overflow-hidden">
@@ -140,6 +155,8 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
           </p>
         )}
       </div>
+      
+    
     </div>
   );
 });

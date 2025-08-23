@@ -27,6 +27,7 @@ import { getAuth } from "firebase/auth";
 import { Menu } from "@headlessui/react";
 import { ChecklistNode } from "../components/CheckListNode";
 import { StickyNote } from "../components/StickyNodes";
+import { ImageNode } from "../components/ImageNode";
 
 export const CanvasView = () => {
   const {
@@ -52,7 +53,8 @@ export const CanvasView = () => {
       100
     )
   ).current;
-  //for updating a position real time
+
+  //  updating a position real time, idk this is updating position real time
   const onNodeLabelChange = useCallback(
     (nodeId: string, newLabel: string) => {
       if (!canvasId || !nodeId || !newLabel) return;
@@ -76,12 +78,22 @@ export const CanvasView = () => {
         ...updates,
       };
 
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
-        console.error(`Failed to update image node ${nodeId}`, err)
+      // optimistic update
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: mergedData }
+            : node
+        )
       );
+
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+        console.error(`Failed to update image node ${nodeId}`, err);
+      });
     },
-    [canvasId, rawNodes]
+    [canvasId, rawNodes, setNodes]
   );
+
   const handleChecklistChange = useCallback(
     (
       nodeId: string,
@@ -100,58 +112,81 @@ export const CanvasView = () => {
         ...updates,
       };
 
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
-        console.error(`Failed to update checklist node ${nodeId}`, err)
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: mergedData }
+            : node
+        )
       );
+
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+        console.error(`Failed to update checklist node ${nodeId}`, err);
+        // Revert on error - you might want to implement this
+      });
     },
-    [canvasId, rawNodes]
+    [canvasId, rawNodes, setNodes]
   );
 
   const handleStickyChange = useCallback(
     (nodeId: string, updates: { text?: string; color?: string }) => {
       if (!canvasId || !nodeId) return;
 
+      console.log('handleStickyChange called with:', { nodeId, updates });
+
       const currentNode = rawNodes.find((node) => node.id === nodeId);
-      if (!currentNode) return;
+      if (!currentNode) {
+        console.error('Node not found:', nodeId);
+        return;
+      }
 
       const mergedData = {
         ...currentNode.data,
         ...updates,
       };
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) =>
-        console.error(`Failed to update sticky note ${nodeId}`, err)
+
+      console.log('Merged data:', mergedData);
+
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: mergedData }
+            : node
+        )
       );
+
+      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+        console.error(`Failed to update sticky note ${nodeId}`, err);
+      });
     },
-    [canvasId, rawNodes]
+    [canvasId, rawNodes, setNodes]
   );
 
   const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
-      console.log("nodes here ===>", node);
+      console.log("raw node:=>", node);
 
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
       let finalNodeData;
+
       switch (node.type) {
         case "checklist":
           finalNodeData = {
             ...node.data,
-            onChecklistChange: (updates) =>
-              handleChecklistChange(node.id, updates),
+            onChecklistChange: handleChecklistChange
           };
           break;
         case "sticky":
-       
-
           finalNodeData = {
             ...node.data,
-            onStickyChange: (updates) => handleStickyChange(node.id, updates),
+            onStickyChange:  handleStickyChange
           };
           break;
-           case "image":
+        case "image":
           finalNodeData = {
             ...node.data,
-            onImageChange: (updates) => handleImageChange(node.id, updates),
+            onImageChange:  handleImageChange
           };
           break;
         case "editableNode":
@@ -163,11 +198,11 @@ export const CanvasView = () => {
           break;
       }
 
-      //adding functoinality to raw data
+      // Adding functionality to raw data
       const isBeingEditedByAnotherUser =
         isBeingEdited && editorId !== currentUserId;
 
-      console.log("final data😡", finalNodeData);
+      console.log("Final node data for", node.id, ":", finalNodeData);
 
       return {
         ...node,
@@ -184,7 +219,7 @@ export const CanvasView = () => {
     currentUserId,
     handleChecklistChange,
     handleStickyChange,
-    handleImageChange
+    handleImageChange,
   ]);
 
   const nodeTypes = useMemo(
@@ -192,10 +227,12 @@ export const CanvasView = () => {
       editableNode: EditableNode,
       checklist: ChecklistNode,
       sticky: StickyNote,
+      image: ImageNode,
     }),
     []
   );
-  //its a memoized function
+
+  // cleanup throttled function on unmount
   useEffect(() => {
     return () => {
       NodeChangeThrottle.cancel();
@@ -206,13 +243,14 @@ export const CanvasView = () => {
     (changes) => {
       if (!canvasId) return;
       setNodes((nds) => applyNodeChanges(changes, nds));
-      //updates the ui optimistically
+      
+      // Updates the ui optimistically
       changes.forEach((change) => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);
 
           if (change.dragging === false && change.position) {
-            NodeChangeThrottle.flush();
+            NodeChangeThrottle.flush(); 
             updateNodes(canvasId, change.id, {
               position: change.position,
             }).catch((err) =>
@@ -262,8 +300,7 @@ export const CanvasView = () => {
                 completed: false,
               },
             ],
-            onChecklistChange: (updates) =>
-              handleChecklistChange(newNodeId, updates),
+           
             isBeingEditedByAnotherUser: false,
           };
           break;
@@ -272,7 +309,6 @@ export const CanvasView = () => {
             url: "",
             width: 200,
             height: 150,
-            onImageChange: (updates) => handleImageChange(newNodeId, updates),
             isBeingEditedByAnotherUser: false,
           };
           break;
@@ -280,57 +316,52 @@ export const CanvasView = () => {
           nodeData = {
             text: "",
             color: "yellow",
-            onStickyChange: (updates) => handleStickyChange(newNodeId, updates),
+          
             isBeingEditedByAnotherUser: false,
           };
           break;
-
         case "editableNode":
         default:
           nodeData = {
             label: "New Node",
-            onLabelChange: onNodeLabelChange,
+           
             isBeingEditedByAnotherUser: false,
           };
           break;
       }
-      //data preparation
 
+      // Data preparation
       const optimisticNode = {
         id: newNodeId,
         type: nodeType,
         position: { x: Math.random() * 450, y: Math.random() * 450 },
         data: nodeData,
       };
-      const { data, ...nodeProps } = optimisticNode;
+      
 
       setNodes((currentNodes) => [...currentNodes, optimisticNode]);
-      //for instant ui feedback
-      const {
-        onLabelChange,
-        onChecklistChange,
-        onStickyChange,
-        ...dataForFirestore
-      } = data;
+      // For instant ui feedback
 
-      const nodeForFirestore = {
-        ...nodeProps,
-        data: dataForFirestore,
-      };
-      createNode(canvasId, nodeForFirestore).catch((err) => {
+
+      // const nodeForFirestore = {
+      //     optimisticNode: optimisticNode
+
+      // };
+      createNode(canvasId, optimisticNode).catch((err) => {
         setNodes((nds) => nds.filter((n) => n.id !== optimisticNode.id));
         console.error("failed to add a node", err);
       });
     },
     [
       canvasId,
-      onNodeLabelChange,
+   
       setNodes,
-      handleChecklistChange,
-      handleStickyChange,
-      handleImageChange
+      
+   
+    
     ]
   );
+
   const onConnect = useCallback(
     (connection: Connection) => {
       if (!canvasId) {
@@ -344,11 +375,13 @@ export const CanvasView = () => {
     },
     [canvasId]
   );
+
   const { fitView } = useReactFlow();
 
   if (isNodesLoading || isEdgesLoading) {
     return <div>Loading your canvas...</div>;
   }
+
   return (
     <>
       <div style={{ width: "100%", height: "100%" }} className="relative">
