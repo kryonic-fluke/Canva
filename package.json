@@ -2,6 +2,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.7",
     "@hookform/resolvers": "^5.2.1",
+    "@reactflow/node-resizer": "^2.2.14",
     "@tanstack/react-query": "^5.83.0",
     "firebase-admin": "^13.4.0",
     "lodash": "^4.17.21",

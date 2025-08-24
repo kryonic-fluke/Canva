@@ -63,6 +63,24 @@ export const CanvasView = () => {
     [canvasId]
   );
 
+  const handleNodeResize = useCallback(
+    (nodeId: string, style: { width: number; height: number }) => {
+      if (!canvasId || !nodeId) return;
+
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, width: style.width, height: style.height }
+            : node
+        )
+      );
+      updateNodes(canvasId, nodeId, style).catch((err) => {
+        console.error(`error occured during resizing for node: ${nodeId}`, err);
+      });
+    },
+    [canvasId, setNodes]
+  );
+
   const handleImageChange = useCallback(
     (
       nodeId: string,
@@ -81,9 +99,7 @@ export const CanvasView = () => {
       // optimistic update
       setNodes((prevNodes) =>
         prevNodes.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: mergedData }
-            : node
+          node.id === nodeId ? { ...node, data: mergedData } : node
         )
       );
 
@@ -100,6 +116,8 @@ export const CanvasView = () => {
       updates: {
         title?: string;
         items?: { id: string; text: string; completed: boolean }[];
+        width?: number;
+        height?: number;
       }
     ) => {
       if (!canvasId || !nodeId) return;
@@ -114,15 +132,12 @@ export const CanvasView = () => {
 
       setNodes((prevNodes) =>
         prevNodes.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: mergedData }
-            : node
+          node.id === nodeId ? { ...node, data: mergedData } : node
         )
       );
 
       updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
         console.error(`Failed to update checklist node ${nodeId}`, err);
-        // Revert on error - you might want to implement this
       });
     },
     [canvasId, rawNodes, setNodes]
@@ -132,11 +147,11 @@ export const CanvasView = () => {
     (nodeId: string, updates: { text?: string; color?: string }) => {
       if (!canvasId || !nodeId) return;
 
-      console.log('handleStickyChange called with:', { nodeId, updates });
+      console.log("handleStickyChange called with:", { nodeId, updates });
 
       const currentNode = rawNodes.find((node) => node.id === nodeId);
       if (!currentNode) {
-        console.error('Node not found:', nodeId);
+        console.error("Node not found:", nodeId);
         return;
       }
 
@@ -145,13 +160,11 @@ export const CanvasView = () => {
         ...updates,
       };
 
-      console.log('Merged data:', mergedData);
+      console.log("Merged data:", mergedData);
 
       setNodes((prevNodes) =>
         prevNodes.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: mergedData }
-            : node
+          node.id === nodeId ? { ...node, data: mergedData } : node
         )
       );
 
@@ -169,24 +182,32 @@ export const CanvasView = () => {
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
       let finalNodeData;
-
+    
+   
+      const style={width: node.width, height: node.height  }
+      
       switch (node.type) {
         case "checklist":
           finalNodeData = {
             ...node.data,
-            onChecklistChange: handleChecklistChange
+            onChecklistChange: handleChecklistChange,
+            onNodeResize: (style) => handleNodeResize(node.id, style),
           };
           break;
         case "sticky":
           finalNodeData = {
             ...node.data,
-            onStickyChange:  handleStickyChange
+            onStickyChange: handleStickyChange,
+
+            onNodeResize: (style) => handleNodeResize(node.id, style),
           };
           break;
         case "image":
           finalNodeData = {
             ...node.data,
-            onImageChange:  handleImageChange
+            onImageChange: handleImageChange,
+            onNodeResize: (style) => handleNodeResize(node.id, style),
+
           };
           break;
         case "editableNode":
@@ -194,6 +215,7 @@ export const CanvasView = () => {
           finalNodeData = {
             ...node.data,
             onLabelChange: onNodeLabelChange,
+            onNodeResize: (style) => handleNodeResize(node.id, style),
           };
           break;
       }
@@ -206,6 +228,7 @@ export const CanvasView = () => {
 
       return {
         ...node,
+        style,
         data: {
           ...finalNodeData,
           isBeingEditedByAnotherUser: isBeingEditedByAnotherUser,
@@ -220,6 +243,7 @@ export const CanvasView = () => {
     handleChecklistChange,
     handleStickyChange,
     handleImageChange,
+    handleNodeResize,
   ]);
 
   const nodeTypes = useMemo(
@@ -243,14 +267,14 @@ export const CanvasView = () => {
     (changes) => {
       if (!canvasId) return;
       setNodes((nds) => applyNodeChanges(changes, nds));
-      
+
       // Updates the ui optimistically
       changes.forEach((change) => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);
 
           if (change.dragging === false && change.position) {
-            NodeChangeThrottle.flush(); 
+            NodeChangeThrottle.flush();
             updateNodes(canvasId, change.id, {
               position: change.position,
             }).catch((err) =>
@@ -288,7 +312,7 @@ export const CanvasView = () => {
       if (!canvasId) return;
       const newNodeId = `node_${+new Date()}`;
       let nodeData: any;
-
+     
       switch (nodeType) {
         case "checklist":
           nodeData = {
@@ -300,48 +324,49 @@ export const CanvasView = () => {
                 completed: false,
               },
             ],
-           
+
             isBeingEditedByAnotherUser: false,
+           
           };
           break;
         case "image":
           nodeData = {
             url: "",
-            width: 200,
-            height: 150,
             isBeingEditedByAnotherUser: false,
           };
+        
           break;
         case "sticky":
           nodeData = {
             text: "",
             color: "yellow",
-          
             isBeingEditedByAnotherUser: false,
           };
+         
           break;
         case "editableNode":
         default:
           nodeData = {
             label: "New Node",
-           
             isBeingEditedByAnotherUser: false,
           };
+           
           break;
       }
-
+ const  width= 250;
+      const height = 150;
       // Data preparation
       const optimisticNode = {
         id: newNodeId,
         type: nodeType,
         position: { x: Math.random() * 450, y: Math.random() * 450 },
+        width,
+        height,
         data: nodeData,
       };
-      
 
       setNodes((currentNodes) => [...currentNodes, optimisticNode]);
       // For instant ui feedback
-
 
       // const nodeForFirestore = {
       //     optimisticNode: optimisticNode
@@ -352,14 +377,7 @@ export const CanvasView = () => {
         console.error("failed to add a node", err);
       });
     },
-    [
-      canvasId,
-   
-      setNodes,
-      
-   
-    
-    ]
+    [canvasId, setNodes]
   );
 
   const onConnect = useCallback(

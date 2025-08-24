@@ -1,6 +1,6 @@
 // src/components/StickyNote.tsx
 import { memo, useState, useEffect, useRef } from "react";
-import { Handle, Position, type NodeProps } from "reactflow";
+import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { setEditingPresence, clearEditingPresence } from "../api/canvas";
@@ -8,7 +8,10 @@ import { setEditingPresence, clearEditingPresence } from "../api/canvas";
 interface StickyNoteData {
   text: string;
   color: 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
+    width: number;
+  height: number;
   onStickyChange: (nodeId: string, updates: { text?: string; color?: string }) => void;
+  onNodeResize?: (updates: { width: number; height: number }) => void;
   isBeingEditedByAnotherUser?: boolean;
 }
 
@@ -20,7 +23,7 @@ const colorClasses = {
   purple: 'bg-purple-200 border-purple-300',
 };
 
-export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
+export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(data.text || '');
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -98,11 +101,12 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
 
   const isBeingEditedByAnotherUser = data.isBeingEditedByAnotherUser ?? false;
   const baseClasses = colorClasses[data.color] || colorClasses.yellow;
-  
+ 
   const nodeClasses = `
     ${baseClasses}
     p-4 border-2 rounded-lg shadow-md
-    w-48 h-32 relative
+    flex flex-col
+   
     transition-all duration-200
     ${isEditing ? "ring-2 ring-blue-300 border-blue-400" : ""}
     ${isBeingEditedByAnotherUser ? "animate-pulse ring-2 ring-green-400" : ""}
@@ -110,11 +114,22 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
   `;
 
   return (
-    <div className={nodeClasses}>
+    <div className={nodeClasses} style={{ 
+  width: data.width || "100%",
+  height: data.height || "100%"
+}}>
+       <NodeResizer
+        isVisible={selected}
+        minWidth={150}
+        minHeight={100}
+        onResizeEnd={(_event, params) => {
+          data.onNodeResize?.({ width: params.width, height: params.height });
+        }}
+      />
       <Handle type="source" position={Position.Bottom} />
       <Handle type="target" position={Position.Top} />
       
-      <div className="absolute top-1 right-1 color-picker-container">
+      <div className="absolute top-1 right-1 color-picker-containe ">
         <button
           onClick={() => setShowColorPicker(!showColorPicker)}
           className="w-4 h-4 rounded-full bg-gray-400 hover:bg-gray-600 opacity-60 hover:opacity-100 transition-all"
@@ -138,7 +153,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
         )}
       </div>
 
-      <div onDoubleClick={handleDoubleClick} className="h-full flex items-center">
+      <div onDoubleClick={handleDoubleClick} className="h-full w-full  flex flex-grow items-center">
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -147,7 +162,7 @@ export const StickyNote = memo(({ data, id }: NodeProps<StickyNoteData>) => {
             onBlur={saveAndExit}
             onKeyDown={handleKeyDown}
             className="w-full h-full resize-none outline-none bg-transparent text-sm placeholder-gray-500"
-            placeholder="Type your note here... (Ctrl+Enter to save, Esc to cancel)"
+            placeholder="Type your note here... "
           />
         ) : (
           <p className="text-sm text-gray-800 whitespace-pre-wrap break-words overflow-hidden">

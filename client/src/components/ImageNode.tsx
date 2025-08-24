@@ -1,6 +1,6 @@
 // src/components/ImageNode.tsx
 import { memo, useState, useRef, useCallback } from "react";
-import { Handle, Position, type NodeProps } from "reactflow";
+import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 
 interface ImageNodeData {
   url: string;
@@ -14,6 +14,8 @@ interface ImageNodeData {
       height?: number;
     }
   ) => void;
+      onNodeResize?: (updates: { width: number; height: number }) => void;
+
   isBeingEditedByAnotherUser?: boolean;
 }
 
@@ -22,9 +24,6 @@ export const ImageNode = memo(
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const width = data.width || 200;
-    const height = data.height || 150;
 
     const handleFileUpload = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,8 +96,16 @@ export const ImageNode = memo(
         ${!hasImage ? "border-dashed" : ""}
         hover:shadow-lg
       `}
-        style={{ width: `${width}px`, height: `${height}px` }}
+        style={{ width: `100%`, height: `100%` }}
       >
+          <NodeResizer
+                        isVisible={selected}
+                        minWidth={150}
+                        minHeight={100}
+                        onResizeEnd={(_event, params) => {
+                          data.onNodeResize?.({ width: params.width, height: params.height });
+                        }}
+                      />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
 

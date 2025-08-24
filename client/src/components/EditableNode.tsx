@@ -1,19 +1,23 @@
 // src/components/EditableNode.tsx
 
 import { memo, useState, useEffect, useRef } from "react";
-import { Handle, Position, type NodeProps } from "reactflow";
+import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { setEditingPresence, clearEditingPresence } from "../api/canvas"; // Assuming your api calls are here
 
 interface EditableNodeData {
   label: string;
+   width: number;
+  height: number;
   onLabelChange: (nodeId: string, newLabel: string) => void;
   isBeingEditedByAnotherUser?: boolean;
+    onNodeResize?: (updates: { width: number; height: number }) => void;
+
 }
 
 export const EditableNode = memo(
-  ({ data, id }: NodeProps<EditableNodeData>) => {
+  ({ data, id,selected }: NodeProps<EditableNodeData>) => {
     const [isEditing, setIsEditing] = useState(false);
     const [label, setLabel] = useState(data.label);
     const { _id: canvasId } = useParams<{ _id: string }>();
@@ -83,7 +87,18 @@ export const EditableNode = memo(
     `;
 
     return (
-      <div className={nodeClasses}>
+      <div className={nodeClasses}style={{ 
+  width: data.width || "100%",
+  height: data.height || "100%"
+}}>
+         <NodeResizer
+                isVisible={selected}
+                minWidth={150}
+                minHeight={100}
+                onResizeEnd={(_event, params) => {
+                  data.onNodeResize?.({ width: params.width, height: params.height });
+                }}
+              />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
         

@@ -1,7 +1,7 @@
 import { getAuth } from "firebase/auth";
 import { memo, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Handle, Position, type NodeProps } from "reactflow";
+import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { clearEditingPresence, setEditingPresence } from "../api/canvas";
 
 interface ChecklistItem {
@@ -18,10 +18,12 @@ interface ChecklistNodeData {
     title?: string;
     items?: ChecklistItem[];
   }) => void;
+    onNodeResize?: (updates: { width: number; height: number }) => void;
+
 }
 
 export const ChecklistNode = memo(
-  ({ data, id }: NodeProps<ChecklistNodeData>) => {
+  ({ data, id,selected }: NodeProps<ChecklistNodeData>) => {
     const { _id: canvasId } = useParams<{ _id: string }>();
     const [title, setTitle] = useState(data.title ?? "Untitled");
     const [items, setItems] = useState(data.items ?? []);
@@ -100,7 +102,15 @@ export const ChecklistNode = memo(
     `;
 
     return (
-      <div className={nodeClasses}>
+      <div className={nodeClasses}  style={{ width: '100%', height: '100%' }} >
+         <NodeResizer
+                isVisible={selected}
+                minWidth={150}
+                minHeight={100}
+                onResizeEnd={(_event, params) => {
+                  data.onNodeResize?.({ width: params.width, height: params.height });
+                }}
+              />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
 
