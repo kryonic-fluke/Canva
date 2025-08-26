@@ -59,7 +59,10 @@ export const EditableNode = memo(
     
 
     const handleDoubleClick = () => {
+        console.log("Click detected on node:💥💥", id);
+
       setIsEditing(true);
+
     };
 
 
@@ -90,11 +93,11 @@ export const EditableNode = memo(
       <div className={nodeClasses}style={{ 
   width: data.width || "100%",
   height: data.height || "100%"
-}}>
+}} onDoubleClick={handleDoubleClick}>
          <NodeResizer
                 isVisible={selected}
                 minWidth={150}
-                minHeight={100}
+                minHeight={40}
                 onResizeEnd={(_event, params) => {
                   data.onNodeResize?.({ width: params.width, height: params.height });
                 }}
@@ -102,7 +105,7 @@ export const EditableNode = memo(
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
         
-        <div onDoubleClick={handleDoubleClick}>
+        <div >
             {isEditing ? (
             <input
                 ref={inputRef}

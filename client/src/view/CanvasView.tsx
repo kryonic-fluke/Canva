@@ -475,6 +475,7 @@ export const CanvasView = () => {
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           onConnect={onConnect}
+       
         >
           <Controls />
           <Background />

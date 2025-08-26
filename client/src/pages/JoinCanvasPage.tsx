@@ -1,45 +1,43 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Assuming you have this hook
-
-import { useRequestAccess } from '../hooks/useRequestAccess'; 
+import { useRequestAccess } from "../hooks/useRequestAccess";
 
 export const JoinCanvasPage = () => {
   const { _id, inviteToken } = useParams();
   const navigate = useNavigate();
   const { user, isLoading: isAuthLoading } = useAuth();
-
   const { mutate: requestAccessApi, isPending } = useRequestAccess();
-
-  const [statusMessage, setStatusMessage] = useState("waiting to owner to allow access ...");
+  const [statusMessage, setStatusMessage] = useState(
+    "waiting to owner to allow access ..."
+  );
 
   useEffect(() => {
-  
     if (isAuthLoading) {
-      return; 
-    }
-
-
-    if (!user) {
-      localStorage.setItem('postLoginRedirect', `/join/${_id}/${inviteToken}`);
-      navigate('/'); 
       return;
     }
-//save the current url to local storage , to be able to navigate to this page wehn access is allowed
+
+    if (!user) {
+      localStorage.setItem("postLoginRedirect", `/join/${_id}/${inviteToken}`);
+      navigate("/");
+      return;
+    }
+    //save the current url to local storage , to be able to navigate to this page wehn access is allowed
 
     setStatusMessage("You have been invited to a canvas!");
-
   }, [user, isAuthLoading, _id, inviteToken, navigate]);
 
   const handleRequestAccess = () => {
     if (!_id || !inviteToken) return;
-    
-    requestAccessApi({_id, inviteToken });
-    
-    console.log(`Requesting access for canvas: ${_id} with token: ${inviteToken}`);
+
+    requestAccessApi({ _id, inviteToken });
+
+    console.log(
+      `Requesting access for canvas: ${_id} with token: ${inviteToken}`
+    );
     alert("Request sent! The owner has been notified.");
-    navigate('/app');
+    navigate("/app");
   };
 
   if (isAuthLoading) {
@@ -55,8 +53,7 @@ export const JoinCanvasPage = () => {
             onClick={handleRequestAccess}
             className="px-6 py-2 bg-green-600 rounded hover:bg-green-500 disabled:bg-gray-500"
           >
-            {isPending ? 'Sending...' : 'Request Access'}
-           
+            {isPending ? "Sending..." : "Request Access"}
           </button>
         )}
       </div>
