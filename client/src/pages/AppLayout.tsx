@@ -13,7 +13,7 @@ const {isSidebarOpen}  = useLayout();
         isSidebarOpen ? 'grid-cols-[18rem_1fr]' : 'grid-cols-[0rem_1fr]'
       } h-screen transition-all duration-300`}
     >
-      <div className="bg-red-400 overflow-hidden">
+      <div className="bg-red-400 overflow-hidden ">
         <SideBar/>
       </div>
       <div className='flex flex-col'>

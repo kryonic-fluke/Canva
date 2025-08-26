@@ -33,7 +33,7 @@ export const SideBar = () => {
   const hasCanvases = canvases && canvases.length > 0;
 
   return (
-    <aside className="bg-gray-800 text-white p-4 flex flex-col h-full">
+    <aside className="bg-gray-800 text-white p-4  h-full w-[18rem]">
       {user ? (
         <>
           <div className="flex justify-between items-center">
@@ -49,7 +49,7 @@ export const SideBar = () => {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className=" flex flex-col overflow-y-auto">
             {isLoadingCanvases && "Loading"}
             {hasCanvases && !isLoadingCanvases && (
               <CanvasList canvases={canvases} />
