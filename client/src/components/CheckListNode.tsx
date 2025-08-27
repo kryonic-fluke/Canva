@@ -3,14 +3,16 @@ import { memo, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { clearEditingPresence, setEditingPresence } from "../api/canvas";
+import { getTagColor } from "../services/getTagColor";
 
-interface ChecklistItem {
+export interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
+  category?: string | null;
 }
 
-interface ChecklistNodeData {
+export interface ChecklistNodeData {
   title: string;
   items: ChecklistItem[];
   isBeingEditedByAnotherUser?: boolean;
@@ -110,7 +112,14 @@ export const ChecklistNode = memo(
         />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
-
+                {data.items[0].category} && (
+        <div 
+          className={`absolute bottom-2 left-2 bg-gray-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.items[0].category)}`}
+          title={`Category: ${data.items[0].category}`}
+        >
+          {data.items[0].category}
+        </div>
+      )
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}

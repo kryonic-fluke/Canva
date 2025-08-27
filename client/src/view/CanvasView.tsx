@@ -1,4 +1,11 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ReactFlow, {
   Controls,
   Background,
@@ -28,6 +35,7 @@ import { Menu } from "@headlessui/react";
 import { ChecklistNode } from "../components/CheckListNode";
 import { StickyNote } from "../components/StickyNodes";
 import { ImageNode } from "../components/ImageNode";
+import { useCategorizeNodes } from "../hooks/useCategorize";
 
 export const CanvasView = () => {
   const {
@@ -37,6 +45,10 @@ export const CanvasView = () => {
   } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
+  const { getNodes } = useReactFlow();
+  const { mutate: categorize, isPending: isCategorizing } =
+    useCategorizeNodes();
+
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
   const NodeChangeThrottle = useRef(
@@ -55,13 +67,23 @@ export const CanvasView = () => {
   ).current;
 
   //  updating a position real time, idk this is updating position real time
-  const onNodeLabelChange = useCallback(
-    (nodeId: string, newLabel: string) => {
-      if (!canvasId || !nodeId || !newLabel) return;
-      updateNodes(canvasId, nodeId, { data: { label: newLabel } });
-    },
-    [canvasId]
-  );
+  const handleCategorizeClick = () => {
+    const allNodes = getNodes();
+    // ✅ Updated to include checklists!
+    const selectedNodes = allNodes.filter(
+      (node) =>
+        node.selected &&
+        ["sticky", "editableNode", "checklist"].includes(node.type!)
+    );
+
+    if (selectedNodes.length > 0) {
+      categorize(selectedNodes);
+    } else {
+      alert(
+        "Please select one or more text, sticky, or checklist nodes to categorize."
+      );
+    }
+  };
 
   const handleNodeResize = useCallback(
     (nodeId: string, style: { width: number; height: number }) => {
@@ -81,11 +103,16 @@ export const CanvasView = () => {
     [canvasId, setNodes]
   );
 
+  const onNodeLabelChange = useCallback(
+    (nodeId: string, newLabel: string) => {
+      if (!canvasId || !nodeId || !newLabel) return;
+      updateNodes(canvasId, nodeId, { data: { label: newLabel } });
+    },
+    [canvasId]
+  );
+
   const handleImageChange = useCallback(
-    (
-      nodeId: string,
-      updates: { url?: string; width?: number; height?: number }
-    ) => {
+    (nodeId: string, updates: { url?: string }) => {
       if (!canvasId || !nodeId) return;
 
       const currentNode = rawNodes.find((node) => node.id === nodeId);
@@ -116,8 +143,6 @@ export const CanvasView = () => {
       updates: {
         title?: string;
         items?: { id: string; text: string; completed: boolean }[];
-        width?: number;
-        height?: number;
       }
     ) => {
       if (!canvasId || !nodeId) return;
@@ -182,10 +207,9 @@ export const CanvasView = () => {
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
       let finalNodeData;
-    
-   
-      const style={width: node.width, height: node.height  }
-      
+
+      const style = { width: node.width, height: node.height };
+
       switch (node.type) {
         case "checklist":
           finalNodeData = {
@@ -207,7 +231,6 @@ export const CanvasView = () => {
             ...node.data,
             onImageChange: handleImageChange,
             onNodeResize: (style) => handleNodeResize(node.id, style),
-
           };
           break;
         case "editableNode":
@@ -312,7 +335,7 @@ export const CanvasView = () => {
       if (!canvasId) return;
       const newNodeId = `node_${+new Date()}`;
       let nodeData: any;
-     
+
       switch (nodeType) {
         case "checklist":
           nodeData = {
@@ -324,36 +347,38 @@ export const CanvasView = () => {
                 completed: false,
               },
             ],
-
+            category: null,
             isBeingEditedByAnotherUser: false,
-           
           };
           break;
         case "image":
           nodeData = {
             url: "",
             isBeingEditedByAnotherUser: false,
+            category: null,
           };
-        
+
           break;
         case "sticky":
           nodeData = {
             text: "",
             color: "yellow",
             isBeingEditedByAnotherUser: false,
+            category: null,
           };
-         
+
           break;
         case "editableNode":
         default:
           nodeData = {
             label: "New Node",
             isBeingEditedByAnotherUser: false,
+            category: null,
           };
-           
+
           break;
       }
- const  width= 250;
+      const width = 250;
       const height = 150;
       // Data preparation
       const optimisticNode = {
@@ -403,69 +428,88 @@ export const CanvasView = () => {
   return (
     <>
       <div style={{ width: "100%", height: "100%" }} className="relative">
-        <div className="absolute top-4 left-4 z-10">
-          <Menu as={Fragment}>
-            <div className="relative inline-block text-left">
-              <div>
-                <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  Add Node
-                </Menu.Button>
-              </div>
-
-              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <div className="px-1 py-1 ">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        onClick={() => addNode("editableNode")}
-                        className={`${
-                          active ? "bg-indigo-500 text-white" : "text-gray-900"
-                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      >
-                        Text Note
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        onClick={() => addNode("checklist")}
-                        className={`${
-                          active ? "bg-indigo-500 text-white" : "text-gray-900"
-                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      >
-                        Checklist
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        onClick={() => addNode("sticky")}
-                        className={`${
-                          active ? "bg-indigo-500 text-white" : "text-gray-900"
-                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      >
-                        Sticky Note
-                      </button>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        onClick={() => addNode("image")}
-                        className={`${
-                          active ? "bg-indigo-500 text-white" : "text-gray-900"
-                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      >
-                        📸 Image
-                      </button>
-                    )}
-                  </Menu.Item>
+        <div className="flex justify-center items-center">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+            <button
+              onClick={handleCategorizeClick}
+              disabled={isCategorizing}
+              className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+            >
+              {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
+            </button>
+          </div>
+          <div className="absolute top-4 left-4 z-10">
+            <Menu as={Fragment}>
+              <div className="relative inline-block text-left">
+                <div>
+                  <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Add Node
+                  </Menu.Button>
                 </div>
-              </Menu.Items>
-            </div>
-          </Menu>
+
+                <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="px-1 py-1 ">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => addNode("editableNode")}
+                          className={`${
+                            active
+                              ? "bg-indigo-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                        >
+                          Text Note
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => addNode("checklist")}
+                          className={`${
+                            active
+                              ? "bg-indigo-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                        >
+                          Checklist
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => addNode("sticky")}
+                          className={`${
+                            active
+                              ? "bg-indigo-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                        >
+                          Sticky Note
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          onClick={() => addNode("image")}
+                          className={`${
+                            active
+                              ? "bg-indigo-500 text-white"
+                              : "text-gray-900"
+                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                        >
+                          📸 Image/Gif
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </div>
+            </Menu>
+          </div>
         </div>
 
         <ReactFlow
@@ -475,7 +519,6 @@ export const CanvasView = () => {
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           onConnect={onConnect}
-       
         >
           <Controls />
           <Background />

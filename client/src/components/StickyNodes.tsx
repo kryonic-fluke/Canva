@@ -4,12 +4,11 @@ import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { setEditingPresence, clearEditingPresence } from "../api/canvas";
-
+import { getTagColor } from '../services/getTagColor';
 interface StickyNoteData {
   text: string;
   color: 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
-    width: number;
-  height: number;
+  category?: string | null;
   onStickyChange: (nodeId: string, updates: { text?: string; color?: string }) => void;
   onNodeResize?: (updates: { width: number; height: number }) => void;
   isBeingEditedByAnotherUser?: boolean;
@@ -106,7 +105,7 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
     ${baseClasses}
     p-4 border-2 rounded-lg shadow-md
     flex flex-col
-   
+   cursor-grab
     transition-all duration-200
     ${isEditing ? "ring-2 ring-blue-300 border-blue-400" : ""}
     ${isBeingEditedByAnotherUser ? "animate-pulse ring-2 ring-green-400" : ""}
@@ -115,8 +114,8 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
 
   return (
     <div className={nodeClasses} style={{ 
-  width: data.width || "100%",
-  height: data.height || "100%"
+  width: "100%",
+  height:  "100%"
 }}>
        <NodeResizer
         isVisible={selected}
@@ -128,7 +127,14 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
       />
       <Handle type="source" position={Position.Bottom} />
       <Handle type="target" position={Position.Top} />
-      
+       {data.category && (
+        <div 
+          className={`absolute bottom-2 left-2 text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.category)}`}
+          title={`Category: ${data.category}`}
+        >
+          {data.category}
+        </div>
+      )}
       <div className="absolute top-1 right-1 color-picker-containe ">
         <button
           onClick={() => setShowColorPicker(!showColorPicker)}

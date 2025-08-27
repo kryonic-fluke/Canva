@@ -21,11 +21,13 @@ export const Navbar = () => {
           aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
         >
           {isSidebarOpen ? (
-            <img
-              src="/img/left-arrow.png"
+         <div className="hover:bg-slate-600 rounded-full p-2 transition-all duration-300">
+ <img
+              src="/img/back-button.png"
               alt="Left arrow icon"
               className="h-7"
             />
+         </div>  
           ) : (
             <img
               src="/img/burger-menu.png"
@@ -34,9 +36,12 @@ export const Navbar = () => {
             />
           )}
         </button>
-        <Link to="/" className="text-white text-2xl" aria-label="Home">
-          🤪
+        <Link to="/" className="ml-[15rem] text-white font-bold text-xl" aria-label="Home">
+  Creative Cava
+          
         </Link>
+        <div className=" ">
+</div>
       </div>
 
       <div className="flex items-center gap-5">

@@ -1,11 +1,13 @@
 // src/components/ImageNode.tsx
 import { memo, useState, useRef, useCallback } from "react";
 import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
+import { getTagColor } from "../services/getTagColor";
 
 interface ImageNodeData {
   url: string;
   width: number;
   height: number;
+  category?: string | null;
   onImageChange: (
     nodeId: string,
     updates: {
@@ -108,7 +110,14 @@ export const ImageNode = memo(
                       />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
-
+    {data.category && (
+        <div 
+          className={`absolute bottom-2 left-2 bg-gray-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.category)}`}
+          title={`Category: ${data.category}`}
+        >
+          {data.category}
+        </div>
+      )}
         <input
           ref={fileInputRef}
           type="file"
@@ -131,12 +140,6 @@ export const ImageNode = memo(
           {!hasImage ? (
             <div className="flex flex-col item-center">
              <img src="/img/img2.png" alt="image" className="h-12 object-contain rounded "/>
-           
-              <button className="text-blue-400 px-3 py-1  rounded-lg  font-semibold hover:underline hover:text-blue-600"  onClick={handleUploadClick}>
-                Add image
-              </button>
-               
-             
             </div>
           ) : isLoading ? (
             <div className="text-center text-gray-500">

@@ -5,11 +5,13 @@ import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { useParams } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { setEditingPresence, clearEditingPresence } from "../api/canvas"; // Assuming your api calls are here
+import { getTagColor } from "../services/getTagColor";
 
 interface EditableNodeData {
   label: string;
    width: number;
   height: number;
+  category?: string | null;
   onLabelChange: (nodeId: string, newLabel: string) => void;
   isBeingEditedByAnotherUser?: boolean;
     onNodeResize?: (updates: { width: number; height: number }) => void;
@@ -104,7 +106,14 @@ export const EditableNode = memo(
               />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
-        
+            {data.category && (
+        <div 
+          className={`absolute bottom-2 left-2 bg-gray-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.category)} `}
+          title={`Category: ${data.category}`}
+        >
+          {data.category}
+        </div>
+      )}
         <div >
             {isEditing ? (
             <input
