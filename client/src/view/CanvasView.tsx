@@ -4,7 +4,7 @@ import {
   useEffect,
   useMemo,
   useRef,
- 
+  useState,
 } from "react";
 import ReactFlow, {
   Controls,
@@ -36,6 +36,8 @@ import { ChecklistNode } from "../components/CheckListNode";
 import { StickyNote } from "../components/StickyNodes";
 import { ImageNode } from "../components/ImageNode";
 import { useCategorizeNodes } from "../hooks/useCategorize";
+import { useCanvasStats } from "../hooks/useCanvasStats";
+import { SnapshotView } from "./Snapshotview";
 
 export const CanvasView = () => {
   const {
@@ -45,12 +47,21 @@ export const CanvasView = () => {
   } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState('category');
+
+  const stats = useCanvasStats();
+
   const { getNodes } = useReactFlow();
   const { mutate: categorize, isPending: isCategorizing } =
     useCategorizeNodes();
 
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
+
+  const handleAnalyzeClick = () => {
+      console.log("Time to analyze!");
+  }
   const NodeChangeThrottle = useRef(
     throttle(
       (
@@ -69,7 +80,7 @@ export const CanvasView = () => {
   //  updating a position real time, idk this is updating position real time
   const handleCategorizeClick = () => {
     const allNodes = getNodes();
-    // ✅ Updated to include checklists!
+    
     const selectedNodes = allNodes.filter(
       (node) =>
         node.selected &&
@@ -425,22 +436,32 @@ export const CanvasView = () => {
     return <div>Loading your canvas...</div>;
   }
 
-  return (
-    <>
-      <div style={{ width: "100%", height: "100%" }} className="relative">
-        <div className="flex justify-center items-center">
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-            <button
-              onClick={handleCategorizeClick}
-              disabled={isCategorizing}
-              className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-            >
-              {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
-            </button>
-          </div>
-          <div className="absolute top-4 left-4 z-10">
-            <Menu as={Fragment}>
-              <div className="relative inline-block text-left">
+ return (
+  <>
+    <div style={{ width: "100%", height: "100%" }} className="relative">
+      
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <button
+          onClick={handleCategorizeClick}
+          disabled={isCategorizing}
+          className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+        >
+          {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
+        </button>
+      </div>
+
+      <div className="absolute top-4 right-6 z-10">
+        <button
+          className="px-3 py-2 bg-slate-500 text-blue hover:opacity-60 active:opacity-80 cursor-pointer"
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          Canvas Stats 📊
+        </button>
+      </div>
+
+      <div className="absolute top-4 left-4 z-10">
+        <Menu as={Fragment}>
+         <div className="relative inline-block text-left">
                 <div>
                   <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Add Node
@@ -508,28 +529,42 @@ export const CanvasView = () => {
                   </div>
                 </Menu.Items>
               </div>
-            </Menu>
-          </div>
-        </div>
-
-        <ReactFlow
-          nodes={hydratedNodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          nodeTypes={nodeTypes}
-          onConnect={onConnect}
-        >
-          <Controls />
-          <Background />
-        </ReactFlow>
-        <button
-          onClick={() => fitView()}
-          className="bg-black text-white p-2 rounded-md absolute bottom-2 right-2 hover:opacity-80 hover:active:opacity-70"
-        >
-          Fit View
-        </button>
+        </Menu>
       </div>
-    </>
-  );
+
+     
+      <div className={`absolute top-0 right-0 h-full bg-white shadow-lg z-20 transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'w-96 p-2' : 'w-0'
+      }`}>
+        {isSidebarOpen && (
+        <SnapshotView stats={stats} onAnalyzeClick={handleAnalyzeClick} />
+
+        )}
+      </div>
+
+     
+      <ReactFlow
+        nodes={hydratedNodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        onConnect={onConnect}
+      >
+        <Controls />
+        <Background />
+      </ReactFlow>
+
+      <button
+        onClick={() => fitView()}
+        className="bg-black text-white p-2 rounded-md absolute bottom-2 right-2 hover:opacity-80 hover:active:opacity-70"
+      >
+        Fit View
+      </button>
+    </div>
+  </>
+);
 };
+
+
+
