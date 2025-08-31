@@ -58,14 +58,7 @@ export const CanvasView = () => {
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
 
-  const handleAnalyzeClick = () => {
-      console.log("Time to analyze!");
-  }
 
-
-  const handlesetSidebar=()=>{
-
-  }
   const NodeChangeThrottle = useRef(
     throttle(
       (
@@ -541,7 +534,7 @@ export const CanvasView = () => {
         isSidebarOpen ? 'w-96 p-2' : 'w-0'
       }`}>
         {isSidebarOpen && (
-        <SnapshotView stats={stats} onAnalyzeClick={handleAnalyzeClick} setIsSidebarOpen={setIsSidebarOpen}/>
+        <SnapshotView stats={stats} setIsSidebarOpen={setIsSidebarOpen}/>
 
         )}
       </div>

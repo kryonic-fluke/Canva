@@ -8,11 +8,11 @@ interface SidebarProps{
   onAnalyzeClick:() => void;
   setIsSidebarOpen:(value:boolean)=>void;
 }
-export const SideBarView = ({ stats, onAnalyzeClick,setIsSidebarOpen }:SidebarProps) => {
+export const SideBarView = ({ stats,setIsSidebarOpen }:SidebarProps) => {
   return (
 
       <div className="flex-grow overflow-y-auto">
-        <SnapshotView stats={stats} onAnalyzeClick={onAnalyzeClick} setIsSidebarOpen={setIsSidebarOpen}/>
+        <SnapshotView stats={stats}  setIsSidebarOpen={setIsSidebarOpen}/>
       </div>
  
   );

@@ -13,6 +13,8 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { CanvasStats } from "../hooks/useCanvasStats";
+import { useProjectAnalysis } from "../hooks/useProjectAnalysis";
+import { AnalysisView } from "./AnalysisView";
 
 const transformDataForPieChart = (
   data: { [key: string]: number } | undefined
@@ -30,21 +32,30 @@ const COLORS = [
   "#FF1943",
 ];
 
-type SnapshotViewType = "category" | "progressOverview" | "progressDetails";
+type SnapshotViewType = "category" | "progressOverview" | "progressDetails" |"analysis";
 
 interface SnapshotViewProps {
   stats: CanvasStats;
-  onAnalyzeClick: () => void;
   setIsSidebarOpen:(value:boolean)=>void;
 }
 
-export const SnapshotView = ({ stats, onAnalyzeClick ,setIsSidebarOpen}: SnapshotViewProps) => {
+export const SnapshotView = ({ stats ,setIsSidebarOpen}: SnapshotViewProps) => {
   const [currentView, setCurrentView] = useState<SnapshotViewType>("category");
+const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAnalysis(stats);
 
+ const handleAnalyzeClick = () => {
+    setCurrentView('analysis');
+    refetch(); 
+  };
   const categoryData = useMemo(
     () => transformDataForPieChart(stats.nodeCountsByCategory),
     [stats.nodeCountsByCategory]
   );
+
+
+  const handleGoBack  = ()=>{
+    setCurrentView("category");
+  }
 
   const overallProgressData = useMemo(() => {
     const { completedTasks, incompleteTasks } = stats.checklistProgress;
@@ -214,11 +225,26 @@ export const SnapshotView = ({ stats, onAnalyzeClick ,setIsSidebarOpen}: Snapsho
             </div>
           </div>
         )}
+
+
+         {currentView === 'analysis' && (
+          <AnalysisView 
+            isAnalyzing={isAnalyzing}
+            isError={isError}
+            error={error}
+            data={data}
+            onGoBack={handleGoBack}
+          />
+        )}
+
+
+
+        
       </div>
 
       <div className="mt-auto border-t pt-4">
         <button
-          onClick={onAnalyzeClick}
+          onClick={handleAnalyzeClick}
           className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-all"
         >
           Get AI Analysis ✨
