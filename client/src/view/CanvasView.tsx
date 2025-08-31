@@ -48,7 +48,6 @@ export const CanvasView = () => {
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('category');
 
   const stats = useCanvasStats();
 
@@ -61,6 +60,11 @@ export const CanvasView = () => {
 
   const handleAnalyzeClick = () => {
       console.log("Time to analyze!");
+  }
+
+
+  const handlesetSidebar=()=>{
+
   }
   const NodeChangeThrottle = useRef(
     throttle(
@@ -537,7 +541,7 @@ export const CanvasView = () => {
         isSidebarOpen ? 'w-96 p-2' : 'w-0'
       }`}>
         {isSidebarOpen && (
-        <SnapshotView stats={stats} onAnalyzeClick={handleAnalyzeClick} />
+        <SnapshotView stats={stats} onAnalyzeClick={handleAnalyzeClick} setIsSidebarOpen={setIsSidebarOpen}/>
 
         )}
       </div>

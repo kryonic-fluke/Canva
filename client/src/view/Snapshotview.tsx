@@ -13,7 +13,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { CanvasStats } from "../hooks/useCanvasStats";
-import type { XAxisProps, YAxisProps } from "recharts";
 
 const transformDataForPieChart = (
   data: { [key: string]: number } | undefined
@@ -36,9 +35,10 @@ type SnapshotViewType = "category" | "progressOverview" | "progressDetails";
 interface SnapshotViewProps {
   stats: CanvasStats;
   onAnalyzeClick: () => void;
+  setIsSidebarOpen:(value:boolean)=>void;
 }
 
-export const SnapshotView = ({ stats, onAnalyzeClick }: SnapshotViewProps) => {
+export const SnapshotView = ({ stats, onAnalyzeClick ,setIsSidebarOpen}: SnapshotViewProps) => {
   const [currentView, setCurrentView] = useState<SnapshotViewType>("category");
 
   const categoryData = useMemo(
@@ -75,30 +75,49 @@ export const SnapshotView = ({ stats, onAnalyzeClick }: SnapshotViewProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-center items-center p-1 bg-gray-100 rounded-lg mb-4">
-        <button
-          onClick={() => setCurrentView("category")}
-          className={`px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
-            "category"
-          )}`}
-        >
-          Category
-        </button>
-        <button
-          onClick={() => setCurrentView("progressOverview")}
-          className={`mx-1 px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
-            "progressOverview"
-          )}`}
-        >
-          Progress
-        </button>
-        <button
-          onClick={() => setCurrentView("progressDetails")}
-          className={`px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
-            "progressDetails"
-          )}`}
-        >
-          Details
+      <div className="flex justify-between items-center p-1 bg-gray-100 rounded-lg mb-4">
+        <div className="flex items-center">
+          <button
+            onClick={() => setCurrentView("category")}
+            className={`px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
+              "category"
+            )}`}
+          >
+            Category
+          </button>
+          <button
+            onClick={() => setCurrentView("progressOverview")}
+            className={`mx-1 px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
+              "progressOverview"
+            )}`}
+          >
+            Progress
+          </button>
+          <button
+            onClick={() => setCurrentView("progressDetails")}
+            className={`px-3 py-1 text-sm font-semibold rounded-md transition-all ${renderActiveButtonClass(
+              "progressDetails"
+            )}`}
+          >
+            Details
+          </button>
+        </div>
+
+        <button className="p-1 hover:bg-gray-200 rounded" onClick={()=>setIsSidebarOpen(false)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         </button>
       </div>
 
@@ -123,7 +142,7 @@ export const SnapshotView = ({ stats, onAnalyzeClick }: SnapshotViewProps) => {
                     {categoryData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.LENGTH]}
+                        fill={COLORS[index % COLORS.length]}
                       />
                     ))}
                   </Pie>
@@ -153,9 +172,7 @@ export const SnapshotView = ({ stats, onAnalyzeClick }: SnapshotViewProps) => {
                 >
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="name" hide />
-
                   <Tooltip cursor={{ fill: "rgba(230, 230, 230, 0.5)" }} />
-
                   <Bar
                     dataKey="completed"
                     stackId="a"

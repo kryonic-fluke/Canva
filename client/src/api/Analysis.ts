@@ -1,26 +1,22 @@
-
-
-import axios from 'axios';
-import type { CanvasStats } from '../hooks/useCanvasStats';
-
-
-
+import axios from "axios";
+import type { CanvasStats } from "../hooks/useCanvasStats";
 
 export interface ProjectAnalysis {
-  summary: string |undefined;
-  strengths: string[]|undefined;
-  risks: string[] |undefined;
-  suggestions: string[]|undefined;
+  summary: string | undefined;
+  strengths: string[] | undefined;
+  risks: string[] | undefined;
+  suggestions: string[] | undefined;
 }
 
+export const Analysis = async (
+  stats: CanvasStats
+): Promise<ProjectAnalysis> => {
+  const GOOGLE_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-export const Analysis = async(stats:CanvasStats):Promise<ProjectAnalysis>{
-const GOOGLE_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_API_KEY}`;
 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_API_KEY}`;
-
-const statsStr = JSON.stringify(stats, null, 2);
-const prompt = `
+  const statsStr = JSON.stringify(stats, null, 2);
+  const prompt = `
   You are an expert project manager and senior analyst. Your task is to analyze the following JSON data, which represents the current state of a visual project plan on a canvas, and provide a high-level analysis.
 
   **Input Data:**
@@ -41,26 +37,22 @@ const prompt = `
   }
 `;
 
-try{
-    const response  = await axios.post(API_URL,{
-        contents:[{parts:[{text:prompt}]}]
-    })
+  try {
+    const response = await axios.post(API_URL, {
+      contents: [{ parts: [{ text: prompt }] }],
+    });
     const rawText = response.data.candidates[0].content.parts[0].text;
-//this will get us the json string 
-    const cleanedJsonString  = rawText.replace(/```json|```/g, '').trim();
+    const cleanedJsonString = rawText.replace(/```json|```/g, "").trim();
 
-//removing curly braces 
+    const analysisData: ProjectAnalysis = JSON.parse(cleanedJsonString);
+    //parsing to json obj
 
-  const analysisData: ProjectAnalysis = JSON.parse(cleanedJsonString);
-//parsing to json obj
+    return analysisData;
+  } catch (error) {
+    console.error("Error fetching AI project analysis:", error);
 
- return analysisData;
-}catch (error) {
-  console.error("Error fetching AI project analysis:", error);
-  
-  throw new Error("Failed to get analysis from AI. Please check the API key and network connection.");
-}
-
-
-
-}
+    throw new Error(
+      "Failed to get analysis from AI. Please check the API key and network connection."
+    );
+  }
+};
