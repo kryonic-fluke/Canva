@@ -12,7 +12,7 @@ interface AnalysisViewProps {
 
 export const AnalysisView = ({ isAnalyzing, isError, error, data, onGoBack }: AnalysisViewProps) => {
   return (
-    <div  className="flex flex-col h-full">
+    <div  className="flex flex-col h-full overflow-auto">
      <div className="flex items-center mb-4">
       <button 
         onClick={onGoBack} 
@@ -21,7 +21,7 @@ export const AnalysisView = ({ isAnalyzing, isError, error, data, onGoBack }: An
         &larr; Back 
       </button>
 
-      <h3 className="font-bold text-gray-800 text-xl">AI Project Analyst</h3>
+      <h3 className="font-bold text-gray-800 text-xl"> Project Analyst</h3>
     </div>
 
 

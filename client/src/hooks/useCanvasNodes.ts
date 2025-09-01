@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { listenForNodes } from "../api/canvas"; // Adjust path
+import { listenForNodes } from "../api/canvas"; 
 import { type Node } from 'reactflow';
 
 export const useCanvasNodes = () => {
@@ -16,7 +16,7 @@ export const useCanvasNodes = () => {
       setNodes(newNodes);
       setIsLoading(false);
     });
-
+//keeps listening for the change 
     return () => unsubscribe();
   }, [canvasId]);
 

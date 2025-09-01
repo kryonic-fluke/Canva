@@ -58,7 +58,6 @@ export const CanvasView = () => {
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
 
-
   const NodeChangeThrottle = useRef(
     throttle(
       (
@@ -77,7 +76,7 @@ export const CanvasView = () => {
   //  updating a position real time, idk this is updating position real time
   const handleCategorizeClick = () => {
     const allNodes = getNodes();
-    
+
     const selectedNodes = allNodes.filter(
       (node) =>
         node.selected &&
@@ -144,37 +143,49 @@ export const CanvasView = () => {
     },
     [canvasId, rawNodes, setNodes]
   );
+  
 
-  const handleChecklistChange = useCallback(
-    (
-      nodeId: string,
-      updates: {
-        title?: string;
-        items?: { id: string; text: string; completed: boolean }[];
-      }
-    ) => {
-      if (!canvasId || !nodeId) return;
+// Inside YourCanvasComponent.tsx
 
-      const currentNode = rawNodes.find((node) => node.id === nodeId);
-      if (!currentNode) return;
+const handleChecklistChange = useCallback(
+  (
+    nodeId: string,
+    updates: {
+      title?: string;
+      items?: { id: string; text: string; completed: boolean }[];
+    }
+  ) => {
+    if (!canvasId || !nodeId) return;
 
-      const mergedData = {
-        ...currentNode.data,
-        ...updates,
-      };
+    console.log('2. 🟡 PARENT: Handler received update', { nodeId, updates });
 
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.id === nodeId ? { ...node, data: mergedData } : node
-        )
-      );
+    setNodes((currentNodes) => {
+      console.log('3. 🟡 PARENT: setNodes starting. Node count:', currentNodes.length);
 
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
-        console.error(`Failed to update checklist node ${nodeId}`, err);
+      const nodeToUpdate = currentNodes.find(n => n.id === nodeId);
+      
+      console.log('4. 🟡 PARENT: Found node to update (PRE-MERGE)', nodeToUpdate?.data);
+
+      return currentNodes.map((node) => {
+        if (node.id === nodeId) {
+          const mergedData = { ...node.data, ...updates };
+          
+          console.log('5. 🟡 PARENT: Data has been merged.', { new: mergedData, old: node.data });
+          
+          return { ...node, data: mergedData };
+        }
+        return node;
       });
-    },
-    [canvasId, rawNodes, setNodes]
-  );
+    });
+
+    const nodeForFirestore = rawNodes.find((n) => n.id === nodeId);
+    if (nodeForFirestore) {
+      const mergedDataForFirestore = { ...nodeForFirestore.data, ...updates };
+      updateNodes(canvasId, nodeId, { data: mergedDataForFirestore });
+    }
+  },
+  [canvasId, rawNodes, setNodes]
+);
 
   const handleStickyChange = useCallback(
     (nodeId: string, updates: { text?: string; color?: string }) => {
@@ -210,7 +221,7 @@ export const CanvasView = () => {
 
   const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
-      console.log("raw node:=>", node);
+    
 
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
@@ -255,7 +266,6 @@ export const CanvasView = () => {
       const isBeingEditedByAnotherUser =
         isBeingEdited && editorId !== currentUserId;
 
-      console.log("Final node data for", node.id, ":", finalNodeData);
 
       return {
         ...node,
@@ -433,135 +443,122 @@ export const CanvasView = () => {
     return <div>Loading your canvas...</div>;
   }
 
- return (
-  <>
-    <div style={{ width: "100%", height: "100%" }} className="relative">
-      
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-        <button
-          onClick={handleCategorizeClick}
-          disabled={isCategorizing}
-          className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
-        >
-          {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
-        </button>
-      </div>
+  return (
+    <>
+      <div style={{ width: "100%", height: "100%" }} className="relative">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+          <button
+            onClick={handleCategorizeClick}
+            disabled={isCategorizing}
+            className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+          >
+            {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
+          </button>
+        </div>
 
-      <div className="absolute top-4 right-6 z-10">
-        <button
-          className="px-3 py-2 bg-slate-500 text-blue hover:opacity-60 active:opacity-80 cursor-pointer"
-          onClick={() => setIsSidebarOpen(true)}
-        >
-          Canvas Stats 📊
-        </button>
-      </div>
+        <div className="absolute top-4 right-6 z-10">
+          <button
+            className="px-3 py-2 bg-slate-500 text-blue hover:opacity-60 active:opacity-80 cursor-pointer"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            Canvas Stats 📊
+          </button>
+        </div>
 
-      <div className="absolute top-4 left-4 z-10">
-        <Menu as={Fragment}>
-         <div className="relative inline-block text-left">
-                <div>
-                  <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Add Node
-                  </Menu.Button>
-                </div>
-
-                <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="px-1 py-1 ">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => addNode("editableNode")}
-                          className={`${
-                            active
-                              ? "bg-indigo-500 text-white"
-                              : "text-gray-900"
-                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                        >
-                          Text Note
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => addNode("checklist")}
-                          className={`${
-                            active
-                              ? "bg-indigo-500 text-white"
-                              : "text-gray-900"
-                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                        >
-                          Checklist
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => addNode("sticky")}
-                          className={`${
-                            active
-                              ? "bg-indigo-500 text-white"
-                              : "text-gray-900"
-                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                        >
-                          Sticky Note
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          onClick={() => addNode("image")}
-                          className={`${
-                            active
-                              ? "bg-indigo-500 text-white"
-                              : "text-gray-900"
-                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                        >
-                          📸 Image/Gif
-                        </button>
-                      )}
-                    </Menu.Item>
-                  </div>
-                </Menu.Items>
+        <div className="absolute top-4 left-4 z-10">
+          <Menu as={Fragment}>
+            <div className="relative inline-block text-left">
+              <div>
+                <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Add Node
+                </Menu.Button>
               </div>
-        </Menu>
+
+              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="px-1 py-1 ">
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("editableNode")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Text Note
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("checklist")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Checklist
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("sticky")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        Sticky Note
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => addNode("image")}
+                        className={`${
+                          active ? "bg-indigo-500 text-white" : "text-gray-900"
+                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                      >
+                        📸 Image/Gif
+                      </button>
+                    )}
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
+            </div>
+          </Menu>
+        </div>
+
+        <div
+          className={`absolute top-0 right-0 h-full bg-white shadow-lg z-20 transition-all duration-300 ease-in-out ${
+            isSidebarOpen ? "w-96 p-2" : "w-0"
+          }`}
+        >
+          {isSidebarOpen && (
+            <SnapshotView stats={stats} setIsSidebarOpen={setIsSidebarOpen} />
+          )}
+        </div>
+
+        <ReactFlow
+          nodes={hydratedNodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          onConnect={onConnect}
+        >
+          <Controls />
+          <Background />
+        </ReactFlow>
+
+        <button
+          onClick={() => fitView()}
+          className="bg-black text-white p-2 rounded-md absolute bottom-2 right-2 hover:opacity-80 hover:active:opacity-70"
+        >
+          Fit View
+        </button>
       </div>
-
-     
-      <div className={`absolute top-0 right-0 h-full bg-white shadow-lg z-20 transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? 'w-96 p-2' : 'w-0'
-      }`}>
-        {isSidebarOpen && (
-        <SnapshotView stats={stats} setIsSidebarOpen={setIsSidebarOpen}/>
-
-        )}
-      </div>
-
-     
-      <ReactFlow
-        nodes={hydratedNodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        onConnect={onConnect}
-      >
-        <Controls />
-        <Background />
-      </ReactFlow>
-
-      <button
-        onClick={() => fitView()}
-        className="bg-black text-white p-2 rounded-md absolute bottom-2 right-2 hover:opacity-80 hover:active:opacity-70"
-      >
-        Fit View
-      </button>
-    </div>
-  </>
-);
+    </>
+  );
 };
-
-
-

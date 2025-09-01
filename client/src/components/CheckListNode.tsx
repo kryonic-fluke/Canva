@@ -1,186 +1,124 @@
-import { getAuth } from "firebase/auth";
-import { memo, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
-import { clearEditingPresence, setEditingPresence } from "../api/canvas";
-import { getTagColor } from "../services/getTagColor";
+import { debounce } from 'lodash';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import type { NodeProps } from 'reactflow';
 
-export interface ChecklistItem {
+
+interface ChecklistItem {
   id: string;
   text: string;
+
   completed: boolean;
-  category?: string | null;
 }
 
 export interface ChecklistNodeData {
   title: string;
   items: ChecklistItem[];
-  isBeingEditedByAnotherUser?: boolean;
-  onChecklistChange?: (updates: {
-    title?: string;
-    items?: ChecklistItem[];
-  }) => void;
-  onNodeResize?: (updates: { width: number; height: number }) => void;
+  onChecklistChange: (nodeId: string, updates: { title?: string; items?: ChecklistItem[] }) => void;
 }
 
-export const ChecklistNode = memo(
-  ({ data, id, selected }: NodeProps<ChecklistNodeData>) => {
-    const { _id: canvasId } = useParams<{ _id: string }>();
+export const ChecklistNode: React.FC<NodeProps<ChecklistNodeData>> = ({ id, data }) => {
+  const [title, setTitle] = useState(data.title ?? 'Untitled Checklist');
+  const [items, setItems] = useState<ChecklistItem[]>(data.items ?? []);
 
-    const [title, setTitle] = useState(data.title ?? "Untitled");
-    const [items, setItems] = useState(data.items ?? []);
+  const { onChecklistChange } = data;
 
-    const [isEditing, setIsEditing] = useState(false);
-
-    useEffect(() => {
-      setTitle(data.title ?? "Untitled");
-      setItems(data.items ?? []);
-    }, [data.title, data.items]);
-
-    useEffect(() => {
-      const currentUser = getAuth().currentUser;
-      const userId = currentUser?.uid;
-
-      if (isEditing) {
-        if (canvasId && userId) {
-          setEditingPresence(canvasId, userId, id);
-        }
-        return () => {
-          if (canvasId && userId) {
-            clearEditingPresence(canvasId, userId);
-          }
-        };
-      }
-    }, [isEditing, canvasId, id]);
-
-    const handleSave = () => {
-      setIsEditing(false);
-      const validItems = items.filter((item) => item.text.trim() !== "");
-
-      const hasTitleChanged = title !== (data.title ?? "Untitled");
-      const haveItemsChanged =
-        JSON.stringify(validItems) !== JSON.stringify(data.items ?? []);
-
-      if (hasTitleChanged || haveItemsChanged) {
-        data.onChecklistChange?.({
-          ...(hasTitleChanged && { title }),
-          ...(haveItemsChanged && { items: validItems }),
-        });
-      }
-    };
-
-    const handleToggleItem = (itemId: string) => {
-      const newItems = items.map((item) =>
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      );
-      setItems(newItems);
-      data.onChecklistChange?.({ items: newItems });
-    };
-
-    const handleAddItem = () => {
-      const newItem: ChecklistItem = {
-        id: `task_${+new Date()}`,
-        text: "",
-        completed: false,
-      };
-      setItems((prev) => [...prev, newItem]);
-      setIsEditing(true);
-    };
-
-    const isBeingEditedByAnotherUser = data.isBeingEditedByAnotherUser ?? false;
-    const nodeClasses = `
-        p-4 border-2 rounded-lg bg-white shadow-md text-gray-800 flex flex-col
-        transition-all duration-200
-        ${
-          isBeingEditedByAnotherUser
-            ? "border-green-500 animate-pulse"
-            : "border-gray-200"
-        }
-        ${isEditing ? "border-blue-500 ring-2 ring-blue-300" : ""}
-        ${selected && !isEditing ? "ring-2 ring-blue-400" : ""}
-    `;
-
-    return (
-      <div className={nodeClasses} style={{ width: "100%", height: "100%" }}>
-        <NodeResizer
-          isVisible={selected && !isEditing}
-          minWidth={220}
-          minHeight={100}
-          onResizeEnd={(_event, params) => {
-            data.onNodeResize?.({ width: params.width, height: params.height });
-          }}
-        />
-        <Handle type="source" position={Position.Bottom} />
-        <Handle type="target" position={Position.Top} />
-                {data.items[0].category} && (
-        <div 
-          className={`absolute bottom-2 left-2 bg-gray-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.items[0].category)}`}
-          title={`Category: ${data.items[0].category}`}
-        >
-          {data.items[0].category}
-        </div>
-      )
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onFocus={() => setIsEditing(true)}
-          onBlur={handleSave}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSave();
-              e.currentTarget.blur();
-            }
-          }}
-          className="w-full text-center text-lg font-bold outline-none bg-transparent mb-2 shrink-0"
-          placeholder="Checklist Title"
-          disabled={isBeingEditedByAnotherUser}
-        />
-
-        <div className="space-y-2 overflow-y-auto flex-grow">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center space-x-2 group">
-              <input
-                type="checkbox"
-                checked={item.completed}
-                onChange={() => handleToggleItem(item.id)}
-                className="form-checkbox h-4 w-4 text-blue-600 rounded shrink-0"
-                disabled={isBeingEditedByAnotherUser}
-              />
-              <input
-                value={item.text}
-                onChange={(e) => {
-                  setItems(
-                    items.map((i) =>
-                      i.id === item.id ? { ...i, text: e.target.value } : i
-                    )
-                  );
-                }}
-                onFocus={() => setIsEditing(true)}
-                onBlur={handleSave}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleSave();
-                    e.currentTarget.blur();
-                  }
-                }}
-                className={`flex-grow outline-none bg-transparent ${
-                  item.completed ? "line-through text-gray-500" : ""
-                }`}
-                placeholder="List item..."
-                disabled={isBeingEditedByAnotherUser}
-              />
-            </div>
-          ))}
-        </div>
-
-        <button
-          onClick={handleAddItem}
-          className="text-gray-500 hover:text-gray-800 mt-2 text-left pl-7 text-sm"
-          disabled={isBeingEditedByAnotherUser}
-        >
-          + Add item
-        </button>
-      </div>
-    );
-  }
+const debouncedParentUpdate = useMemo(
+  () =>
+    debounce((updates: { title?: string; items?: ChecklistItem[] }) => {
+      console.log(`DEBOUNCED: Sending update for node ${id}`, updates);   
+      onChecklistChange(id, updates);
+    }, 500),
+  [id, onChecklistChange]
 );
+
+
+  useEffect(() => {
+    setTitle(data.title ?? 'Untitled Checklist');
+    setItems(data.items ?? []);
+  }, [data.title, data.items]);
+
+
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    debouncedParentUpdate({ title: newTitle });
+  };
+
+  const handleItemTextChange = (itemId: string, newText: string) => {
+    const newItems = items.map(item =>
+      item.id === itemId ? { ...item, text: newText } : item
+    );
+    setItems(newItems);
+    debouncedParentUpdate({ items: newItems });
+  };
+
+  const handleToggleItem = (itemId: string) => {
+    const newItems = items.map(item =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
+    setItems(newItems);
+    debouncedParentUpdate({ items: newItems });
+  };
+
+  const handleAddItem = () => {
+    const newItem: ChecklistItem = {
+      id: `task_${+new Date()}`,
+      text: '',
+      completed: false,
+    };
+    const newItems = [...items, newItem];
+    setItems(newItems);
+    debouncedParentUpdate({ items: newItems });
+  };
+  
+  const handleRemoveItem = (itemId: string) => {
+    const newItems = items.filter(item => item.id !== itemId);
+    setItems(newItems);
+    debouncedParentUpdate({ items: newItems });
+  };
+
+
+  return (
+    <div className="bg-white border-2 border-gray-300 rounded-lg p-3 shadow-md w-full h-full flex flex-col">
+      <input
+        type="text"
+        value={title}
+        onChange={handleTitleChange}
+        className="text-lg font-bold outline-none border-b-2 border-transparent focus:border-blue-500 mb-2"
+        placeholder="Checklist Title"
+      />
+      <div className="flex-grow overflow-y-auto pr-1">
+        {items.map((item, index) => (
+          <div key={item.id} className="flex items-center group my-1">
+            <input
+              type="checkbox"
+              checked={item.completed}
+              onChange={() => handleToggleItem(item.id)}
+              className="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+            />
+            <input
+              type="text"
+              value={item.text}
+              onChange={(e) => handleItemTextChange(item.id, e.target.value)}
+              className={`flex-grow outline-none bg-transparent ${item.completed ? 'line-through text-gray-500' : ''}`}
+              placeholder={`Item #${index + 1}`}
+            />
+            <button 
+                onClick={() => handleRemoveItem(item.id)}
+                className="ml-2 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500"
+            >
+                ✕
+            </button>
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={handleAddItem}
+        className="mt-2 text-left text-blue-600 hover:text-blue-800 text-sm"
+      >
+        + Add item
+      </button>
+    </div>
+  );
+};

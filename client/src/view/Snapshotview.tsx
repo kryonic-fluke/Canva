@@ -132,8 +132,8 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
         </button>
       </div>
 
-      <div className="flex-grow">
-        {currentView === "category" && (
+ <div className="flex-grow overflow-y-auto">
+          {currentView === "category" && (
           <div>
             <h3 className="font-semibold text-gray-700 mb-2 text-center">
               Breakdown by Category
@@ -226,8 +226,8 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
           </div>
         )}
 
+ {currentView === 'analysis' && (
 
-         {currentView === 'analysis' && (
           <AnalysisView 
             isAnalyzing={isAnalyzing}
             isError={isError}
@@ -236,20 +236,21 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
             onGoBack={handleGoBack}
           />
         )}
+ 
 
 
 
         
       </div>
 
-      <div className="mt-auto border-t pt-4">
+      { currentView!='analysis'&&<div className="mt-auto border-t pt-4 flex-shrink-0">
         <button
           onClick={handleAnalyzeClick}
           className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-all"
         >
           Get AI Analysis ✨
         </button>
-      </div>
+      </div>}
     </div>
   );
 };
