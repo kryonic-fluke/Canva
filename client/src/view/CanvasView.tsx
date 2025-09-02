@@ -103,7 +103,11 @@ export const CanvasView = () => {
             : node
         )
       );
-      updateNodes(canvasId, nodeId, style).catch((err) => {
+      const firestorePayload = {
+      width: style.width,
+      height: style.height,
+    };
+      updateNodes(canvasId, nodeId, firestorePayload).catch((err) => {
         console.error(`error occured during resizing for node: ${nodeId}`, err);
       });
     },
@@ -145,46 +149,36 @@ export const CanvasView = () => {
   );
   
 
-// Inside YourCanvasComponent.tsx
 
-const handleChecklistChange = useCallback(
-  (
-    nodeId: string,
-    updates: {
-      title?: string;
-      items?: { id: string; text: string; completed: boolean }[];
-    }
-  ) => {
-    if (!canvasId || !nodeId) return;
 
-    console.log('2. 🟡 PARENT: Handler received update', { nodeId, updates });
+const handleNodeDataChange = useCallback(
+  (nodeId: string, updates: object) => {
+      console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: RECEIVED`, { nodeId, updates });
 
-    setNodes((currentNodes) => {
-      console.log('3. 🟡 PARENT: setNodes starting. Node count:', currentNodes.length);
+    if (!nodeId) return;
+    setNodes((currentNodes) =>
+      currentNodes.map((node) => {
+            const nodeBeforeUpdate = currentNodes.find(n => n.id === nodeId);
 
-      const nodeToUpdate = currentNodes.find(n => n.id === nodeId);
-      
-      console.log('4. 🟡 PARENT: Found node to update (PRE-MERGE)', nodeToUpdate?.data);
+                 console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: Node data BEFORE update`, nodeBeforeUpdate?.data);
 
-      return currentNodes.map((node) => {
-        if (node.id === nodeId) {
-          const mergedData = { ...node.data, ...updates };
-          
-          console.log('5. 🟡 PARENT: Data has been merged.', { new: mergedData, old: node.data });
-          
-          return { ...node, data: mergedData };
-        }
-        return node;
-      });
-    });
+        if (node.id !== nodeId) return node;
+        const updatedData = { ...node.data, ...updates };
+          console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: Node data AFTER update`, updatedData);
+        return { ...node, data: updatedData };
+      })
+    );
+
 
     const nodeForFirestore = rawNodes.find((n) => n.id === nodeId);
     if (nodeForFirestore) {
-      const mergedDataForFirestore = { ...nodeForFirestore.data, ...updates };
-      updateNodes(canvasId, nodeId, { data: mergedDataForFirestore });
+      const mergedData = { ...nodeForFirestore.data, ...updates };
+     updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+        console.error(`[handleNodeDataChange] Failed to update node ${nodeId} in Firestore.`, err);
+      });
     }
   },
-  [canvasId, rawNodes, setNodes]
+  [rawNodes, setNodes,canvasId ] 
 );
 
   const handleStickyChange = useCallback(
@@ -233,7 +227,7 @@ const handleChecklistChange = useCallback(
         case "checklist":
           finalNodeData = {
             ...node.data,
-            onChecklistChange: handleChecklistChange,
+onDataChange: (updates) => handleNodeDataChange(node.id, updates),
             onNodeResize: (style) => handleNodeResize(node.id, style),
           };
           break;
@@ -281,10 +275,10 @@ const handleChecklistChange = useCallback(
     onNodeLabelChange,
     activePresenceMap,
     currentUserId,
-    handleChecklistChange,
     handleStickyChange,
     handleImageChange,
     handleNodeResize,
+    handleNodeDataChange
   ]);
 
   const nodeTypes = useMemo(
@@ -402,8 +396,8 @@ const handleChecklistChange = useCallback(
       const optimisticNode = {
         id: newNodeId,
         type: nodeType,
-        position: { x: Math.random() * 450, y: Math.random() * 450 },
-        width,
+  position: { x: 250, y: 50 },
+          width,
         height,
         data: nodeData,
       };

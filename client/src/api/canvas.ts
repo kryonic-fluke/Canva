@@ -269,7 +269,7 @@ console.log("new Data",newData);
 };
 
 export const updateNodes = async (
-  canvasId: string,
+  canvasId: string |undefined,
   nodeId: string,
   dataToUpadte: Partial<Node>
 ) => {
