@@ -11,8 +11,6 @@ import {
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import type { Connection, Edge, Node } from "reactflow";
-import { use, useId } from "react";
-
 interface NewCanvasData {
   name: string;
 }

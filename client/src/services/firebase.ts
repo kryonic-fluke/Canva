@@ -1,14 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-import { 
-    getAuth, 
-    signInWithPopup, 
-    GoogleAuthProvider, 
-    GithubAuthProvider,
-    type UserCredential,
-    type AuthProvider,
-    type Auth
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  type UserCredential,
+  type AuthProvider,
 } from "firebase/auth";
 
 const firebaseConfig = {
@@ -24,33 +23,31 @@ export const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
-export type AuthProviderName = 'google' | 'github';
+export type AuthProviderName = "google" | "github";
 
+export const signInWithProvider = async (
+  providerName: AuthProviderName
+): Promise<UserCredential | undefined> => {
+  let provider: AuthProvider | null = null;
 
-export const signInWithProvider = async (providerName: AuthProviderName): Promise<UserCredential> => {
-
-   let provider:AuthProvider;
-
-   if(providerName=="github"){
+  if (providerName == "github") {
     provider = new GithubAuthProvider();
-
-   }
-   else if(providerName =="google"){
+  } else if (providerName == "google") {
     provider = new GoogleAuthProvider();
+  }
 
-   }
+  if (!provider) {
+    console.error("Invalid provider name passed:", providerName);
+    return undefined;
+  }
 
-   try{
-  const result   =await signInWithPopup(auth,provider);
-  console.log(`Successfull signin with ${result.user.displayName}`);
-  return result;
-   }
-   catch(error){
-    console.log(`Error during ${providerName} sign-In`,error);
-    
-   }
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log(`Successfull signin with ${result.user.displayName}`);
+    return result;
+  } catch (error) {
+    console.log(`Error during ${providerName} sign-In`, error);
+  }
 };
 
-
 export const db = getFirestore(app);
-

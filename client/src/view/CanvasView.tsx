@@ -221,14 +221,14 @@ const handleNodeDataChange = useCallback(
       const editorId = activePresenceMap.get(node.id);
       let finalNodeData;
 
-      const style = { width: node.width, height: node.height };
+      const style = { width: node.width ??200, height: node.height??150 };
 
       switch (node.type) {
         case "checklist":
           finalNodeData = {
             ...node.data,
-onDataChange: (updates) => handleNodeDataChange(node.id, updates),
-            onNodeResize: (style) => handleNodeResize(node.id, style),
+onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
+            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
           };
           break;
         case "sticky":
@@ -236,14 +236,14 @@ onDataChange: (updates) => handleNodeDataChange(node.id, updates),
             ...node.data,
             onStickyChange: handleStickyChange,
 
-            onNodeResize: (style) => handleNodeResize(node.id, style),
+            onNodeResize: (style:{width:number,height:number})=> handleNodeResize(node.id, style),
           };
           break;
         case "image":
           finalNodeData = {
             ...node.data,
             onImageChange: handleImageChange,
-            onNodeResize: (style) => handleNodeResize(node.id, style),
+            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
           };
           break;
         case "editableNode":
@@ -251,7 +251,7 @@ onDataChange: (updates) => handleNodeDataChange(node.id, updates),
           finalNodeData = {
             ...node.data,
             onLabelChange: onNodeLabelChange,
-            onNodeResize: (style) => handleNodeResize(node.id, style),
+            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
           };
           break;
       }
@@ -346,7 +346,7 @@ onDataChange: (updates) => handleNodeDataChange(node.id, updates),
     (nodeType: "editableNode" | "checklist" | "sticky" | "image") => {
       if (!canvasId) return;
       const newNodeId = `node_${+new Date()}`;
-      let nodeData: any;
+      let nodeData;
 
       switch (nodeType) {
         case "checklist":

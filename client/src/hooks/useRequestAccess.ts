@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { requestAccessApi } from "../api/canvas";
-import { isAxiosError, type AxiosError } from "axios";
+import { isAxiosError,  } from "axios";
 
 export const useRequestAccess = () => {
   const navigate = useNavigate();

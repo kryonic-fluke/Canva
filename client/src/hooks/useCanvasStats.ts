@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useReactFlow, type Node } from 'reactflow';
+import  {ChecklistItem} from "../components/CheckListNode"
 
 
 
@@ -86,13 +87,13 @@ export const mockCanvasStats: CanvasStats = {
 };
 
 export const useCanvasStats = (): CanvasStats => {
-  const { getNodes, getEdges } = useReactFlow();
+  const { getNodes } = useReactFlow();
 
 
   const nodes = getNodes();
-  const edges = getEdges();
+  // const edges = getEdges();
 
-  const stats = useMemo(() => {
+ useMemo(() => {
     const nodeCountsByType = nodes.reduce((acc: { [key: string]: number }, node: Node) => {
       const type = node.type || 'unknown';
       acc[type] = (acc[type] || 0) + 1;
@@ -116,7 +117,7 @@ export const useCanvasStats = (): CanvasStats => {
     const progressData = checklistNodes.reduce((accumulator, node) => {
         const items = node.data.items || [];
         const totalInNode = items.length;
-        const completedInNode = items.filter(item => item.completed).length;
+        const completedInNode = items.filter((item:ChecklistItem)=> item.completed).length;
         const percentageInNode = totalInNode > 0 ? Math.round((completedInNode / totalInNode) * 100) : 0;
 
         accumulator.total += totalInNode;

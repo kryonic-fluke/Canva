@@ -7,7 +7,7 @@ import { getAuth } from 'firebase/auth';
 import { clearEditingPresence, setEditingPresence } from '../api/canvas';
 import { useParams } from 'react-router-dom';
 
-interface ChecklistItem {
+export interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
