@@ -1,7 +1,8 @@
 [build]
-command = "npm run build --prefix client"
-publish = "client/dist"
-functions = "server/functions"
+command = "npm run install && npm run build"
+  
+  publish = "client/dist"
+  functions = "server/functions"
 
 [functions]
 node_bundler = "esbuild"
