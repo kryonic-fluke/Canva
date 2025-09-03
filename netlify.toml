@@ -1,0 +1,21 @@
+[build]
+command = "npm run build --prefix client"
+publish = "client/dist"
+functions = "server/functions"
+
+[functions]
+node_bundler = "esbuild"
+
+[dev]
+framework = "#vite"
+port = 5174
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
