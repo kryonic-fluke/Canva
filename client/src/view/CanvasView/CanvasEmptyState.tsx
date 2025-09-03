@@ -1,10 +1,18 @@
-import { useCanvasCreate } from '../../hooks/useCanvasCreate'; // You'll likely have this hook
+import { useCanvasCreate } from '../../hooks/useCanvasCreate'; 
 
 export const CanvasEmptyState = () => {
     const { mutate: createCanvas, isPending } = useCanvasCreate();
 
     const handleCreateFirstCanvas = () => {
-        createCanvas( name);
+       
+    const canvasName = prompt(
+      "Enter a name for your new canvas:",
+      "My New Project"
+    );
+    if (canvasName) {
+      createCanvas(canvasName);
+    }
+  ;
     };
 
     return (
