@@ -11,16 +11,19 @@ import serviceAccount from '../../server/serviceAccountKey.json';
 
 dotenv.config();
 
-if (admin.apps.length === 0) { 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount)
-  });
+if (admin.apps.length === 0) {
+  const credential = process.env.FIREBASE_SERVICE_ACCOUNT
+    ? admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) // PRODUCTION: Use the env variable
+    : admin.credential.cert(serviceAccount as admin.ServiceAccount);      // LOCAL: Use the local file
+
+  admin.initializeApp({ credential });
   console.log('Firebase Admin SDK Initialized.');
 }
 
+
 export const firestoreDb = admin.firestore();
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 5001;
 const mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@clustercanva0.4bwgyeq.mongodb.net/creative-canvas-db?retryWrites=true&w=majority`;
 
@@ -31,19 +34,22 @@ if (!mongoURI) {
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
-app.get('/api/health', (req: Request, res: Response) => {
-  res.status(200).send({ status: 'OK', message: 'Server is healthy!' });
-});
 
 app.use('/api/users', userRoutes);
 app.use('/api/canvases', canvasRoutes);
 
-mongoose.connect(mongoURI).then(() => {
-  console.log('Successfully connected to MongoDB.');
-  app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+const connectToDatabase = async () => {
+    if (mongoose.connection.readyState === 0) {
+         if (!mongoURI) throw new Error('MONGO_URI not found');
+         await mongoose.connect(mongoURI);
+         console.log("New MongoDB connection established.");
+    }
+};
+
+if (!process.env.NETLIFY) {
+  connectToDatabase().then(() => {
+    app.listen(port, () => {
+      console.log(`[server]: Server is running at http://localhost:${port}`);
+    });
   });
-}).catch((error) => {
-  console.log("Error connecting to database:", error.message);
-  process.exit(1);
-});
+}

@@ -16,7 +16,8 @@
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
     "lodash": "^4.17.21",
-    "mongoose": "^8.16.5"
+    "mongoose": "^8.16.5",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
