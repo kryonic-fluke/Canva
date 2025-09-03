@@ -31,7 +31,7 @@ if (!mongoURI) {
     throw new Error('MONGO_URI not found in .env file.');
 }
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: 'http://localhost:5174' }));
 app.use(express.json());
 
 
