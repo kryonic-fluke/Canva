@@ -6,11 +6,11 @@ import { getAdditionalUserInfo, type UserCredential } from 'firebase/auth';
 
 
 interface UseSocialSignInOptions {
-    onSuccess?: (data: UserCredential) => void;
+    onSuccess?: (data: UserCredential ) => void;
     onError?: (error: FirebaseError) => void;
 }
 export const useSocialSignIn = (options?:UseSocialSignInOptions) => {
-  return useMutation<UserCredential,FirebaseError,AuthProviderName>({
+  return useMutation<UserCredential ,FirebaseError,AuthProviderName >({
 
     mutationFn:signInWithProvider,
 

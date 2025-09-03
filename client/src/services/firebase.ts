@@ -26,8 +26,8 @@ export const auth = getAuth(app);
 export type AuthProviderName = "google" | "github";
 
 export const signInWithProvider = async (
-  providerName: AuthProviderName
-): Promise<UserCredential | undefined> => {
+  providerName: AuthProviderName |undefined
+): Promise<UserCredential> => {
   let provider: AuthProvider | null = null;
 
   if (providerName == "github") {
@@ -36,18 +36,20 @@ export const signInWithProvider = async (
     provider = new GoogleAuthProvider();
   }
 
-  if (!provider) {
-    console.error("Invalid provider name passed:", providerName);
-    return undefined;
-  }
+   if (!provider) {
+       const err = new Error("Invalid provider name passed to signInWithProvider.");
+       console.error(err);
+       throw err; 
+   }
 
   try {
     const result = await signInWithPopup(auth, provider);
     console.log(`Successfull signin with ${result.user.displayName}`);
     return result;
-  } catch (error) {
-    console.log(`Error during ${providerName} sign-In`, error);
-  }
+  }catch (error) {
+     console.error(`Error during ${providerName} sign-In`, error);
+     throw error; 
+   }
 };
 
 export const db = getFirestore(app);

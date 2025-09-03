@@ -5,3 +5,4 @@ export interface UserSyncDataBackEnd {
   email: string | null;
   displayName: string | null;
 }
+

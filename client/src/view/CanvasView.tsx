@@ -104,9 +104,9 @@ export const CanvasView = () => {
         )
       );
       const firestorePayload = {
-      width: style.width,
-      height: style.height,
-    };
+        width: style.width,
+        height: style.height,
+      };
       updateNodes(canvasId, nodeId, firestorePayload).catch((err) => {
         console.error(`error occured during resizing for node: ${nodeId}`, err);
       });
@@ -147,39 +147,47 @@ export const CanvasView = () => {
     },
     [canvasId, rawNodes, setNodes]
   );
-  
 
-
-
-const handleNodeDataChange = useCallback(
-  (nodeId: string, updates: object) => {
-      console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: RECEIVED`, { nodeId, updates });
-
-    if (!nodeId) return;
-    setNodes((currentNodes) =>
-      currentNodes.map((node) => {
-            const nodeBeforeUpdate = currentNodes.find(n => n.id === nodeId);
-
-                 console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: Node data BEFORE update`, nodeBeforeUpdate?.data);
-
-        if (node.id !== nodeId) return node;
-        const updatedData = { ...node.data, ...updates };
-          console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: Node data AFTER update`, updatedData);
-        return { ...node, data: updatedData };
-      })
-    );
-
-
-    const nodeForFirestore = rawNodes.find((n) => n.id === nodeId);
-    if (nodeForFirestore) {
-      const mergedData = { ...nodeForFirestore.data, ...updates };
-     updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
-        console.error(`[handleNodeDataChange] Failed to update node ${nodeId} in Firestore.`, err);
+  const handleNodeDataChange = useCallback(
+    (nodeId: string, updates: object) => {
+      console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: RECEIVED`, {
+        nodeId,
+        updates,
       });
-    }
-  },
-  [rawNodes, setNodes,canvasId ] 
-);
+
+      if (!nodeId) return;
+      setNodes((currentNodes) =>
+        currentNodes.map((node) => {
+          const nodeBeforeUpdate = currentNodes.find((n) => n.id === nodeId);
+
+          console.log(
+            `🟡 PARENT HANDLER [handleNodeDataChange]: Node data BEFORE update`,
+            nodeBeforeUpdate?.data
+          );
+
+          if (node.id !== nodeId) return node;
+          const updatedData = { ...node.data, ...updates };
+          console.log(
+            `🟡 PARENT HANDLER [handleNodeDataChange]: Node data AFTER update`,
+            updatedData
+          );
+          return { ...node, data: updatedData };
+        })
+      );
+
+      const nodeForFirestore = rawNodes.find((n) => n.id === nodeId);
+      if (nodeForFirestore) {
+        const mergedData = { ...nodeForFirestore.data, ...updates };
+        updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+          console.error(
+            `[handleNodeDataChange] Failed to update node ${nodeId} in Firestore.`,
+            err
+          );
+        });
+      }
+    },
+    [rawNodes, setNodes, canvasId]
+  );
 
   const handleStickyChange = useCallback(
     (nodeId: string, updates: { text?: string; color?: string }) => {
@@ -215,20 +223,20 @@ const handleNodeDataChange = useCallback(
 
   const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
-    
-
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
       let finalNodeData;
 
-      const style = { width: node.width ??200, height: node.height??150 };
+      const style = { width: node.width ?? 200, height: node.height ?? 150 };
 
       switch (node.type) {
         case "checklist":
           finalNodeData = {
             ...node.data,
-onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
-            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
+            onDataChange: (updates: object) =>
+              handleNodeDataChange(node.id, updates),
+            onNodeResize: (style: { width: number; height: number }) =>
+              handleNodeResize(node.id, style),
           };
           break;
         case "sticky":
@@ -236,14 +244,16 @@ onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
             ...node.data,
             onStickyChange: handleStickyChange,
 
-            onNodeResize: (style:{width:number,height:number})=> handleNodeResize(node.id, style),
+            onNodeResize: (style: { width: number; height: number }) =>
+              handleNodeResize(node.id, style),
           };
           break;
         case "image":
           finalNodeData = {
             ...node.data,
             onImageChange: handleImageChange,
-            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
+            onNodeResize: (style: { width: number; height: number }) =>
+              handleNodeResize(node.id, style),
           };
           break;
         case "editableNode":
@@ -251,7 +261,8 @@ onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
           finalNodeData = {
             ...node.data,
             onLabelChange: onNodeLabelChange,
-            onNodeResize: (style:{width:number,height:number}) => handleNodeResize(node.id, style),
+            onNodeResize: (style: { width: number; height: number }) =>
+              handleNodeResize(node.id, style),
           };
           break;
       }
@@ -259,7 +270,6 @@ onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
       // Adding functionality to raw data
       const isBeingEditedByAnotherUser =
         isBeingEdited && editorId !== currentUserId;
-
 
       return {
         ...node,
@@ -278,7 +288,7 @@ onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
     handleStickyChange,
     handleImageChange,
     handleNodeResize,
-    handleNodeDataChange
+    handleNodeDataChange,
   ]);
 
   const nodeTypes = useMemo(
@@ -396,8 +406,8 @@ onDataChange: (updates:object) => handleNodeDataChange(node.id, updates),
       const optimisticNode = {
         id: newNodeId,
         type: nodeType,
-  position: { x: 250, y: 50 },
-          width,
+        position: { x: 250, y: 50 },
+        width,
         height,
         data: nodeData,
       };
