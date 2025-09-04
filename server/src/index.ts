@@ -7,15 +7,17 @@ import * as admin from 'firebase-admin';
 import userRoutes from './routes/userRoutes';
 import canvasRoutes from './routes/canvasRoutes';
 
-import serviceAccount from '../../server/serviceAccountKey.json';
 
 dotenv.config();
 
 if (admin.apps.length === 0) {
-  const credential = process.env.FIREBASE_SERVICE_ACCOUNT
-    ? admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) // PRODUCTION: Use the env variable
-    : admin.credential.cert(serviceAccount as admin.ServiceAccount);      // LOCAL: Use the local file
-
+  let credential;
+  if (process.env.NETLIFY && process.env.FIREBASE_SERVICE_ACCOUNT) {
+    credential = admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT));
+  } else {
+    const serviceAccount = require('../../serviceAccountKey.json');
+    credential = admin.credential.cert(serviceAccount);
+  }
   admin.initializeApp({ credential });
   console.log('Firebase Admin SDK Initialized.');
 }
