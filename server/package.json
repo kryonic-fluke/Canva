@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "main": "dist/src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc"
-  },
+"scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "npx ts-node-dev --respawn --transpile-only src/index.ts",
+  "build": "npx tsc"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

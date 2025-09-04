@@ -3,12 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+"scripts": {
+  "dev": "npx vite",
+  "build": "npx tsc -b && npx vite build",
+  "lint": "npx eslint .",
+  "preview": "npx vite preview"
+},
   "dependencies": {
     "@headlessui/react": "^2.2.7",
     "@reactflow/node-resizer": "^2.2.14",
