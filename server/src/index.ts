@@ -44,7 +44,7 @@ if (!mongoURI) {
   throw new Error("MONGO_URI not found in .env file.");
 }
 const corsOrigins = process.env.NETLIFY
-  ? [process.env.URL, "https://your-netlify-domain.netlify.app"]
+  ? [process.env.URL, " 'https://synapse-workspace.netlify.app'"]
   : ["http://localhost:5174"];
 
 app.use(
