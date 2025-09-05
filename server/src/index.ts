@@ -12,24 +12,20 @@ dotenv.config();
 if (admin.apps.length === 0) {
   let credential;
 
-  if (process.env.NETLIFY && process.env.FIREBASE_SERVICE_ACCOUNT) {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     credential = admin.credential.cert(
       JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
     );
-  } else if (!process.env.NETLIFY) {
+  } else {
     try {
       const serviceAccount = require("../../serviceAccountKey.json");
       credential = admin.credential.cert(serviceAccount);
     } catch (error) {
-      console.error(
-        "Service account file not found. Please ensure FIREBASE_SERVICE_ACCOUNT env var is set."
-      );
-      throw error;
+      console.error("Neither FIREBASE_SERVICE_ACCOUNT env var nor local file found");
+      throw new Error("Firebase credentials not configured properly");
     }
-  } else {
-    throw new Error("Firebase credentials not configured properly");
   }
-
+  
   admin.initializeApp({ credential });
   console.log("Firebase Admin SDK Initialized.");
 }
