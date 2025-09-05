@@ -1,7 +1,7 @@
 [build]
   command = "npm install && npm run build:client && npm run build:server"
   publish = "client/dist"
-  functions = "server/dist/functions"
+functions = "server/dist/functions"
 
 [build.environment]
   NODE_VERSION = "20"
