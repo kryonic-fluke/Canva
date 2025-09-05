@@ -14,6 +14,9 @@ import type { Connection, Edge, Node } from "reactflow";
 interface NewCanvasData {
   name: string;
 }
+
+const apiBaseUrl = import.meta.env.VITE_API_URL;
+
 export const createCanvasRequestAPI = async (canvasData: NewCanvasData) => {
   try {
     const auth = getAuth();
@@ -21,7 +24,7 @@ export const createCanvasRequestAPI = async (canvasData: NewCanvasData) => {
     if (auth.currentUser) {
       const idToken = await auth.currentUser.getIdToken();
       const response = await axios.post(
-        "http://localhost:5001/api/canvases",
+      `${apiBaseUrl}/api/canvases`,
         canvasData,
         {
           headers: {
@@ -50,7 +53,7 @@ export const getCanvasesApi = async () => {
     const config = { headers: { Authorization: `Bearer ${idToken}` } };
 
     const response = await axios.get(
-      "http://localhost:5001/api/canvases",
+      `${apiBaseUrl}/api/canvases`,
 
       config
     );
@@ -65,7 +68,7 @@ export const deleteCanvasApi = async (_id: string) => {
     const idToken = await auth.currentUser.getIdToken();
 
     const response = await axios.delete(
-      `http://localhost:5001/api/canvases/${_id}`,
+      `${apiBaseUrl}/api/canvases/${_id}`,
       {
         headers: { Authorization: `Bearer ${idToken}` },
       }
@@ -83,7 +86,7 @@ export const getinviteLinkAPi = async (_id: string) => {
     const idToken = await auth.currentUser.getIdToken();
 
     const response = await axios.get(
-      `http://localhost:5001/api/canvases/${_id}/invite-link`,
+      `${apiBaseUrl}/api/canvases/${_id}/invite-link`,
 
       {
         headers: { Authorization: `Bearer ${idToken}` },
@@ -110,7 +113,7 @@ export const requestAccessApi = async (data: {
   const idToken = await auth.currentUser.getIdToken();
 
   const response = await axios.post(
-    `http://localhost:5001/api/canvases/${_id}/request-access`,
+    `${apiBaseUrl}/api/canvases/${_id}/request-access`,
 
     { inviteToken },
 
@@ -139,7 +142,7 @@ export const approveRequestApi = async (data: {
   const idToken = await currentUser.getIdToken();
 
   const response = await axios.post(
-    `http://localhost:5001/api/canvases/${canvasId}/approve-request`,
+    `${apiBaseUrl}/api/canvases/${canvasId}/approve-request`,
     { userIdToApprove },
     {
       headers: { Authorization: `Bearer ${idToken}` },
@@ -160,7 +163,7 @@ export const declineRequest = async (data: {
   const idToken = await auth.currentUser.getIdToken();
 
   const response = await axios.post(
-    `http://localhost:5001/api/canvases/${canvasId}/decline-request`,
+    `${apiBaseUrl}/api/canvases/${canvasId}/decline-request`,
     { userIdToDecline },
     { headers: { Authorization: `Bearer ${idToken}` } }
   );

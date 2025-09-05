@@ -2,6 +2,8 @@ import axios from 'axios';
 import { getAuth } from 'firebase/auth';
 import type { UserSyncDataBackEnd } from '../types';
 
+
+const apiBaseUrl = import.meta.env.VITE_API_URL;
 export const userBackEndSyncData = async (userData: UserSyncDataBackEnd) => {
   try {
     const auth = getAuth();
@@ -10,7 +12,7 @@ export const userBackEndSyncData = async (userData: UserSyncDataBackEnd) => {
       const idToken = await auth.currentUser.getIdToken(); 
 
       const response = await axios.post(
-        'http://localhost:5001/api/users',
+        `${apiBaseUrl}/api/users`,
         userData,
         {
           headers: {

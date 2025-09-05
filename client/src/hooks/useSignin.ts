@@ -9,6 +9,8 @@ interface UseSocialSignInOptions {
     onSuccess?: (data: UserCredential ) => void;
     onError?: (error: FirebaseError) => void;
 }
+
+
 export const useSocialSignIn = (options?:UseSocialSignInOptions) => {
   return useMutation<UserCredential ,FirebaseError,AuthProviderName >({
 
