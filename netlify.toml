@@ -1,20 +1,25 @@
 [build]
- command = "npm install && npm run build:client && npm run build --prefix server"  
+  command = "npm install && npm run build:client && npm run build:server"
   publish = "client/dist"
-functions = "server/dist/functions"
+  functions = "server/dist/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+
 [functions]
-node_bundler = "esbuild"
+  node_bundler = "esbuild"
 
 [dev]
-framework = "#vite"
-port = 5174
+  framework = "#vite"
+  port = 5174
+  targetPort = 5174
 
 [[redirects]]
-from = "/api/*"
-to = "/.netlify/functions/api/:splat"
-status = 200
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200

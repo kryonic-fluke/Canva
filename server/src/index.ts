@@ -32,8 +32,14 @@ const mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PA
 if (!mongoURI) {
     throw new Error('MONGO_URI not found in .env file.');
 }
+const corsOrigins = process.env.NETLIFY 
+  ? [process.env.URL, 'https://your-netlify-domain.netlify.app']
+  : ['http://localhost:5174'];
 
-app.use(cors({ origin: 'http://localhost:5174' }));
+app.use(cors({ 
+  origin: corsOrigins as string[],
+  credentials: true 
+}));
 app.use(express.json());
 
 
