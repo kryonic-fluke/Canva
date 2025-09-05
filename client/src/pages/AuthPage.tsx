@@ -1,4 +1,3 @@
-// src/pages/AuthPage.tsx
 
 import { useNavigate } from 'react-router-dom';
 import { useSocialSignIn } from '../hooks/useSignin';
