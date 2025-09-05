@@ -12,7 +12,7 @@ export const userBackEndSyncData = async (userData: UserSyncDataBackEnd) => {
       const idToken = await auth.currentUser.getIdToken(); 
 
       const response = await axios.post(
-        `${apiBaseUrl}/api/users`,
+        `${apiBaseUrl}/users`,
         userData,
         {
           headers: {

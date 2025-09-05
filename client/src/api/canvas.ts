@@ -24,7 +24,7 @@ export const createCanvasRequestAPI = async (canvasData: NewCanvasData) => {
     if (auth.currentUser) {
       const idToken = await auth.currentUser.getIdToken();
       const response = await axios.post(
-      `${apiBaseUrl}/api/canvases`,
+      `${apiBaseUrl}/canvases`,
         canvasData,
         {
           headers: {
@@ -53,7 +53,7 @@ export const getCanvasesApi = async () => {
     const config = { headers: { Authorization: `Bearer ${idToken}` } };
 
     const response = await axios.get(
-      `${apiBaseUrl}/api/canvases`,
+      `${apiBaseUrl}/canvases`,
 
       config
     );
@@ -68,7 +68,7 @@ export const deleteCanvasApi = async (_id: string) => {
     const idToken = await auth.currentUser.getIdToken();
 
     const response = await axios.delete(
-      `${apiBaseUrl}/api/canvases/${_id}`,
+      `${apiBaseUrl}/canvases/${_id}`,
       {
         headers: { Authorization: `Bearer ${idToken}` },
       }
@@ -86,7 +86,7 @@ export const getinviteLinkAPi = async (_id: string) => {
     const idToken = await auth.currentUser.getIdToken();
 
     const response = await axios.get(
-      `${apiBaseUrl}/api/canvases/${_id}/invite-link`,
+      `${apiBaseUrl}/canvases/${_id}/invite-link`,
 
       {
         headers: { Authorization: `Bearer ${idToken}` },
@@ -113,7 +113,7 @@ export const requestAccessApi = async (data: {
   const idToken = await auth.currentUser.getIdToken();
 
   const response = await axios.post(
-    `${apiBaseUrl}/api/canvases/${_id}/request-access`,
+    `${apiBaseUrl}/canvases/${_id}/request-access`,
 
     { inviteToken },
 
@@ -142,7 +142,7 @@ export const approveRequestApi = async (data: {
   const idToken = await currentUser.getIdToken();
 
   const response = await axios.post(
-    `${apiBaseUrl}/api/canvases/${canvasId}/approve-request`,
+    `${apiBaseUrl}/canvases/${canvasId}/approve-request`,
     { userIdToApprove },
     {
       headers: { Authorization: `Bearer ${idToken}` },
@@ -163,7 +163,7 @@ export const declineRequest = async (data: {
   const idToken = await auth.currentUser.getIdToken();
 
   const response = await axios.post(
-    `${apiBaseUrl}/api/canvases/${canvasId}/decline-request`,
+    `${apiBaseUrl}/canvases/${canvasId}/decline-request`,
     { userIdToDecline },
     { headers: { Authorization: `Bearer ${idToken}` } }
   );

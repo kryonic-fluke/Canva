@@ -55,8 +55,8 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/api/users", userRoutes);
-app.use("/api/canvases", canvasRoutes);
+app.use('/users', userRoutes);
+app.use('/canvases', canvasRoutes);
 
 const connectToDatabase = async () => {
   if (mongoose.connection.readyState === 0) {
