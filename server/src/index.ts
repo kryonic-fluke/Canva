@@ -1,3 +1,4 @@
+// server/src/index.ts
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -11,7 +12,7 @@ dotenv.config();
 
 if (admin.apps.length === 0) {
   let credential;
-
+  
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     credential = admin.credential.cert(
       JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
@@ -21,7 +22,7 @@ if (admin.apps.length === 0) {
       const serviceAccount = require("../../serviceAccountKey.json");
       credential = admin.credential.cert(serviceAccount);
     } catch (error) {
-      console.error("Neither FIREBASE_SERVICE_ACCOUNT env var nor local file found");
+      console.error("neither FIREBASE_SERVICE_ACCOUNT env var nor local file found");
       throw new Error("Firebase credentials not configured properly");
     }
   }
@@ -34,11 +35,7 @@ export const firestoreDb = admin.firestore();
 
 export const app = express();
 const port = process.env.PORT || 5001;
-const mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@clustercanva0.4bwgyeq.mongodb.net/creative-canvas-db?retryWrites=true&w=majority`;
 
-if (!mongoURI) {
-  throw new Error("MONGO_URI not found in .env file.");
-}
 const corsOrigins = process.env.NETLIFY
   ? [process.env.URL, "https://synapse-workspace.netlify.app"]
   : ["http://localhost:5174"];
@@ -54,12 +51,23 @@ app.use(express.json());
 app.use('/users', userRoutes);
 app.use('/canvases', canvasRoutes);
 
-const connectToDatabase = async () => {
-  if (mongoose.connection.readyState === 0) {
-    if (!mongoURI) throw new Error("MONGO_URI not found");
-    await mongoose.connect(mongoURI);
-    console.log("New MongoDB connection established.");
+app.get('/', (req: Request, res: Response) => {
+  res.json({ message: 'API is working', timestamp: new Date().toISOString() });
+});
+
+let cachedConnection: mongoose.Connection | null = null;
+
+export const connectToDatabase = async () => {
+  if (cachedConnection && mongoose.connection.readyState === 1) {
+    return cachedConnection;
   }
+  
+  const mongoURI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@clustercanva0.4bwgyeq.mongodb.net/creative-canvas-db`;
+     const connection = await mongoose.connect(mongoURI);
+ cachedConnection = connection.connection;
+     console.log(" database connection established successfully.");
+
+   return cachedConnection;
 };
 
 if (!process.env.NETLIFY) {
@@ -67,5 +75,5 @@ if (!process.env.NETLIFY) {
     app.listen(port, () => {
       console.log(`[server]: Server is running at http://localhost:${port}`);
     });
-  });
+  }).catch(console.error);
 }
