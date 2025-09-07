@@ -68,7 +68,7 @@ export const getInviteLink = async (req: Request, res: Response) => {
   if (!canvas) {
     return res.status(404).json({ message: "Canvas not found" });
   }
-  const inviteLink = `http://localhost:5173/join/${_id}/${canvas.inviteToken}`;
+const inviteLink = `http://localhost:5173/join/${_id}/${canvas.inviteToken}`; 
   res.status(200).json({ inviteLink });
 }; //creates url with sharetoken
 
