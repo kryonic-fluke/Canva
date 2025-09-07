@@ -68,7 +68,9 @@ export const getInviteLink = async (req: Request, res: Response) => {
   if (!canvas) {
     return res.status(404).json({ message: "Canvas not found" });
   }
-const inviteLink = `http://localhost:5173/join/${_id}/${canvas.inviteToken}`; 
+
+  const clientBaseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const inviteLink = `${clientBaseUrl}/join/${_id}/${canvas.inviteToken}`;
   res.status(200).json({ inviteLink });
 }; //creates url with sharetoken
 
@@ -135,7 +137,7 @@ export const requestAccess = async (req: Request, res: Response) => {
 };
 
 export const approveRequest = async (req: Request, res: Response) => {
-  const {_id: canvasId } = req.params;
+  const { _id: canvasId } = req.params;
   const { userIdToApprove } = req.body;
   const ownerFirebaseUid = req.user?.uid;
 
@@ -153,7 +155,7 @@ export const approveRequest = async (req: Request, res: Response) => {
       return res
         .status(403)
         .json({ message: "Forbidden: You are not the owner of this canvas." });
-    }//check that approval is done by the owner or not 
+    } //check that approval is done by the owner or not
 
     const userToApprove = await User.findById(userIdToApprove);
     if (!userToApprove) {
@@ -163,7 +165,7 @@ export const approveRequest = async (req: Request, res: Response) => {
     }
 
     await Canvas.updateOne(
-      {  _id: canvasId },
+      { _id: canvasId },
       { $addToSet: { collaborators: userToApprove._id } }
     );
 
@@ -189,7 +191,7 @@ export const approveRequest = async (req: Request, res: Response) => {
 };
 
 export const declineRequest = async (req: Request, res: Response) => {
-  const {  canvasId } = req.params;
+  const { canvasId } = req.params;
   const { userIdToDecline } = req.body;
   const ownerFirebaseUid = req.user?.uid;
 
@@ -234,7 +236,7 @@ export const getCanvases = async (req: Request, res: Response) => {
 
     const canvases = await Canvas.find({ collaborators: user._id })
       .sort({ updatedAt: -1 })
-      .populate('owner', 'firebaseUid');
+      .populate("owner", "firebaseUid");
     res.status(201).json(canvases);
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error" });
