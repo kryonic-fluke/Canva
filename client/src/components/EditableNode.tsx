@@ -12,7 +12,7 @@ interface EditableNodeData {
    width: number;
   height: number;
   category?: string | null;
-  onLabelChange: (nodeId: string, newLabel: string) => void;
+  onDataChange: (updates: { label: string }) => void;
   isBeingEditedByAnotherUser?: boolean;
     onNodeResize?: (updates: { width: number; height: number }) => void;
 
@@ -73,7 +73,7 @@ export const EditableNode = memo(
 
       setIsEditing(false);
       if (label !== data.label) {
-        data.onLabelChange(id, label);
+        data.onDataChange( {label});
       }
     };
 

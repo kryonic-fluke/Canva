@@ -9,8 +9,8 @@ interface StickyNoteData {
   text: string;
   color: 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
   category?: string | null;
-  onStickyChange: (nodeId: string, updates: { text?: string; color?: string }) => void;
-  onNodeResize?: (updates: { width: number; height: number }) => void;
+onDataChange: (updates: { text?: string; color?: string }) => void;  
+onNodeResize?: (updates: { width: number; height: number }) => void;
   isBeingEditedByAnotherUser?: boolean;
 }
 
@@ -68,12 +68,12 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
     setIsEditing(false);
     console.log("text===>",text);
     
-    data.onStickyChange(id, { text });
+    data.onDataChange( { text });
   };
 
   const handleColorChange = (newColor: keyof typeof colorClasses) => {
     console.log("color here  🌈=>", newColor);
-    data.onStickyChange(id, { color: newColor });
+    data.onDataChange( { color: newColor });
     setShowColorPicker(false);
   };
 

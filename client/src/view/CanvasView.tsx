@@ -114,63 +114,47 @@ export const CanvasView = () => {
     [canvasId, setNodes]
   );
 
-  const onNodeLabelChange = useCallback(
-    (nodeId: string, newLabel: string) => {
-      if (!canvasId || !nodeId || !newLabel) return;
-      updateNodes(canvasId, nodeId, { data: { label: newLabel } });
-    },
-    [canvasId]
-  );
+  // const onNodeLabelChange = useCallback(
+  //   (nodeId: string, newLabel: string) => {
+  //     if (!canvasId || !nodeId || !newLabel) return;
+  //     updateNodes(canvasId, nodeId, { data: { label: newLabel } });
+  //   },
+  //   [canvasId]
+  // );
 
-  const handleImageChange = useCallback(
-    (nodeId: string, updates: { url?: string }) => {
-      if (!canvasId || !nodeId) return;
+  // const handleImageChange = useCallback(
+  //   (nodeId: string, updates: { url?: string }) => {
+  //     if (!canvasId || !nodeId) return;
 
-      const currentNode = rawNodes.find((node) => node.id === nodeId);
-      if (!currentNode) return;
+  //     const currentNode = rawNodes.find((node) => node.id === nodeId);
+  //     if (!currentNode) return;
 
-      const mergedData = {
-        ...currentNode.data,
-        ...updates,
-      };
+  //     const mergedData = {
+  //       ...currentNode.data,
+  //       ...updates,
+  //     };
 
-      // optimistic update
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.id === nodeId ? { ...node, data: mergedData } : node
-        )
-      );
+  //     // optimistic update
+  //     setNodes((prevNodes) =>
+  //       prevNodes.map((node) =>
+  //         node.id === nodeId ? { ...node, data: mergedData } : node
+  //       )
+  //     );
 
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
-        console.error(`Failed to update image node ${nodeId}`, err);
-      });
-    },
-    [canvasId, rawNodes, setNodes]
-  );
+  //     updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+  //       console.error(`Failed to update image node ${nodeId}`, err);
+  //     });
+  //   },
+  //   [canvasId, rawNodes, setNodes]
+  // );
 
   const handleNodeDataChange = useCallback(
     (nodeId: string, updates: object) => {
-      console.log(`🟡 PARENT HANDLER [handleNodeDataChange]: RECEIVED`, {
-        nodeId,
-        updates,
-      });
-
       if (!nodeId) return;
       setNodes((currentNodes) =>
         currentNodes.map((node) => {
-          const nodeBeforeUpdate = currentNodes.find((n) => n.id === nodeId);
-
-          console.log(
-            `🟡 PARENT HANDLER [handleNodeDataChange]: Node data BEFORE update`,
-            nodeBeforeUpdate?.data
-          );
-
           if (node.id !== nodeId) return node;
           const updatedData = { ...node.data, ...updates };
-          console.log(
-            `🟡 PARENT HANDLER [handleNodeDataChange]: Node data AFTER update`,
-            updatedData
-          );
           return { ...node, data: updatedData };
         })
       );
@@ -189,106 +173,68 @@ export const CanvasView = () => {
     [rawNodes, setNodes, canvasId]
   );
 
-  const handleStickyChange = useCallback(
-    (nodeId: string, updates: { text?: string; color?: string }) => {
-      if (!canvasId || !nodeId) return;
+  // const handleStickyChange = useCallback(
+  //   (nodeId: string, updates: { text?: string; color?: string }) => {
+  //     if (!canvasId || !nodeId) return;
 
-      console.log("handleStickyChange called with:", { nodeId, updates });
+  //     console.log("handleStickyChange called with:", { nodeId, updates });
 
-      const currentNode = rawNodes.find((node) => node.id === nodeId);
-      if (!currentNode) {
-        console.error("Node not found:", nodeId);
-        return;
-      }
+  //     const currentNode = rawNodes.find((node) => node.id === nodeId);
+  //     if (!currentNode) {
+  //       console.error("Node not found:", nodeId);
+  //       return;
+  //     }
 
-      const mergedData = {
-        ...currentNode.data,
-        ...updates,
-      };
+  //     const mergedData = {
+  //       ...currentNode.data,
+  //       ...updates,
+  //     };
 
-      console.log("Merged data:", mergedData);
+  //     console.log("Merged data:", mergedData);
 
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.id === nodeId ? { ...node, data: mergedData } : node
-        )
-      );
+  //     setNodes((prevNodes) =>
+  //       prevNodes.map((node) =>
+  //         node.id === nodeId ? { ...node, data: mergedData } : node
+  //       )
+  //     );
 
-      updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
-        console.error(`Failed to update sticky note ${nodeId}`, err);
-      });
-    },
-    [canvasId, rawNodes, setNodes]
-  );
-
-  const hydratedNodes = useMemo(() => {
+  //     updateNodes(canvasId, nodeId, { data: mergedData }).catch((err) => {
+  //       console.error(`Failed to update sticky note ${nodeId}`, err);
+  //     });
+  //   },
+  //   [canvasId, rawNodes, setNodes]
+  // );
+const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
-      let finalNodeData;
-
-      const style = { width: node.width ?? 200, height: node.height ?? 150 };
-
-      switch (node.type) {
-        case "checklist":
-          finalNodeData = {
-            ...node.data,
-            onDataChange: (updates: object) =>
-              handleNodeDataChange(node.id, updates),
-            onNodeResize: (style: { width: number; height: number }) =>
-              handleNodeResize(node.id, style),
-          };
-          break;
-        case "sticky":
-          finalNodeData = {
-            ...node.data,
-            onStickyChange: handleStickyChange,
-
-            onNodeResize: (style: { width: number; height: number }) =>
-              handleNodeResize(node.id, style),
-          };
-          break;
-        case "image":
-          finalNodeData = {
-            ...node.data,
-            onImageChange: handleImageChange,
-            onNodeResize: (style: { width: number; height: number }) =>
-              handleNodeResize(node.id, style),
-          };
-          break;
-        case "editableNode":
-        default:
-          finalNodeData = {
-            ...node.data,
-            onLabelChange: onNodeLabelChange,
-            onNodeResize: (style: { width: number; height: number }) =>
-              handleNodeResize(node.id, style),
-          };
-          break;
-      }
-
-      // Adding functionality to raw data
-      const isBeingEditedByAnotherUser =
-        isBeingEdited && editorId !== currentUserId;
+      
+      const commonNodeDataProps = {
+        onDataChange: (updates: object) => handleNodeDataChange(node.id, updates),
+        
+        onNodeResize: (style: { width: number; height: number }) => handleNodeResize(node.id, style),
+        
+        isBeingEditedByAnotherUser: isBeingEdited && editorId !== currentUserId,
+        
+        canvasId: canvasId, 
+      };
 
       return {
         ...node,
-        style,
         data: {
-          ...finalNodeData,
-          isBeingEditedByAnotherUser: isBeingEditedByAnotherUser,
+          ...node.data,
+          ...commonNodeDataProps,
         },
+        style: { width: node.width ?? 200, height: node.height ?? 150 },
       };
     });
   }, [
     rawNodes,
-    onNodeLabelChange,
     activePresenceMap,
     currentUserId,
-    handleStickyChange,
-    handleImageChange,
+    handleNodeDataChange, 
     handleNodeResize,
-    handleNodeDataChange,
+    canvasId,
   ]);
 
   const nodeTypes = useMemo(
@@ -301,7 +247,6 @@ export const CanvasView = () => {
     []
   );
 
-  // cleanup throttled function on unmount
   useEffect(() => {
     return () => {
       NodeChangeThrottle.cancel();
@@ -313,7 +258,6 @@ export const CanvasView = () => {
       if (!canvasId) return;
       setNodes((nds) => applyNodeChanges(changes, nds));
 
-      // Updates the ui optimistically
       changes.forEach((change) => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);

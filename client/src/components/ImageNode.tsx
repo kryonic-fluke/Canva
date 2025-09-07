@@ -10,14 +10,8 @@ interface ImageNodeData {
   width: number;
   height: number;
   category?: string | null;
-  onImageChange: (
-    nodeId: string,
-    updates: {
-      url?: string;
-      width?: number;
-      height?: number;
-    }
-  ) => void;
+  onDataChange: (updates: { url?: string }) => void;
+
       onNodeResize?: (updates: { width: number; height: number }) => void;
 
   isBeingEditedByAnotherUser?: boolean;
@@ -70,7 +64,7 @@ export const ImageNode = memo(
           const result = event.target?.result as string;
           setIsLoading(false)
           if (result) {
-            data.onImageChange(id, { url: result });
+            data.onDataChange( { url: result });
           }
         };
         reader.onerror = () => {
@@ -84,7 +78,7 @@ export const ImageNode = memo(
           fileInputRef.current.value = "";
         }
       },
-      [data, id]
+      [data]
     );
 
     const handleUploadClick = useCallback(() => {
