@@ -50,7 +50,7 @@ const { _id: canvasId } = useParams<{ _id: string }>();
         console.log(`🔵 CHILD [${id}]: SENDING PAYLOAD`, updates);
         onDataChange( updates);
       }, 500),
-    [onDataChange]
+    [id,onDataChange]
   );
 
 

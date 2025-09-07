@@ -34,6 +34,7 @@ export const signInWithProvider = async (
     provider = new GithubAuthProvider();
   } else if (providerName == "google") {
     provider = new GoogleAuthProvider();
+
   }
 
    if (!provider) {

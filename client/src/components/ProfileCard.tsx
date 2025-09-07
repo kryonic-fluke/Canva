@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react"; // Import React for types
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../services/firebase";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProfileCardProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -12,10 +13,12 @@ export const ProfileCard = ({ setIsOpen ,buttonRef}: ProfileCardProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
-
+ const queryClient = useQueryClient();
   const handleLogout = async () => {
     try {
+      
       await auth.signOut();
+       queryClient.clear(); 
       navigate("/");
       setIsOpen(false);
     } catch (error) {
