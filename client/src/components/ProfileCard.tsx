@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react"; // Import React for types
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../services/firebase";
 
 interface ProfileCardProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -9,13 +10,14 @@ interface ProfileCardProps {
 
 export const ProfileCard = ({ setIsOpen ,buttonRef}: ProfileCardProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await auth.signOut();
       navigate("/");
+      setIsOpen(false);
     } catch (error) {
       console.error("Failed to log out:", error);
     }

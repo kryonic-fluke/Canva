@@ -21,11 +21,9 @@ interface CanvasListItemProps {
   };
 }
 
-// src/components/CanvasListItem.tsx
 
 export const CanvasListItem = ({ canvas }: CanvasListItemProps) => {
-    // ... all your hook and handler logic ...
-    // No changes needed to that part. It is correct.
+  
     const { user } = useAuth();
 
 const { _id: canvasId, name, owner } = canvas;
@@ -77,12 +75,10 @@ const handleApprove = (userIdToApprove: string) => {
                         <Menu.Item key={req.id}>
                           {({ active }) => (
                             <div className={`${active ? 'bg-blue-500 text-white' : 'text-gray-900'} group flex rounded-md items-center justify-between w-full px-2 py-2 text-sm`}>
-                              {/* User Info */}
                               <div className="flex flex-col">
                                 <span className="font-semibold">{req.userName}</span>
                                 <span className={`${active ? 'text-blue-200' : 'text-gray-500'} text-xs`}>{req.userEmail}</span>
                               </div>
-                              {/* Action Buttons */}
                               <div className="space-x-1 flex-shrink-0">
                                 <button
                                   onClick={() => handleApprove(req.id)}
