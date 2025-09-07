@@ -1,7 +1,9 @@
-// src/components/ImageNode.tsx
-import { memo, useState, useRef, useCallback } from "react";
+import { memo, useState, useRef, useCallback, useEffect } from "react";
 import { Handle, NodeResizer, Position, type NodeProps } from "reactflow";
 import { getTagColor } from "../services/getTagColor";
+import { getAuth } from "firebase/auth";
+import { clearEditingPresence, setEditingPresence } from "../api/canvas";
+import { useParams } from "react-router-dom";
 
 interface ImageNodeData {
   url: string;
@@ -26,7 +28,25 @@ export const ImageNode = memo(
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+  const { _id: canvasId } = useParams<{ _id: string }>();
 
+
+    useEffect(() => {
+     const currentUser = getAuth().currentUser;
+    const userId = currentUser?.uid;
+
+      if (selected && canvasId && userId) {
+        setEditingPresence(canvasId, userId, id).catch((err) =>
+          console.error("failed to set presence:", err)
+        );
+
+        return () => {
+          clearEditingPresence(canvasId, userId).catch((err) =>
+            console.error("failed to clear presence:", err)
+          );
+        };
+      }
+    }, [ canvasId, id,selected]);
     const handleFileUpload = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -100,24 +120,26 @@ export const ImageNode = memo(
       `}
         style={{ width: `100%`, height: `100%` }}
       >
-          <NodeResizer
-                        isVisible={selected}
-                        minWidth={150}
-                        minHeight={100}
-                        onResizeEnd={(_event, params) => {
-                          data.onNodeResize?.({ width: params.width, height: params.height });
-                        }}
-                      />
+        <NodeResizer
+          isVisible={selected}
+          minWidth={150}
+          minHeight={100}
+          onResizeEnd={(_event, params) => {
+            data.onNodeResize?.({ width: params.width, height: params.height });
+          }}
+        />
         <Handle type="source" position={Position.Bottom} />
         <Handle type="target" position={Position.Top} />
-    {data.category && (
-        <div 
-          className={`absolute bottom-2 left-2 bg-gray-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.category)}`}
-          title={`Category: ${data.category}`}
-        >
-          {data.category}
-        </div>
-      )}
+        
+        {data.category && (
+          <div 
+            className={`absolute bottom-2 left-2 text-white text-xs font-semibold px-2 py-0.5 rounded-full z-10 ${getTagColor(data.category)}`}
+            title={`Category: ${data.category}`}
+          >
+            {data.category}
+          </div>
+        )}
+
         <input
           ref={fileInputRef}
           type="file"
@@ -138,9 +160,15 @@ export const ImageNode = memo(
 
         <div className="w-full h-full flex items-center justify-center p-3 ">
           {!hasImage ? (
-            <div className="flex flex-col item-center">
-             <img src="/img/img2.png" alt="image" className="h-12 object-contain rounded "/>
-            </div>
+            <button
+              onClick={handleUploadClick}
+              className="w-full h-full flex flex-col items-center justify-center 
+                         text-gray-400 hover:bg-gray-50 transition-colors rounded-lg"
+              aria-label="Upload an image"
+            >
+              <img src="/img/img2.png" alt="Upload placeholder" className="h-12 object-contain"/>
+              <span className="text-xs mt-2 font-semibold">Click to upload image</span>
+            </button>
           ) : isLoading ? (
             <div className="text-center text-gray-500">
               <div className="animate-spin text-2xl mb-2">⏳</div>
@@ -170,13 +198,13 @@ export const ImageNode = memo(
           )}
         </div>
 
-        {/* Status Indicator */}
         {isBeingEditedByAnotherUser && (
           <div
-            className="absolute bottom-1 left-1 text-xs text-green-600 font-medium 
-                        bg-white bg-opacity-80 px-1 rounded"
+            className="absolute bottom-1 right-1 text-xs text-green-600 font-medium 
+                        bg-white bg-opacity-80 px-1 rounded shadow"
+            title="This node is being edited by another user"
           >
-            Being edited...
+            Editing...
           </div>
         )}
       </div>

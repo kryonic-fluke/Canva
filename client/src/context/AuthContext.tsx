@@ -57,9 +57,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             error
           );
         }
-        // --- END OF NEW LOGIC ---
+      
       } else {
-        // User is signed out
+      
         setCurrentUser(null);
       }
       setIsLoading(false);

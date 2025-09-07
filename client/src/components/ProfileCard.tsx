@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 
 interface ProfileCardProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  buttonRef: React.MutableRefObject<HTMLButtonElement | null>;
 }
 
-export const ProfileCard = ({ setIsOpen }: ProfileCardProps) => {
+export const ProfileCard = ({ setIsOpen ,buttonRef}: ProfileCardProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -24,7 +25,9 @@ export const ProfileCard = ({ setIsOpen }: ProfileCardProps) => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef?.current &&
+        !buttonRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -33,7 +36,7 @@ export const ProfileCard = ({ setIsOpen }: ProfileCardProps) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [setIsOpen]);
+  }, [setIsOpen,buttonRef]);
 
   return (
    

@@ -12,7 +12,7 @@ interface LayoutContextType {
 const LayoutContext = createContext<LayoutContextType | undefined>(undefined);
 
 export const LayoutProvider = ({ children }: { children: ReactNode }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const location = useLocation(); 
 
   const [isAuthPage, setIsAuthPage] = useState(false);
