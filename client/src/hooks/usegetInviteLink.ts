@@ -16,5 +16,5 @@ export const useGetInviteLink = () => {
       console.error("Failed to get invite link:", error);
       alert("Could not generate invite link. Please try again.");
     },
-  });a
+  });
 };
