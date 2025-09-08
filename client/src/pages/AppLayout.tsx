@@ -17,7 +17,7 @@ export function AppLayout() {
   useEffect(() => {
     if (isSuccess && user && canvases) {
       const currentCanvasId = params._id;
-      const userCanvasIds = canvases.map((c) => c._id);
+      const userCanvasIds = canvases.map((c: { _id: string; }) => c._id);
 
       if (currentCanvasId && !userCanvasIds.includes(currentCanvasId)) {
         navigate("/app", { replace: true });
