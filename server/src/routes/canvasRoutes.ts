@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { approveRequest, createCanvas, deleteCanvas, getCanvases, getInviteLink, requestAccess } from '../controllers/canvasControl';
+import { approveRequest, createCanvas, deleteCanvas, getCanvases, getInviteLink, requestAccess,  } from '../controllers/canvasControl';
 import { protect } from '../middleware/authMiddleWare';
 const router = Router();
 
