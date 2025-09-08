@@ -4,7 +4,7 @@ import { CanvasEmptyState } from '../view/CanvasView/CanvasEmptyState';
 import { useGetCanvases } from '../hooks/usegetCanvases';
 
 export const AppIndexRedirect = () => {
-    const { data: canvases, isLoading } = useGetCanvases();
+    const { data: canvases, isLoading } =useGetCanvases();
 
     if (isLoading) {
         return (
