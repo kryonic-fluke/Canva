@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useSocialSignIn } from "../hooks/useSignin";
+import { Spinner } from "../components/Spinner";
 
 export const AuthPage = () => {
   const navigate = useNavigate();
@@ -35,12 +36,12 @@ export const AuthPage = () => {
           {!isSigningIn ? (
             <button
               onClick={handleGoogleSignIn}
-              className="p-3 bg-red-600 text-white rounded font-semibold hover:bg-red-500"
+              className="p-3 bg-red-600 text-white rounded font-semibold hover:bg-red-500 flex items-center justify-center"
             >
               Sign in with Google
             </button>
           ) : (
-            "signing in"
+            <Spinner text="Signing in..." size="lg" variant= "light"/>
           )}
           <button
             onClick={handleGitHubSignIn}

@@ -74,67 +74,7 @@ export const getInviteLink = async (req: Request, res: Response) => {
   res.status(200).json({ inviteLink });
 }; //creates url with sharetoken
 
-export const requestAccess = async (req: Request, res: Response) => {
-  const { _id } = req.params;
-
-  const { inviteToken } = req.body;
-
-  const requestingFirebaseUid = req.user!.uid;
-
-  console.log(
-    `Received access request for canvas ${_id} by user ${requestingFirebaseUid}`
-  );
-
-  try {
-    const canvas = await Canvas.findById(_id);
-    if (!canvas) {
-      return res.status(404).json({ message: "Canvas not found" });
-    }
-
-    if (canvas.inviteToken !== inviteToken) {
-      return res
-        .status(403)
-        .json({ message: "Invalid or expired invite link." });
-    }
-
-    const requestingUser = await User.findOne({
-      firebaseUid: requestingFirebaseUid,
-    });
-    if (!requestingUser) {
-      return res
-        .status(404)
-        .json({ message: "Requesting user profile not found." });
-    }
-
-    if (canvas.collaborators.includes(requestingUser._id)) {
-      return res
-        .status(409)
-        .json({ message: "You already have access to this canvas." });
-    }
-    const requestDocRef = firestoreDb
-      .collection("canvases")
-      .doc(_id)
-      .collection("pendingRequests")
-      .doc(requestingUser._id.toString()); //adding user id to request list
-
-    await requestDocRef.set({
-      userId: requestingUser._id.toString(),
-      userName: requestingUser.displayName,
-      userEmail: requestingUser.email,
-      timestamp: new Date(),
-    });
-
-    console.log(
-      `Successfully created pending request for user ${requestingUser._id} on canvas ${_id}`
-    );
-    res.status(200).json({ message: "Access request sent successfully." });
-  } catch (error) {
-    console.error("Error in requestAccess controller:", error);
-    res
-      .status(500)
-      .json({ message: "Server error while processing your request." });
-  }
-};
+a
 
 export const approveRequest = async (req: Request, res: Response) => {
   const { _id: canvasId } = req.params;
