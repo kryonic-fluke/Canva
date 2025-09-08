@@ -8,7 +8,7 @@ import type { Node } from "reactflow";
 export const useCategorizeNodes = () => {
     const queryClient = useQueryClient();
     const { _id: canvasId } = useParams<{ _id: string }>();
-
+  
     return useMutation({
         mutationFn: (nodesToCategorize: Node[]) => categorizeNodeAPI(nodesToCategorize),
         

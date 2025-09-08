@@ -7,14 +7,13 @@ export const useCanvasEdges = () => {
     const { _id: canvasId } = useParams<{ _id: string }>();
     const [edges, setEdges] = useState<Edge[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
+ 
     useEffect(() => {
         if (!canvasId) {
             setIsLoading(false);
             return;
         }
-
-        const unsubscribe = listenForEdges(canvasId, (newEdges:Edge[]) => {
+        const unsubscribe =  listenForEdges(canvasId, (newEdges:Edge[]) => {
             setEdges(newEdges);
             setIsLoading(false);
         });

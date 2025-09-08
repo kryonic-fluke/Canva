@@ -1,4 +1,3 @@
-// src/components/CanvasListItem.tsx
 
 import { Link } from 'react-router-dom';
 import { useDeleteCanvas } from '../hooks/useDeleteCanvas';
@@ -9,7 +8,6 @@ import { useApproveRequest } from '../hooks/useApproveRequest';
 import { useDeclineRequest } from '../hooks/useDeclineRequest';
 import { usePendingRequests } from '../hooks/usePendingRequest';
 
-// Updated prop type
 interface CanvasListItemProps {
   canvas: {
     _id: string;
@@ -27,7 +25,6 @@ export const CanvasListItem = ({ canvas }: CanvasListItemProps) => {
     const { user } = useAuth();
 
 const { _id: canvasId, name, owner } = canvas;
-console.log("id 😡😡😡",canvasId);
 
     const { mutate: deleteCanvas, isPending: isDeleting } = useDeleteCanvas();
 const { mutate: getInviteLink, isPending: isGettingLink } = useGetInviteLink();

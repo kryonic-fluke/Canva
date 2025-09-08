@@ -1,11 +1,13 @@
-import { useQuery } from "@tanstack/react-query"
-import { getCanvasesApi } from "../api/canvas"
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
+import { getCanvasesApi } from "../api/canvas";
 
+export const useGetCanvases = () => {
+  const { user } = useAuth();
 
-
-export const  useGetCanvases = ()=>{
-    return useQuery({
-        queryKey:['canvases'],
-        queryFn:getCanvasesApi
-    })
-}
+  return useQuery({
+    queryKey: ["canvases", user?.uid],
+    queryFn: getCanvasesApi,
+    enabled: !!user?.uid,
+  });
+};

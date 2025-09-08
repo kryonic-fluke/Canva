@@ -6,13 +6,16 @@ import { type Node } from 'reactflow';
 export const useCanvasNodes = () => {
   const { _id: canvasId } = useParams<{ _id: string }>();
   const [nodes, setNodes] = useState<Node[]>([]);
+ 
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    if (!canvasId) {
+    if (!canvasId ) {
       setIsLoading(false);
+      
       return;
     }
-    const unsubscribe = listenForNodes(canvasId, (newNodes:Node[]) => {
+    const unsubscribe = listenForNodes(canvasId,(newNodes:Node[]) => {
+
       setNodes(newNodes);
       setIsLoading(false);
     });

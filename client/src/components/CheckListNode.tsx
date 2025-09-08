@@ -16,13 +16,14 @@ export interface ChecklistItem {
 export interface ChecklistNodeData {
   title: string;
   items: ChecklistItem[];
-onDataChange: (updates: { title?: string; items?: ChecklistItem[] }) => void; 
+onDataChange: ( userupdates: { title?: string; items?: ChecklistItem[] }) => void; 
  onNodeResize?: ( size: { width: number; height: number }) => void;
    isBeingEditedByAnotherUser?: boolean; //
 }
 
 export const ChecklistNode: React.FC<NodeProps<ChecklistNodeData>> = ({ id, data, selected }) => {
   const [title, setTitle] = useState(data.title ?? 'Untitled Checklist');
+    
   const [items, setItems] = useState<ChecklistItem[]>(data.items ?? []);
   const [isEditing, setIsEditing] = useState(false);
   const { onDataChange, onNodeResize } = data;

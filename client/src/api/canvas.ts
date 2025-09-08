@@ -205,6 +205,7 @@ export const listenForPendingRequests = (
 
 export const listenForNodes = (
   _id: string,
+  
   callback: (node: Node[]) => void
 ) => {
   const nodeCollectionRef = collection(db, "canvases", _id, "nodes");

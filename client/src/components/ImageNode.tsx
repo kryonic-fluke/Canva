@@ -22,6 +22,7 @@ export const ImageNode = memo(
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+   
   const { _id: canvasId } = useParams<{ _id: string }>();
 
 

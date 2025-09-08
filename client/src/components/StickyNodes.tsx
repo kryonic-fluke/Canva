@@ -24,6 +24,7 @@ const colorClasses = {
 
 export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>) => {
   const [isEditing, setIsEditing] = useState(false);
+  
   const [text, setText] = useState(data.text || '');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const { _id: canvasId } = useParams<{ _id: string }>();
@@ -73,7 +74,7 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
 
   const handleColorChange = (newColor: keyof typeof colorClasses) => {
     console.log("color here  🌈=>", newColor);
-    data.onDataChange( { color: newColor });
+    data.onDataChange({ color: newColor });
     setShowColorPicker(false);
   };
 

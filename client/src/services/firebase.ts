@@ -53,4 +53,35 @@ export const signInWithProvider = async (
    }
 };
 
+
+export const firebaseSignOut = async () => {
+   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: "select_account", 
+  });
+
+  try {
+    await auth.signOut();
+  } catch (error) {
+    console.error("Failed to log out:", error);
+    throw new Error("Failed to log out");
+  }
+};
+
+
+
+export const firebaseSwitchAccount = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: "select_account", 
+  });
+//to get the account selection card 
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    console.error("Firebase account switch failed:", error);
+    throw new Error("Failed to switch accounts.");
+  }
+};
+
 export const db = getFirestore(app);

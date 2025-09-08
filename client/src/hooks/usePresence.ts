@@ -16,7 +16,7 @@ export const usePresence = (canvasId: string | undefined) => {
         const presenceCollectionRef =collection(db, "canvases", canvasId, "presence");
         const unsubscribe = onSnapshot(presenceCollectionRef, (querySnapshot) => {
            const newPresenceMap = new Map<string, string>();
-            console.log(`LISTENER FIRED: Found ${querySnapshot.size} presence documents.`);
+            // console.log(`LISTENER FIRED: Found ${querySnapshot.size} presence documents.`);
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 const editorId = doc.id;

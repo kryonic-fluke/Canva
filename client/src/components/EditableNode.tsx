@@ -21,6 +21,7 @@ interface EditableNodeData {
 export const EditableNode = memo(
   ({ data, id,selected }: NodeProps<EditableNodeData>) => {
     const [isEditing, setIsEditing] = useState(false);
+   
     const [label, setLabel] = useState(data.label);
     const { _id: canvasId } = useParams<{ _id: string }>();
     const inputRef = useRef<HTMLInputElement>(null);

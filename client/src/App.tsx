@@ -79,7 +79,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<AppIndexRedirect />} />
+                <Route index element={<AppIndexRedirect />}/>
                 <Route
                   path="/app/canvas/:_id"
                   element={

@@ -38,6 +38,7 @@ import { ImageNode } from "../components/ImageNode";
 import { useCategorizeNodes } from "../hooks/useCategorize";
 import { useCanvasStats } from "../hooks/useCanvasStats";
 import { SnapshotView } from "./Snapshotview";
+import { useAuth } from "../context/AuthContext";
 
 export const CanvasView = () => {
   const {
@@ -47,6 +48,8 @@ export const CanvasView = () => {
   } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
+    const { user } = useAuth ();
+  const userId = user?.uid;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const stats = useCanvasStats();
@@ -150,7 +153,7 @@ export const CanvasView = () => {
 
   const handleNodeDataChange = useCallback(
     (nodeId: string, updates: object) => {
-      if (!nodeId) return;
+      if (!nodeId || !canvasId ) return;
       setNodes((currentNodes) =>
         currentNodes.map((node) => {
           if (node.id !== nodeId) return node;
@@ -298,7 +301,7 @@ const hydratedNodes = useMemo(() => {
 
   const addNode = useCallback(
     (nodeType: "editableNode" | "checklist" | "sticky" | "image") => {
-      if (!canvasId) return;
+      if (!canvasId ) return;
       const newNodeId = `node_${+new Date()}`;
       let nodeData;
 
