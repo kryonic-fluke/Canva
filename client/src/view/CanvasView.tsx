@@ -38,7 +38,6 @@ import { ImageNode } from "../components/ImageNode";
 import { useCategorizeNodes } from "../hooks/useCategorize";
 import { useCanvasStats } from "../hooks/useCanvasStats";
 import { SnapshotView } from "./Snapshotview";
-import { useAuth } from "../context/AuthContext";
 
 export const CanvasView = () => {
   const {
@@ -48,8 +47,6 @@ export const CanvasView = () => {
   } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
-    const { user } = useAuth ();
-  const userId = user?.uid;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const stats = useCanvasStats();
