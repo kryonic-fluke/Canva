@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { requestAccessApi } from "../api/canvas";
 import { isAxiosError,  } from "axios";
+import toast from "react-hot-toast";
 
 export const useRequestAccess = () => {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ export const useRequestAccess = () => {
       return requestAccessApi(data);
     },
     onSuccess: () => {
-      alert("Request sent successfully! The owner has been notified.");
+      toast.success("Request sent!");
       navigate("/app");
     },
     onError: (error) => {
@@ -33,7 +34,7 @@ export const useRequestAccess = () => {
         }
       }
 
-      alert(`Could not send request: ${errorMessage}`);
+          toast.error("Failed to ask for access.");
     },
   });
 };

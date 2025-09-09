@@ -102,7 +102,7 @@ export const ImageNode = memo(
     return (
       <div
         className={`
-        border-2 rounded-lg shadow-md bg-white overflow-hidden relative
+        border-1 rounded-lg shadow-md bg-white overflow-hidden relative
         transition-all duration-200
         ${selected ? "ring-2 ring-blue-400" : ""}
         ${
@@ -113,7 +113,7 @@ export const ImageNode = memo(
         ${!hasImage ? "border-dashed" : ""}
         hover:shadow-lg
       `}
-        style={{ width: `100%`, height: `100%` }}
+        style={{ width: data.width||`100%` , height:data.height|| `100%` }}
       >
         <NodeResizer
           isVisible={selected}
@@ -153,7 +153,7 @@ export const ImageNode = memo(
           </button>
         )}
 
-        <div className="w-full h-full flex items-center justify-center p-3 ">
+        <div className="w-full h-full flex items-center justify-center p-[0.3rem] ">
           {!hasImage ? (
             <button
               onClick={handleUploadClick}
@@ -162,7 +162,7 @@ export const ImageNode = memo(
               aria-label="Upload an image"
             >
               <img src="/img/img2.png" alt="Upload placeholder" className="h-12 object-contain"/>
-              <span className="text-xs mt-2 font-semibold">Click to upload image</span>
+              <span className="text-xs mt-2 font-semibold hover:text-blue-500">Click to upload image</span>
             </button>
           ) : isLoading ? (
             <div className="text-center text-gray-500">
@@ -185,7 +185,7 @@ export const ImageNode = memo(
             <img
               src={data.url}
               alt="User uploaded content"
-              className="max-w-full max-h-full object-contain rounded"
+              className="max-w-full max-h-full object-contain rounded-md"
               onLoad={handleImageLoad}
               onError={handleImageError}
               draggable={false}

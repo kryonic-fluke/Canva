@@ -9,6 +9,8 @@ interface StickyNoteData {
   text: string;
   color: 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
   category?: string | null;
+   width: number;
+  height: number;
 onDataChange: (updates: { text?: string; color?: string }) => void;  
 onNodeResize?: (updates: { width: number; height: number }) => void;
   isBeingEditedByAnotherUser?: boolean;
@@ -79,8 +81,8 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" ) {
-      e.preventDefault();
+     if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault(); 
       saveAndExit();
     }
   
@@ -103,8 +105,8 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
   const baseClasses = colorClasses[data.color] || colorClasses.yellow;
  
   const nodeClasses = `
-    ${baseClasses}
-    p-4 border-2 rounded-lg shadow-md
+    ${baseClasses}  p-2
+    border-2 rounded-lg shadow-md
     flex flex-col
    cursor-grab
     transition-all duration-200
@@ -115,8 +117,8 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
 
   return (
     <div className={nodeClasses} style={{ 
-  width: "100%",
-  height:  "100%"
+  width:data.width ||  "100%" ,
+  height:data.height ||  "100%"
 }}>
        <NodeResizer
         isVisible={selected}
@@ -150,6 +152,8 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
               <button
                 key={color}
                 onClick={() => handleColorChange(color)}
+               disabled={isBeingEditedByAnotherUser}
+
                 className={`w-6 h-6 rounded-full border-2 ${colorClasses[color]} 
                   ${data.color === color ? 'border-gray-800' : 'border-gray-300'}
                   hover:scale-110 transition-transform`}
@@ -160,7 +164,7 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
         )}
       </div>
 
-      <div onDoubleClick={handleDoubleClick} className="h-full w-full  flex flex-grow items-center">
+      <div onDoubleClick={handleDoubleClick} className="h-full w-full  p-2 flex flex-grow items-center overflow-y-auto">
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -168,11 +172,12 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
             onChange={(e) => setText(e.target.value)}
             onBlur={saveAndExit}
             onKeyDown={handleKeyDown}
-            className="w-full h-full resize-none outline-none bg-transparent text-sm placeholder-gray-500"
+            className="w-full h-full  p-2 resize-none font-medium outline-none bg-transparent text-sm placeholder-gray-500"
             placeholder="Type your note here... "
           />
         ) : (
-          <p className="text-sm text-gray-800 whitespace-pre-wrap break-words overflow-hidden">
+          <p className="text-sm text-gray-800   font-medium  
+          whitespace-pre-wrap break-words overflow-y-auto">
             {data.text || "Double-click to edit..."}
           </p>
         )}

@@ -6,6 +6,7 @@ import {
   type AuthProviderName,
 } from "../services/firebase";
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
+import toast from "react-hot-toast";
 
 interface UseSocialSignInOptions {
   onSuccess?: (data: UserCredential) => void;
@@ -18,7 +19,6 @@ export const useSocialSignIn = (options?: UseSocialSignInOptions) => {
 
     onSuccess: async (result) => {
       console.log("signIn in provider is successfull");
-
       const additionalInfo = getAdditionalUserInfo(result);
       //after successful sign in we add the user to firestore database
       if (additionalInfo) {
@@ -29,6 +29,7 @@ export const useSocialSignIn = (options?: UseSocialSignInOptions) => {
           displayName: result.user.displayName,
         });
       } else {
+        toast.success("Signin successful")
         console.log("old user deteced");
       }
 

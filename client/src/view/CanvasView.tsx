@@ -312,7 +312,10 @@ const hydratedNodes = useMemo(() => {
                 text: "First item",
                 completed: false,
               },
+              
             ],
+               width: 300, 
+      height: 200,
             category: null,
             isBeingEditedByAnotherUser: false,
           };

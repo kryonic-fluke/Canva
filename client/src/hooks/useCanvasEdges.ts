@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { listenForEdges } from '../api/canvas'; // Adjust path
+import { listenForEdges } from '../api/canvas'; 
 import { type Edge } from 'reactflow';
 
 export const useCanvasEdges = () => {

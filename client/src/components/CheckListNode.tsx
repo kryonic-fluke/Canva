@@ -16,6 +16,9 @@ export interface ChecklistItem {
 export interface ChecklistNodeData {
   title: string;
   items: ChecklistItem[];
+  height: number;
+  width: number;
+  category?: string | null;
 onDataChange: ( userupdates: { title?: string; items?: ChecklistItem[] }) => void; 
  onNodeResize?: ( size: { width: number; height: number }) => void;
    isBeingEditedByAnotherUser?: boolean; //
@@ -121,8 +124,8 @@ const { _id: canvasId } = useParams<{ _id: string }>();
   `;
   return (
 <div className={nodeClasses} style={{ 
-  width: "100%",
-  height:  "100%"
+  width:data.width ||  "100%" ,
+  height:data.height ||  "100%"
 }}>     <NodeResizer
         isVisible={selected}
         minWidth={200}
@@ -143,7 +146,7 @@ const { _id: canvasId } = useParams<{ _id: string }>();
             className="text-lg font-bold outline-none border-b-2 border-transparent focus:border-blue-500 mb-2 w-full"
             placeholder="Checklist Title"
           />
-          <div className="flex-grow overflow-y-auto pr-1">
+          <div className="flex-grow overflow-y-auto pr-2">
             {items.map((item, index) => (
               <div key={item.id} className="flex items-center group my-1">
                 <input
@@ -151,6 +154,7 @@ const { _id: canvasId } = useParams<{ _id: string }>();
                   checked={item.completed}
                   onChange={() => handleToggleItem(item.id)}
                   className="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                     disabled={isBeingEditedbyAnotherUser}
                 />
                 <input
                   type="text"
@@ -161,6 +165,8 @@ const { _id: canvasId } = useParams<{ _id: string }>();
                 />
                 <button 
                     onClick={() => handleRemoveItem(item.id)}
+                                  disabled={isBeingEditedbyAnotherUser}
+
                     className="ml-2 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-500"
                 >
                     ✕
@@ -170,6 +176,7 @@ const { _id: canvasId } = useParams<{ _id: string }>();
           </div>
           <button
             onClick={handleAddItem}
+            disabled={isBeingEditedbyAnotherUser}
             className="mt-2 text-left text-blue-600 hover:text-blue-800 text-sm"
           >
             + Add item

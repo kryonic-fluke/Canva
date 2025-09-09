@@ -18,6 +18,8 @@ const { user } = useAuth();
       queryClient.invalidateQueries({ queryKey: ["canvases", user?.uid] });
     },
     onError: (error: AxiosError) => {
+             toast.error("Error while creating a Canvas!");
+
       console.error("Error in useCreateCanvas mutation:", error.message);
     },
   });

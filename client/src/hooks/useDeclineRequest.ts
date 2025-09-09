@@ -1,31 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { declineRequest } from "../api/canvas";
-
-
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast'; 
+import { declineRequest } from '../api/canvas';
 
 interface DeclineRequestVariables {
   canvasId: string;
   userIdToDecline: string;
 }
-export const useDeclineRequest = ()=>{
+
+export const useDeclineRequest = () => {
   const queryClient = useQueryClient();
 
-    
-return useMutation({
-    mutationFn: (variables:DeclineRequestVariables)=>declineRequest(variables),
+  return useMutation({
+    mutationFn: (variables: DeclineRequestVariables) => declineRequest(variables),
 
-     onSuccess: (data, variables) => {
-      console.log("Decline successful:", data.message);
+    onMutate: async () => {
+      toast.loading('Declining request...', { id: 'decline-request' });
+    },
+
+    onSuccess: ( variables) => {
+      toast.success('Request declined successfully.', { id: 'decline-request' });
       
       queryClient.invalidateQueries({ queryKey: ['pendingRequests', variables.canvasId] });
-      
-      alert("Request declined.");
     },
-onError: (error) => {
-      console.error("Failed to decline request:", error);
-      alert("An error occurred while declining the request.");
-    },
-    
-})
 
-}
+    onError: (error) => {
+      toast.error(error.message || 'Failed to decline the request.', { id: 'decline-request' });
+      console.error("Failed to decline request:", error);
+    },
+  });
+};

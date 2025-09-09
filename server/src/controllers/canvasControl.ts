@@ -191,7 +191,7 @@ export const approveRequest = async (req: Request, res: Response) => {
 };
 
 export const declineRequest = async (req: Request, res: Response) => {
-  const { canvasId } = req.params;
+  const { _id: canvasId } = req.params; 
   const { userIdToDecline } = req.body;
   const ownerFirebaseUid = req.user?.uid;
 

@@ -24,7 +24,7 @@ export const EditableNode = memo(
    
     const [label, setLabel] = useState(data.label);
     const { _id: canvasId } = useParams<{ _id: string }>();
-    const inputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
       const currentUser = getAuth().currentUser;
@@ -54,7 +54,7 @@ export const EditableNode = memo(
 
     useEffect(() => {
         if (isEditing) {
-            inputRef.current?.focus();
+            textareaRef .current?.focus();
           
         }
     }, [isEditing]);
@@ -78,15 +78,16 @@ export const EditableNode = memo(
       }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "Enter" && e.shiftKey) {
+        e.preventDefault();
         saveAndExit();
       }
     };
     
     const isBeingEditedByAnotherUser = data.isBeingEditedByAnotherUser ?? false;
-    const nodeClasses = `bg-white
-      p-4 border-2 rounded-lg  shadow-md
+    const nodeClasses = `bg-white p-2
+     border-2 rounded-lg  shadow-md
       transition-colors duration-200
       ${ isEditing ? "border-blue-500 ring-2 ring-blue-300" : "border-gray-300" }
       ${ isBeingEditedByAnotherUser ? "animate-pulse border-green-500" : "" }
@@ -94,8 +95,8 @@ export const EditableNode = memo(
 
     return (
       <div className={nodeClasses}style={{ 
-  width: data.width || "100%",
-  height: data.height || "100%"
+  width: data.width ||"100%" ,
+  height: data.height ||"100%" 
 }} onDoubleClick={handleDoubleClick}>
          <NodeResizer
                 isVisible={selected}
@@ -115,20 +116,23 @@ export const EditableNode = memo(
           {data.category}
         </div>
       )}
-        <div >
+        <div className="flex-grow w-full h-full overflow-y-auto">
+         
             {isEditing ? (
-            <input
-                ref={inputRef}
-                type="text"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                onBlur={saveAndExit} 
-                onKeyDown={handleKeyDown}
-                className="w-full text-center outline-none bg-transparent"
+
+               <textarea
+              ref={textareaRef}
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+              onBlur={saveAndExit}
+              onKeyDown={handleKeyDown}
+              className="w-full h-full text-left outline-none bg-transparent resize-none font-medium"
             />
             ) : (
-            <p className="text-center font-semibold ">{data.label}</p>
-            )}
+ <p className="w-full h-full text-left font-medium whitespace-pre-wrap break-words">
+              {data.label}
+            </p>            )}
+           
         </div>
       </div>
     );
