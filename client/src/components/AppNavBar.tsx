@@ -45,8 +45,8 @@ const buttonRef = useRef<HTMLButtonElement>(null);
 
       
       <div className="flex-1 flex justify-center"> 
-        <Link to="/" className="text-white font-bold text-xl" aria-label="Home">
-          Creative Cava
+        <Link to="/" className="text-white font-bold text-4xl hover:text-blue-400 transition-all duration-500 ease-in-out" aria-label="Home">
+          Synapse
         </Link>
       </div>
 

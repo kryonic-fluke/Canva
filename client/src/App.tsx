@@ -12,9 +12,7 @@ const HomePage = lazy(() =>
 const AboutPage = lazy(() =>
   import("./pages/About").then((module) => ({ default: module.AboutPage }))
 );
-const DemoPage = lazy(() =>
-  import("./pages/DemoPage").then((module) => ({ default: module.DemoPage }))
-);
+
 const AuthPage = lazy(() =>
   import("./pages/AuthPage").then((module) => ({ default: module.AuthPage }))
 );
@@ -65,7 +63,6 @@ const App = () => {
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
-                <Route path="/demo" element={<DemoPage />} />
                 <Route path="/login" element={<AuthPage />} />
               </Route>
               <Route

@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { Spinner } from './Spinner'; 
-import { CanvasEmptyState } from '../view/CanvasView/CanvasEmptyState';
 import { useGetCanvases } from '../hooks/usegetCanvases';
+import { CanvasEmptyState } from '../view/CanvasEmptyState';
 
 export const AppIndexRedirect = () => {
     const { data: canvases, isLoading } =useGetCanvases();

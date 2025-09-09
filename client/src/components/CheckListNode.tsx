@@ -124,8 +124,8 @@ const { _id: canvasId } = useParams<{ _id: string }>();
   `;
   return (
 <div className={nodeClasses} style={{ 
-  width:data.width ||  "100%" ,
-  height:data.height ||  "100%"
+  width:data.width ||"100%" ,
+  height:data.height ||"100%"
 }}>     <NodeResizer
         isVisible={selected}
         minWidth={200}
@@ -137,7 +137,7 @@ const { _id: canvasId } = useParams<{ _id: string }>();
       <Handle type="target" position={Position.Top} className="!bg-gray-400" />
       <Handle type="source" position={Position.Bottom} className="!bg-gray-400" />
       
-      <div className="p-3 flex flex-col flex-grow h-full bg-white"   onBlur={handleBlur}
+      <div className=" flex flex-col flex-grow  bg-white"   onBlur={handleBlur}
             onDoubleClick={handleDoubleClick}>
           <input
             type="text"

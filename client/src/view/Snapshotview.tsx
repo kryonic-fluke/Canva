@@ -246,9 +246,13 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
       { currentView!='analysis'&&<div className="mt-auto border-t pt-4 flex-shrink-0">
         <button
           onClick={handleAnalyzeClick}
-          className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-all"
+          className="  flex justify-center items-center gap-3 w-full bg-indigo-600 text-white font-semibold py-2 rounded-md hover:bg-indigo-700 transition-all"
         >
-          Get AI Analysis ✨
+      <p>
+         Get AI Analysis 
+        </p>   
+
+        <img src="/img/ai.png" className="h-[1.8rem]"/>
         </button>
       </div>}
     </div>

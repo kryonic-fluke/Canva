@@ -1,4 +1,4 @@
-import { useCanvasCreate } from '../../hooks/useCanvasCreate'; 
+import { useCanvasCreate } from "../hooks/useCanvasCreate";
 
 export const CanvasEmptyState = () => {
     const { mutate: createCanvas, isPending } = useCanvasCreate();

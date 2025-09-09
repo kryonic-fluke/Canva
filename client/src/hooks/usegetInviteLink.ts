@@ -12,12 +12,11 @@ export const useGetInviteLink = () => {
       console.log("Invite Link Generated:", inviteLink);
 
       navigator.clipboard.writeText(inviteLink);
-      alert("Invite link copied to clipboard!");
+      
     },
     onError: (error) => {
       toast.error("Failed to get invite link.")
       console.error("Failed to get invite link:", error);
-      alert("Could not generate invite link. Please try again.");
     },
   });
 };

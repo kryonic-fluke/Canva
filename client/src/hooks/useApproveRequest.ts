@@ -21,7 +21,6 @@ onSuccess: ( variables) => {
  onError: (error) => {
    toast.error(error.message || "Failed to approve request.", { id: "approve-request" });
       console.error("Failed to approve request:", error);
-      alert("An error occurred while approving the request.");
     },
 
     })

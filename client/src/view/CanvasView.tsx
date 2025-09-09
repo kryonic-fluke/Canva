@@ -1,20 +1,12 @@
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
+import { Fragment, useCallback, useEffect, useMemo, useRef,
   useState,
 } from "react";
-import ReactFlow, {
-  Controls,
-  Background,
-  applyNodeChanges,
-  applyEdgeChanges,
-  type OnEdgesChange,
+import ReactFlow, {  Controls,  Background,  applyNodeChanges,  applyEdgeChanges,  type OnEdgesChange,
   type NodeChange,
+  type Node,
   type Connection,
   useReactFlow,
+  Edge,
 } from "reactflow";
 import { throttle } from "lodash";
 import "reactflow/dist/style.css";
@@ -23,8 +15,7 @@ import { useCanvasEdges } from "../hooks/useCanvasEdges";
 import {
   createEdge,
   createNode,
-  deleteEdge,
-  deleteNode,
+  
   updateNodes,
 } from "../api/canvas";
 import { useParams } from "react-router-dom";
@@ -38,34 +29,79 @@ import { ImageNode } from "../components/ImageNode";
 import { useCategorizeNodes } from "../hooks/useCategorize";
 import { useCanvasStats } from "../hooks/useCanvasStats";
 import { SnapshotView } from "./Snapshotview";
+import { useDeleteNode } from "../hooks/useDeleteNode";
+import { useDeleteEdge } from "../hooks/useDeleteEdge";
+import { ConfirmModal } from "../components/ConfirmModalProps";
 
 export const CanvasView = () => {
-  const {
-    nodes: rawNodes,
-    setNodes,
-    isLoading: isNodesLoading,
-  } = useCanvasNodes();
+  const {  nodes: rawNodes,  setNodes,  isLoading: isNodesLoading,} = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+ const { mutate: deleteNode } = useDeleteNode();
+  const { mutate: deleteEdge } = useDeleteEdge();
+  const [itemsToDelete, setItemsToDelete] = useState<{ nodes: Node[], edges: Edge[] } | null>(null);
   const stats = useCanvasStats();
 
   const { getNodes } = useReactFlow();
-  const { mutate: categorize, isPending: isCategorizing } =
-    useCategorizeNodes();
+  const { mutate: categorize, isPending: isCategorizing } = useCategorizeNodes();
 
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
 
+
+
+   const handleNodesDelete = useCallback((nodesToDelete: Node[]) => {
+    setItemsToDelete({ nodes: nodesToDelete, edges: [] });
+  }, []);
+
+  const handleEdgesDelete = useCallback((edgesToDelete: Edge[]) => {
+    setItemsToDelete({ nodes: [], edges: edgesToDelete });
+  }, []);
+
+  const deletionMessage = useMemo(() => {
+  if (!itemsToDelete) return "";
+
+  const nodeCount = itemsToDelete.nodes.length;
+  const edgeCount = itemsToDelete.edges.length;
+
+  if (nodeCount > 0 && edgeCount > 0) {
+    return `Are you sure you want to delete ${nodeCount} node(s) and ${edgeCount} edge(s)?`;
+  }
+  
+  if (nodeCount > 0) {
+    return `Are you sure you want to delete ${nodeCount} node(s)?`;
+  }
+
+  if (edgeCount > 0) {
+    return `Are you sure you want to delete ${edgeCount} edge(s)?`;
+  }
+  
+  return "Are you sure? This action cannot be undone.";
+
+}, [itemsToDelete]);
+
+
+    const performDeletion = () => {
+    if (!itemsToDelete || !canvasId) return;
+
+    for (const node of itemsToDelete.nodes) {
+      deleteNode({ canvasId, nodeId: node.id });
+    }
+    
+    for (const edge of itemsToDelete.edges) {
+      deleteEdge({ canvasId, edgeId: edge.id });
+    }
+
+    setItemsToDelete(null);
+  };
+   const cancelDeletion = () => {
+    setItemsToDelete(null);
+  };
+
+
   const NodeChangeThrottle = useRef(
-    throttle(
-      (
-        canvasId: string,
-        nodeId: string,
-        position: { x: number; y: number }
-      ) => {
-        updateNodes(canvasId, nodeId, { position }).catch((err) => {
+    throttle( (   canvasId: string,   nodeId: string,   position: { x: number; y: number } ) => {   updateNodes(canvasId, nodeId, { position }).catch((err) => {
           console.error("Throttled update failed", err);
         });
       },
@@ -228,22 +264,10 @@ const hydratedNodes = useMemo(() => {
         style: { width: node.width ?? 200, height: node.height ?? 150 },
       };
     });
-  }, [
-    rawNodes,
-    activePresenceMap,
-    currentUserId,
-    handleNodeDataChange, 
-    handleNodeResize,
-    canvasId,
-  ]);
+  }, [    rawNodes,    activePresenceMap,    currentUserId,    handleNodeDataChange,     handleNodeResize,    canvasId,  ]);
 
   const nodeTypes = useMemo(
-    () => ({
-      editableNode: EditableNode,
-      checklist: ChecklistNode,
-      sticky: StickyNote,
-      image: ImageNode,
-    }),
+    () => ({   editableNode: EditableNode,   checklist: ChecklistNode,   sticky: StickyNote,   image: ImageNode, }),
     []
   );
 
@@ -271,11 +295,7 @@ const hydratedNodes = useMemo(() => {
             );
           }
         }
-        if (change.type === "remove") {
-          deleteNode(canvasId, change.id).catch((err) =>
-            console.error("Failed to delete node:", err)
-          );
-        }
+       
       });
     },
     [canvasId, setNodes, NodeChangeThrottle]
@@ -285,13 +305,7 @@ const hydratedNodes = useMemo(() => {
     (changes) => {
       if (!canvasId) return;
       setEdges((eds) => applyEdgeChanges(changes, eds));
-      changes.forEach((change) => {
-        if (change.type === "remove") {
-          deleteEdge(canvasId, change.id).catch((err) =>
-            console.error("Failed to delete edge:", err)
-          );
-        }
-      });
+     
     },
     [canvasId, setEdges]
   );
@@ -314,8 +328,7 @@ const hydratedNodes = useMemo(() => {
               },
               
             ],
-               width: 300, 
-      height: 200,
+              
             category: null,
             isBeingEditedByAnotherUser: false,
           };
@@ -347,8 +360,8 @@ const hydratedNodes = useMemo(() => {
 
           break;
       }
-      const width = 250;
-      const height = 150;
+      const width = 300;
+      const height = 200;
       // Data preparation
       const optimisticNode = {
         id: newNodeId,
@@ -396,36 +409,47 @@ const hydratedNodes = useMemo(() => {
 
   return (
     <>
+     <ConfirmModal 
+        isOpen={itemsToDelete !== null}
+        title="Confirm Deletion"
+        message={deletionMessage}
+        onConfirm={performDeletion}
+        onCancel={cancelDeletion}
+        confirmText="Delete"
+      />
       <div style={{ width: "100%", height: "100%" }} className="relative">
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
           <button
             onClick={handleCategorizeClick}
             disabled={isCategorizing}
-            className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
+            className="flex items-center justify-center gap-3 bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 focus:outline-none focus:shadow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
           >
-            {isCategorizing ? "Thinking..." : "Categorize Selection ✨"}
+          <p>
+            {isCategorizing ? "Thinking..." : "Categorize Selection "}
+            </p>  
+            <img src="/img/ai.png" className="h-[1.8rem] w-[1.5rem]"/>
           </button>
         </div>
 
-        <div className="absolute top-4 right-6 z-10">
+        <div className="absolute top-2 right-6 z-10">
           <button
-            className="px-3 py-2 bg-slate-500 text-blue hover:opacity-60 active:opacity-80 cursor-pointer"
+            className="px-3 py-2 bg-slate-700 rounded-md text-white hover:bg-slate-600  active:opacity-80 cursor-pointer transition-all duration-300 ease-in-out font-semibold"
             onClick={() => setIsSidebarOpen(true)}
           >
             Canvas Stats 📊
           </button>
         </div>
 
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute top-2 left-4 z-10">
           <Menu as={Fragment}>
             <div className="relative inline-block text-left">
               <div>
-                <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <Menu.Button className=" bg-indigo-500  hover:bg-indigo-600 focus:outline-none   justify-center w-full rounded-md border shadow-sm px-4 py-2  text-sm  text-black font-semibold   focus:ring-indigo-500 translate-all duration-300 ease-in-out">
                   Add Node
                 </Menu.Button>
               </div>
 
-              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+              <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-gray-200 rounded-md divide-y divide-gray-100  shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none translate-all duration-300 ease-in-out">
                 <div className="px-1 py-1 ">
                   <Menu.Item>
                     {({ active }) => (
@@ -497,6 +521,8 @@ const hydratedNodes = useMemo(() => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
+           onNodesDelete={handleNodesDelete}
+        onEdgesDelete={handleEdgesDelete}
           onConnect={onConnect}
         >
           <Controls />
