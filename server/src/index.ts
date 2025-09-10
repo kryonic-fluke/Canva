@@ -38,7 +38,7 @@ const port = process.env.PORT || 5001;
 
 const corsOrigins = process.env.NETLIFY
   ? [process.env.URL, "https://synapse-workspace.netlify.app"]
-  : ["http://localhost:5175"];
+  : ["http://localhost:5174"];
 
 app.use(
   cors({

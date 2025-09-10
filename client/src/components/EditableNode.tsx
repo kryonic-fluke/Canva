@@ -126,6 +126,8 @@ export const EditableNode = memo(
               onChange={(e) => setLabel(e.target.value)}
               onBlur={saveAndExit}
               onKeyDown={handleKeyDown}
+                          placeholder="Type your note here... "
+
               className="w-full h-full text-left outline-none bg-transparent resize-none font-medium"
             />
             ) : (

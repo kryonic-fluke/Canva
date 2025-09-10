@@ -1,12 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef,
   useState,
 } from "react";
-import ReactFlow, {  Controls,  Background,  applyNodeChanges,  applyEdgeChanges,  type OnEdgesChange,
-  type NodeChange,
-  type Node,
-  type Connection,
-  useReactFlow,
-  Edge,
+import ReactFlow, {  Controls,  Background,  applyNodeChanges,  applyEdgeChanges,  type OnEdgesChange,  type NodeChange,  type Node,  type Connection,  useReactFlow,  Edge,
 } from "reactflow";
 import { throttle } from "lodash";
 import "reactflow/dist/style.css";
@@ -354,7 +349,7 @@ const hydratedNodes = useMemo(() => {
         case "editableNode":
         default:
           nodeData = {
-            label: "New Node",
+            label: "",
             isBeingEditedByAnotherUser: false,
             category: null,
           };
