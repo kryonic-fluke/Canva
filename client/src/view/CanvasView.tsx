@@ -32,6 +32,7 @@ import { SnapshotView } from "./Snapshotview";
 import { useDeleteNode } from "../hooks/useDeleteNode";
 import { useDeleteEdge } from "../hooks/useDeleteEdge";
 import { ConfirmModal } from "../components/ConfirmModalProps";
+import { Spinner } from "../components/Spinner";
 
 export const CanvasView = () => {
   const {  nodes: rawNodes,  setNodes,  isLoading: isNodesLoading,} = useCanvasNodes();
@@ -403,9 +404,13 @@ const hydratedNodes = useMemo(() => {
 
   const { fitView } = useReactFlow();
 
-  if (isNodesLoading || isEdgesLoading) {
-    return <div>Loading your canvas...</div>;
-  }
+ if (isNodesLoading || isEdgesLoading) {
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-gray-900">
+      <Spinner size="lg" variant="light" text="Loading Canvas..." />
+    </div>
+  );
+}
 
   return (
     <>

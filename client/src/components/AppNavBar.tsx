@@ -45,8 +45,12 @@ const buttonRef = useRef<HTMLButtonElement>(null);
 
       
       <div className="flex-1 flex justify-center"> 
-        <Link to="/" className="text-white font-bold text-4xl hover:text-blue-400 transition-all duration-500 ease-in-out" aria-label="Home">
-          Synapse
+        <Link to="/" className="flex items-center gap-4 text-white font-bold text-4xl hover:text-blue-400 transition-all duration-500 ease-in-out" aria-label="Home">
+<img src="/img/image.png" className="h-14 w-14 rounded-full  object-cover"/>
+
+       <p>
+Synapse
+        </p>   
         </Link>
       </div>
 
