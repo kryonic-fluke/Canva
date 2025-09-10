@@ -169,7 +169,7 @@ export const CanvasListItem = ({
                         disabled={isGettingLink}
                         className={`${
                           active ? " text-blue-500" : "text-gray-200 "
-                        } text-center group flex w-full justify-center gap-[4.7rem] items-center rounded-md px-3 py-2 text-md font-medium disabled:opacity-50  transition-all duration-900 ease-in-out`}
+                        } text-center group flex w-full justify-center gap-[2rem] items-center rounded-md px-3 py-2 text-md font-medium disabled:opacity-50  transition-all duration-900 ease-in-out`}
                       >
                         <p>Share</p>
 
@@ -189,7 +189,7 @@ export const CanvasListItem = ({
                         }  group flex justify-center w-full items-center gap-3 rounded-md px-3 py-2 text-md disabled:opacity-50 text-left font-medium transition-colors duration-400 ease-in-out`}
                       >
                         <p>{isDeleting ? "Deleting..." : "Delete Canvas"}</p>
-                        <img src="/img/bin.png" className="h-[1.5rem]" />
+                        <img src="/img/trash-bin.png" className="h-[1.2rem]" />
                       </button>
                     )}
                   </Menu.Item>

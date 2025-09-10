@@ -8,13 +8,13 @@ Synapse is a real-time, collaborative visual workspace designed to transform sca
 
 ## Key Features
 
-*   **⚡ Real-Time Collaboration:** All actions (creating, updating, deleting nodes and edges) are synchronized instantly across all connected users using Firestore.
+*   **⚡ Real-Time Collaboration:** All actions (creating, updating, deleting, dragging, editing nodes and edges) are synchronized instantly across all connected users using Firestore.
 *   **✍️ Multiple Node Types:** Go beyond simple text with specialized nodes for Checklists, Sticky Notes, and Images.
 *   **🔗 Visual Connections:** Create edges between nodes to map out workflows, dependencies, and relationships.
 *   **🔒 Secure Invite System:** Share your canvases with collaborators using a secure, request-based access system.
 
-### 🧠 Intelligence Suite
-*   **Magic Tagger (AI):** Automatically categorize selected nodes using a Hugging Face Zero-Shot classification model to bring order to your ideas.
+### ✨ Intelligence Suite
+*   **Intelligent Tagger (AI):** Automatically categorize selected nodes using a Hugging Face Zero-Shot classification model to bring order to your ideas.
 *   **Snapshot Dashboard:** An interactive sidebar that visualizes canvas statistics (breakdowns by category, type, and progress) using `recharts`.
 *   **Project Analyst (AI):** Get a high-level summary, identify potential risks, and receive actionable suggestions for your project, powered by Google Gemini.
 

@@ -1,14 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  type UserCredential,
-  type AuthProvider,
-} from "firebase/auth";
+import {  getAuth,  signInWithPopup,  GoogleAuthProvider,  GithubAuthProvider,  type UserCredential,  type AuthProvider,} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
