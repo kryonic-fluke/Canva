@@ -71,7 +71,7 @@ const App = () => {
                   <ProtectedRoute>
                      <ReactFlowProvider>
 
-                    <AppLayout />
+                    <AppLayout/>
                      </ReactFlowProvider>
                   </ProtectedRoute>
                 }

@@ -42,14 +42,14 @@ export const NewCanvasInput = ({ isSaving, onSave, onCancel }: NewCanvasInputPro
  <button
           onClick={() => onSave(name)}
           disabled={isSaving || !name}
-          className="px-3 py-1 text-sm font-medium bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50  transition-all duration-400 ease-in-out"
+          className="px-3 py-1 text-sm font-medium bg-transparent border-2 border-gray-200 text-white rounded-lg hover:text-green-500  disabled:opacity-50  transition-all duration-400 ease-in-out"
         >
           {isSaving ? <Spinner size="sm" variant="light" /> : 'Create'}
         </button>
         <button
           onClick={onCancel}
           disabled={isSaving}
-          className="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50  transition-all duration-400 ease-in-out"
+          className="px-3 py-1 text-sm font-medium bg-transparent border-2 border-gray-200 text-white rounded-lg  hover:text-red-600 disabled:opacity-50  transition-all duration-400 ease-in-out"
         >
           Cancel
         </button>

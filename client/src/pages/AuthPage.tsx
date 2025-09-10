@@ -28,7 +28,7 @@ export const AuthPage = () => {
 
   return (
     <div 
-      className="flex items-center justify-center h-screen w-screen bg-cover bg-center" 
+      className="flex items-center justify-center h-[100%] w-screen bg-cover bg-center" 
       // style={{ backgroundImage: "url('/img/auth-background.jpg')" }} 
     >
       <div className="absolute inset-0 bg-gray-900 bg-opacity-60" />
