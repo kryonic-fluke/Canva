@@ -96,7 +96,7 @@ synapse-monorepo/
 
 1. **Clone and Install**
    ```bash
-   git clone https://github.com/lilcodo69/synapse
+   git clone https://github.com/yourusername/synapse
    cd synapse
    npm install
    ```
@@ -129,20 +129,94 @@ synapse-monorepo/
 
 ## 📱 **Features Showcase**
 
-### **Real-Time Collaboration**
-- Live cursor tracking and user presence indicators
-- Instant synchronization across all connected clients
-- Conflict-free collaborative editing
+### **🏠 Professional Landing & Dashboard**
+<img src="docs/images/landing-page.png" alt="Synapse Landing Page" width="800">
 
-### **AI Intelligence Suite**
-- **Smart Categorization**: Automatically organize nodes by content type and purpose
-- **Project Analytics**: Visual insights into project progress and team productivity
-- **AI Recommendations**: Intelligent suggestions for project optimization and risk mitigation
+*Clean, professional interface with intuitive navigation and canvas management*
 
-### **Professional Workspace**
-- **Infinite Canvas**: Scale from simple brainstorming to complex project planning
-- **Multi-Modal Content**: Support for text, images, checklists, and custom node types
-- **Secure Sharing**: Enterprise-grade permission system with invite-based access
+### **📋 Canvas Management & Sharing**
+<img src="docs/images/canvas-sidebar-share.png" alt="Canvas Sidebar with Share Options" width="600">
+
+*Organized canvas sidebar with dropdown sharing controls and delete options*
+
+### **👥 Secure Collaboration System**
+<img src="docs/images/join-notification.png" alt="Collaboration Request Notification" width="500">
+
+*Smart notification system showing user details (name, email) with accept/decline options*
+
+### **🎨 Multi-Modal Node Creation**
+<img src="docs/images/node-types-showcase.png" alt="All Node Types on Canvas" width="800">
+
+*Comprehensive node system: Text, Checklists, Sticky Notes, and Image nodes with creation dropdown*
+
+### **🤖 AI-Powered Smart Categorization**
+<img src="docs/images/ai-categorization-demo.gif" alt="AI Magic Tagger Demo" width="700">
+
+*Watch AI automatically categorize and tag nodes based on content analysis*
+
+### **📊 Intelligence Suite - Analytics Dashboard**
+
+#### **Snapshot Overview**
+<img src="docs/images/snapshot-sidebar-pie.png" alt="Snapshot Pie Chart Analytics" width="400">
+
+*Real-time pie chart showing distribution of categorized nodes*
+
+#### **Checklist Analytics**
+![Checklist Analytics Demo](docs/videos/checklist-analytics-demo.gif)
+
+*Interactive bar graphs showing:*
+- *Overall completion rates across all checklist nodes*
+- *Individual checklist breakdown with complete/incomplete tasks*
+
+### **🧠 AI Project Analyst**
+<img src="docs/images/ai-analysis-output.png" alt="AI Generated Project Analysis" width="600">
+
+*Google Gemini-powered insights providing project summaries, risk analysis, and actionable recommendations*
+
+---
+
+## 🎬 **Complete Workflow Demonstration**
+
+*Experience the full collaborative journey from canvas creation to real-time editing*
+
+### **1️⃣ Canvas Creation & Sharing**
+![Canvas Creation and Sharing](docs/gifs/create.gif)
+
+**Step 1:** *Create new canvas → Add initial content nodes → Open share dropdown → Generate secure invite link*
+
+### **2️⃣ Secure Invitation System**
+![Collaboration Request](docs/gifs/request.gif)
+
+**Step 2:** *Share invite link → Access request notification → User authentication and permission request*
+
+### **3️⃣ Smart Access Control**
+![Accept/Decline Requests](docs/gifs/accept.gif)
+
+**Step 3:** *Review collaboration requests → User details verification → Accept or decline access permissions*
+
+### **4️⃣ Seamless Canvas Access**
+![Canvas Reload After Access](docs/gifs/reload-vid.gif)
+
+**Step 4:** *Instant canvas synchronization → Real-time data loading → Ready for collaborative editing*
+
+### **5️⃣ Real-Time Collaboration Engine**
+![Real-time Collaboration](docs/gifs/realtime.gif)
+
+**Step 5:** *Multi-user simultaneous editing → Live drag & drop → Text updates → Node resizing → All synchronized instantly*
+
+---
+
+## 🤖 **AI Intelligence Suite**
+
+### **🏷️ Smart Content Categorization*
+![AI Categorization Demo](docs/gifs/Catagorize.gif)
+
+*Select multiple nodes → AI analysis via Hugging Face → Automatic intelligent tagging → Organized workspace*
+
+### **📊 Analytics Dashboard**
+![Snapshot Analytics](docs/gifs/SnapShot.gif)
+
+*Real-time canvas insights → Interactive pie charts → Checklist completion tracking → Project health metrics*
 
 ---
 
@@ -186,9 +260,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👤 **Author**
 
 **Your Name**
-- LinkedIn:(https://www.linkedin.com/in/suyash-upadhyay-49554b333/)
--Netlify: (https://app.netlify.com/teams/lilcodo69/projects)
-- Email: Suyash.upadhyay01@gmail.com
+- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+- LinkedIn: [linkedin.com/in/yourname](https://linkedin.com/in/yourname)
+- Email: your.email@example.com
 
 ---
 
@@ -205,6 +279,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **⭐ Star this repository if you found it helpful!**
 
-[Live Demo](https://synapse-workspace.netlify.app/) • [Documentation](https://docs.synapse.com) • [Report Bug](https://github.com/lilcodo69/synapse/issues)
+[Live Demo](https://your-synapse-app.netlify.app) • [Documentation](https://docs.synapse.com) • [Report Bug](https://github.com/yourusername/synapse/issues)
 
 </div>

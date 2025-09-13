@@ -22,10 +22,7 @@ export const useCategorizeNodes = () => {
       )
         return;
 
-      console.log(
-        "Nodes categorized successfully, now saving to DB:🤗🤗==>",
-        categorizationResults
-      );
+     
       toast.success("Nodes categorized successfully");
 
       const updatePromises = categorizationResults.map((result) => {
