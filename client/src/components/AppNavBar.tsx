@@ -11,7 +11,7 @@ export const Navbar = () => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <nav className="bg-blue-950 shadow-sm p-4 flex items-center justify-between h-20">
+    <nav className="bg-slate-800 shadow-sm p-4 flex items-center justify-between h-13">
       <div className="w-48 flex justify-start">
         {!isAuthPage && (
           <button
