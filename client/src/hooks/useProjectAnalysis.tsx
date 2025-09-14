@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Analysis, ProjectAnalysis } from "../api/Analysis";
 import { CanvasStats } from "./useCanvasStats";
 
-export const useProjectAnalysis = (stats: CanvasStats) => {
+export const useProjectAnalysis = (stats: CanvasStats |undefined) => {
   return useQuery<ProjectAnalysis, Error>({
     queryKey: ["projectAnalysis", stats],
 

@@ -7,12 +7,7 @@ import { throttle } from "lodash";
 import "reactflow/dist/style.css";
 import { useCanvasNodes } from "../hooks/useCanvasNodes";
 import { useCanvasEdges } from "../hooks/useCanvasEdges";
-import {
-  createEdge,
-  createNode,
-  
-  updateNodes,
-} from "../api/canvas";
+import {createEdge,createNode, updateNodes, } from "../api/canvas";
 import { useParams } from "react-router-dom";
 import { EditableNode } from "../components/EditableNode";
 import { usePresence } from "../hooks/usePresence";
@@ -28,6 +23,7 @@ import { useDeleteNode } from "../hooks/useDeleteNode";
 import { useDeleteEdge } from "../hooks/useDeleteEdge";
 import { ConfirmModal } from "../components/ConfirmModalProps";
 import { Spinner } from "../components/Spinner";
+import { deleteObject, getStorage, ref } from "firebase/storage";
 
 export const CanvasView = () => {
   const {  nodes: rawNodes,  setNodes,  isLoading: isNodesLoading,} = useCanvasNodes();
@@ -78,19 +74,34 @@ export const CanvasView = () => {
 }, [itemsToDelete]);
 
 
-    const performDeletion = () => {
-    if (!itemsToDelete || !canvasId) return;
 
-    for (const node of itemsToDelete.nodes) {
-      deleteNode({ canvasId, nodeId: node.id });
-    }
-    
-    for (const edge of itemsToDelete.edges) {
-      deleteEdge({ canvasId, edgeId: edge.id });
+const performDeletion = async () => { 
+  if (!itemsToDelete || !canvasId) return;
+
+  for (const node of itemsToDelete.nodes) {
+    if (
+      node.type === 'image' && 
+      node.data.path
+    ) {
+      try {
+        const storage = getStorage();
+        const imageRef = ref(storage, node.data.path);
+        await deleteObject(imageRef);
+        console.log(`Successfully deleted image for node ${node.id}`);
+      } catch (error) {
+        console.warn(`Failed to delete image for node ${node.id}:`, error);
+      }
     }
 
-    setItemsToDelete(null);
-  };
+    deleteNode({ canvasId, nodeId: node.id });
+  }
+  
+  for (const edge of itemsToDelete.edges) {
+    deleteEdge({ canvasId, edgeId: edge.id });
+  }
+
+  setItemsToDelete(null);
+};
    const cancelDeletion = () => {
     setItemsToDelete(null);
   };
@@ -334,6 +345,7 @@ const hydratedNodes = useMemo(() => {
             url: "",
             isBeingEditedByAnotherUser: false,
             category: null,
+            path: ""
           };
 
           break;
@@ -425,7 +437,7 @@ const hydratedNodes = useMemo(() => {
             className="flex items-center justify-center gap-3 bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 focus:outline-none focus:shadow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
           >
           <p>
-            {isCategorizing ? "Thinking..." : "Categorize Selection "}
+            {isCategorizing ? "Thinking..." : "Categorize"}
             </p>  
             <img src="/img/ai.png" className="h-[1.8rem] w-[1.5rem]"/>
           </button>
@@ -433,10 +445,10 @@ const hydratedNodes = useMemo(() => {
 
         <div className="absolute top-2 right-6 z-10">
           <button
-            className="px-3 py-2 bg-slate-700 rounded-md text-white hover:bg-slate-600  active:opacity-80 cursor-pointer transition-all duration-300 ease-in-out font-semibold"
+            className="px-3 py-2 bg-purple-600 text-700 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:shadow-700 transition-all"
             onClick={() => setIsSidebarOpen(true)}
           >
-            Canvas Stats 📊
+              <img src="/img/stats4.png" className="h-[1.8rem] w-[1.5rem]  "/>
           </button>
         </div>
 
@@ -444,10 +456,13 @@ const hydratedNodes = useMemo(() => {
           <Menu as={Fragment}>
             <div className="relative inline-block text-left">
               <div>
-                <Menu.Button className=" bg-indigo-500  hover:bg-indigo-600 focus:outline-none   justify-center w-full rounded-md border shadow-sm px-4 py-2  text-sm  text-black font-semibold   focus:ring-indigo-500 translate-all duration-300 ease-in-out">
-                  Add Node
+                <Menu.Button className=" bg-indigo-500  hover:bg-indigo-600 focus:outline-none   justify-center w-full rounded-md border shadow-sm px-3 py-1  text-lg text-white   font-semibold   focus:ring-indigo-500 translate-all duration-300 ease-in-out">
+                    +
                 </Menu.Button>
               </div>
+
+
+
 
               <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-gray-200 rounded-md divide-y divide-gray-100  shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none translate-all duration-300 ease-in-out">
                 <div className="px-1 py-1 ">

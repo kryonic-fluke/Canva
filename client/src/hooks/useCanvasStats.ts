@@ -86,28 +86,33 @@ export const mockCanvasStats: CanvasStats = {
   }
 };
 
-export const useCanvasStats = (): CanvasStats => {
+export const useCanvasStats = (): CanvasStats | undefined=> {
   const { getNodes } = useReactFlow();
 
 
   const nodes = getNodes();
   // const edges = getEdges();
 
- useMemo(() => {
+ const stats=useMemo(() => {
     const nodeCountsByType = nodes.reduce((acc: { [key: string]: number }, node: Node) => {
       const type = node.type || 'unknown';
       acc[type] = (acc[type] || 0) + 1;
       return acc;
     }, {});
 
+
+    //calculating the count of each node present
     const nodeCountsByCategory = nodes.reduce((acc: { [key: string]: number }, node: Node) => {
       const category = node.data?.category || 'Uncategorized';
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {});
 
+
+    //counting each categories 
+
     const checklistNodes = nodes.filter(node => node.type === 'checklist');
-    
+    //getting all the checklist nodes 
     const initialProgressData: ProgressAccumulator = {
       total: 0,
       completed: 0,
@@ -116,11 +121,15 @@ export const useCanvasStats = (): CanvasStats => {
     
     const progressData = checklistNodes.reduce((accumulator, node) => {
         const items = node.data.items || [];
+        //get the list of tasks
         const totalInNode = items.length;
+        //num of taks
         const completedInNode = items.filter((item:ChecklistItem)=> item.completed).length;
+        //get number of   completed tasks in a checklist node
         const percentageInNode = totalInNode > 0 ? Math.round((completedInNode / totalInNode) * 100) : 0;
-
+        //calculate the net percentage of tasks completed 
         accumulator.total += totalInNode;
+        //add to globals tasks count of entire canvas
         accumulator.completed += completedInNode;
         
         accumulator.details.push({
@@ -130,6 +139,8 @@ export const useCanvasStats = (): CanvasStats => {
             completed: completedInNode,
             percentage: percentageInNode,
         });
+
+        //assigining individual checklist their details
 
         return accumulator;
 
@@ -147,13 +158,14 @@ export const useCanvasStats = (): CanvasStats => {
         details: progressData.details,
     };
 
-    return {
+    //assigining the net cheklists data
+    return   {
       nodeCountsByType,
       nodeCountsByCategory,
       checklistProgress,
     };
     
-  }, [nodes,]); 
+  }, [nodes]); 
 
-  return mockCanvasStats;
+   return stats; 
 };

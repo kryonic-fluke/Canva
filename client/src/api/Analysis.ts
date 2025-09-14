@@ -9,7 +9,7 @@ export interface ProjectAnalysis {
 }
 
 export const Analysis = async (
-  stats: CanvasStats
+  stats: CanvasStats|undefined
 ): Promise<ProjectAnalysis> => {
   const GOOGLE_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 

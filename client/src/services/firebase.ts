@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 import {  getAuth,  signInWithPopup,  GoogleAuthProvider,  GithubAuthProvider,  type UserCredential,  type AuthProvider,} from "firebase/auth";
-
+import { getStorage } from "firebase/storage";
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -15,7 +15,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-
+export const storage = getStorage(app);
 export type AuthProviderName = "google" | "github";
 
 export const signInWithProvider = async (

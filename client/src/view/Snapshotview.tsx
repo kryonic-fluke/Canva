@@ -35,12 +35,14 @@ const COLORS = [
 type SnapshotViewType = "category" | "progressOverview" | "progressDetails" |"analysis";
 
 interface SnapshotViewProps {
-  stats: CanvasStats;
+  stats: CanvasStats | undefined;
   setIsSidebarOpen:(value:boolean)=>void;
 }
 
 export const SnapshotView = ({ stats ,setIsSidebarOpen}: SnapshotViewProps) => {
   const [currentView, setCurrentView] = useState<SnapshotViewType>("category");
+
+
 const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAnalysis(stats);
 
  const handleAnalyzeClick = () => {
@@ -48,16 +50,16 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
     refetch(); 
   };
   const categoryData = useMemo(
-    () => transformDataForPieChart(stats.nodeCountsByCategory),
-    [stats.nodeCountsByCategory]
+    () => transformDataForPieChart(stats?.nodeCountsByCategory),
+    [stats?.nodeCountsByCategory]
   );
 
 
   const handleGoBack  = ()=>{
     setCurrentView("category");
   }
-
   const overallProgressData = useMemo(() => {
+if(!stats) return [];
     const { completedTasks, incompleteTasks } = stats.checklistProgress;
     return [
       {
@@ -66,10 +68,10 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
         incomplete: incompleteTasks,
       },
     ];
-  }, [stats.checklistProgress]);
+  }, [stats]);
 
   const detailedProgressData = useMemo(() => {
-    return stats.checklistProgress.details.map((detail) => ({
+    return stats?.checklistProgress.details.map((detail) => ({
       name:
         detail.title.length > 15
           ? `${detail.title.substring(0, 15)}...`
@@ -77,7 +79,7 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
       completed: detail.completed,
       incomplete: detail.total - detail.completed,
     }));
-  }, [stats.checklistProgress.details]);
+  }, [stats?.checklistProgress.details]);
 
   const renderActiveButtonClass = (view: SnapshotViewType) =>
     currentView === view
@@ -170,9 +172,9 @@ const {  data, isLoading:isAnalyzing, isError, error, refetch  } = useProjectAna
               Overall Checklist Progress
             </h3>
             <p className="text-center text-sm text-gray-500 mb-4">
-              {stats.checklistProgress.completionPercentage}% Complete (
-              {stats.checklistProgress.completedTasks} /{" "}
-              {stats.checklistProgress.totalTasks} tasks)
+              {stats?.checklistProgress.completionPercentage}% Complete (
+              {stats?.checklistProgress.completedTasks} /{" "}
+              {stats?.checklistProgress.totalTasks} tasks)
             </p>
             <div style={{ width: "100%", height: 150 }}>
               <ResponsiveContainer>

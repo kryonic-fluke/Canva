@@ -4,13 +4,15 @@ import { getTagColor } from "../services/getTagColor";
 import { getAuth } from "firebase/auth";
 import { clearEditingPresence, setEditingPresence } from "../api/canvas";
 import { useParams } from "react-router-dom";
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 interface ImageNodeData {
   url: string;
   width: number;
   height: number;
+  path?: string;
   category?: string | null;
-  onDataChange: (updates: { url?: string }) => void;
+  onDataChange: (updates: { url?: string ,path?: string }) => void;
 
       onNodeResize?: (updates: { width: number; height: number }) => void;
 
@@ -20,6 +22,8 @@ interface ImageNodeData {
 export const ImageNode = memo(
   ({ data, id, selected }: NodeProps<ImageNodeData>) => {
     const [isLoading, setIsLoading] = useState(false);
+      const[imgUri,setImgUri]= useState("");
+    
     const [hasError, setHasError] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
    
@@ -42,45 +46,65 @@ export const ImageNode = memo(
         };
       }
     }, [ canvasId, id,selected]);
-    const handleFileUpload = useCallback(
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-          alert("Please select an image file");
-          return;
+
+
+    useEffect(() => {
+      setImgUri("");
+    }, [data.url]); 
+    const displayUrl = imgUri || data.url;
+
+    
+const handleFileUpload = useCallback(
+  (e: React.ChangeEvent<HTMLInputElement>) => { 
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setImgUri(reader.result as string);
+    };
+
+    const performBackgroundUpload = async () => {
+      setIsLoading(true);
+      setHasError(false);
+      
+      try {
+        const oldImagePath = data.path;
+        if (oldImagePath) {
+          const storage = getStorage();
+          const oldImageRef = ref(storage, oldImagePath);
+          await deleteObject(oldImageRef); 
+          console.log("Successfully deleted old image.");
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-          alert("File size must be less than 5MB");
-          return;
-        }
+        const storage = getStorage();
+const filePath = `canvas-images/${canvasId}/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, filePath);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
 
-        setIsLoading(true);
-        setHasError(false);
+        data.onDataChange({ url: downloadURL, path: filePath });
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const result = event.target?.result as string;
-          setIsLoading(false)
-          if (result) {
-            data.onDataChange( { url: result });
-          }
-        };
-        reader.onerror = () => {
-          setIsLoading(false);
-          setHasError(true);
-          alert("Failed to read file");
-        };
-        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error during file operation:", error);
+        setHasError(true);
+        setImgUri(""); 
+        alert("Failed to upload image.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      },
-      [data]
-    );
+    performBackgroundUpload();
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  },
+  [data, canvasId]
+);
 
     const handleUploadClick = useCallback(() => {
       fileInputRef.current?.click();
@@ -183,7 +207,7 @@ export const ImageNode = memo(
             </div>
           ) : (
             <img
-              src={data.url}
+               src={displayUrl} 
               alt="User uploaded content"
               className="max-w-full max-h-full object-contain rounded-md"
               onLoad={handleImageLoad}

@@ -9,8 +9,8 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../services/firebase";
 import type { Connection, Edge, Node } from "reactflow";
+import { db } from "../services/firebase";
 interface NewCanvasData {
   name: string;
 }
