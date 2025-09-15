@@ -1,5 +1,5 @@
 #  Synapse
-### AI-Powered Real-Time Collaboration Workspace
+### AI-Powered Real-Time Collaboration Workspace**
 
 > **Transform scattered ideas into structured, collaborative plans with real-time intelligence**
 
@@ -24,7 +24,7 @@ Synapse is a cutting-edge visual workspace application designed to solve the fun
 
 ##  **Core Features**
 
-### ** Visual Collaboration Engine**
+### **Visual Collaboration Engine**
 - **Infinite Zoomable Canvas**: Unlimited workspace with persistent nodes and edges
 - **Real-Time Synchronization**: Instant CRUD operations via Firestore with live user presence
 - **Multiple Node Types**: Text blocks, checklists, sticky notes, and image nodes
@@ -153,7 +153,8 @@ synapse-monorepo/
 ### **Secure Collaboration System**
 <img src="docs/img/Accept.png" alt="Collaboration Request Notification" width="300">
 
-# *Smart notification system showing user details (name, email) with accept/decline options*
+# **Smart notification system showing user details (name, email) with accept/decline options**
+
 
 ### **Multi-Modal Node Creation**
 <img src="docs/img/Nodetypes.png" alt="All Node Types on Canvas" width="300">
@@ -167,7 +168,7 @@ synapse-monorepo/
 ## *Watch AI automatically categorize and tag nodes based on content analysis*
 
 
---
+---
 ### **Intelligence Suite - Analytics Dashboard**
 
 #### **Snapshot Overview**
