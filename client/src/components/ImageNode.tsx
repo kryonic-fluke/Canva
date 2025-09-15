@@ -191,7 +191,7 @@ const filePath = `canvas-images/${canvasId}/${Date.now()}_${file.name}`;
           ) : isLoading ? (
             <div className="text-center text-gray-500">
               <div className="animate-spin text-2xl mb-2">⏳</div>
-              <p className="text-sm">Loading...</p>
+              <p className="text-sm">Uploading...</p>
             </div>
           ) : hasError ? (
             <div className="text-center text-red-500">

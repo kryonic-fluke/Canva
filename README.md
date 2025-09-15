@@ -1,5 +1,5 @@
-# 🧠 Synapse
-### AI-Powered Visual Collaboration Workspace
+#  Synapse
+### AI-Powered Real-Time Collaboration Workspace
 
 > **Transform scattered ideas into structured, collaborative plans with real-time intelligence**
 
@@ -12,32 +12,32 @@
 
 ---
 
-## 🎯 **Project Overview**
+## **Project Overview**
 
 Synapse is a cutting-edge visual workspace application designed to solve the fundamental problem of **"organizing the chaos of creativity."** Built for individuals and teams who need to transform scattered ideas into structured, actionable plans, Synapse combines real-time collaboration with AI-powered intelligence to deliver unprecedented project insights and organization capabilities.
 
-### **🚀 Key Problem Solved**
+### **Key Problem Solved**
 - **Before Synapse**: Ideas scattered across multiple tools, poor collaboration, lack of project intelligence
 - **After Synapse**: Unified visual workspace with real-time collaboration and AI-driven project analysis
 
 ---
 
-## ✨ **Core Features**
+##  **Core Features**
 
-### **🎨 Visual Collaboration Engine**
+### ** Visual Collaboration Engine**
 - **Infinite Zoomable Canvas**: Unlimited workspace with persistent nodes and edges
 - **Real-Time Synchronization**: Instant CRUD operations via Firestore with live user presence
 - **Multiple Node Types**: Text blocks, checklists, sticky notes, and image nodes
 - **Secure Sharing System**: Invite-based collaboration with comprehensive permission management
 
-### **🤖 Intelligence Suite (AI-Powered)**
-- **Magic Tagger**: Automated node categorization using Hugging Face ML models
+### ** Intelligence Suite (AI-Powered)**
+- **Magic Tagger**: Automated node categorization using Hugging Face ML model
 - **Snapshot Dashboard**: Interactive analytics with dynamic charts and canvas statistics
 - **AI Project Analyst**: Google Gemini-powered co-pilot providing project summaries, risk analysis, and actionable recommendations
 
 ---
 
-## 🏗️ **Technical Architecture**
+##  **Technical Architecture**
 
 ### **Full-Stack TypeScript Monorepo**
 ```
@@ -83,7 +83,7 @@ synapse-monorepo/
 
 ---
 
-## 🚀 **Getting Started**
+## **Getting Started**
 
 ### **Prerequisites**
 - Node.js 18+ and npm
@@ -127,55 +127,65 @@ synapse-monorepo/
 
 ---
 
-## 📱 **Features Showcase**
+##  **Features Showcase**
 
 ### **🏠 Professional Landing & Dashboard**
-<img src="docs/images/landing-page.png" alt="Synapse Landing Page" width="800">
+<img src="docs/img/landing.png" alt="Synapse Landing Page" width="800">
 
 *Clean, professional interface with intuitive navigation and canvas management*
 
 ### **📋 Canvas Management & Sharing**
-<img src="docs/images/canvas-sidebar-share.png" alt="Canvas Sidebar with Share Options" width="600">
+<img src="docs/img/Share.png" alt="Canvas Sidebar with Share Options" width="600">
 
 *Organized canvas sidebar with dropdown sharing controls and delete options*
 
 ### **👥 Secure Collaboration System**
-<img src="docs/images/join-notification.png" alt="Collaboration Request Notification" width="500">
+<img src="docs/img/Accept.png" alt="Collaboration Request Notification" width="500">
 
 *Smart notification system showing user details (name, email) with accept/decline options*
 
-### **🎨 Multi-Modal Node Creation**
-<img src="docs/images/node-types-showcase.png" alt="All Node Types on Canvas" width="800">
+### ** Multi-Modal Node Creation**
+<img src="docs/img/Nodetypes.png" alt="All Node Types on Canvas" width="800">
 
 *Comprehensive node system: Text, Checklists, Sticky Notes, and Image nodes with creation dropdown*
 
 ### **🤖 AI-Powered Smart Categorization**
-<img src="docs/images/ai-categorization-demo.gif" alt="AI Magic Tagger Demo" width="700">
+
+<img src="docs/gifs/Catagorize.gif" alt="AI Magic Tagger Demo" width="700">
 
 *Watch AI automatically categorize and tag nodes based on content analysis*
 
-### **📊 Intelligence Suite - Analytics Dashboard**
+### **📊Intelligence Suite - Analytics Dashboard**
 
 #### **Snapshot Overview**
-<img src="docs/images/snapshot-sidebar-pie.png" alt="Snapshot Pie Chart Analytics" width="400">
+<img src="docs/img/Sidebar.png" alt="Snapshot Pie Chart Analytics" width="400">
 
 *Real-time pie chart showing distribution of categorized nodes*
 
 #### **Checklist Analytics**
-![Checklist Analytics Demo](docs/videos/checklist-analytics-demo.gif)
+![Checklist Analytics Demo](docs/gifs/checklist.gif)
 
 *Interactive bar graphs showing:*
 - *Overall completion rates across all checklist nodes*
 - *Individual checklist breakdown with complete/incomplete tasks*
 
-### **🧠 AI Project Analyst**
-<img src="docs/images/ai-analysis-output.png" alt="AI Generated Project Analysis" width="600">
+### **AI Project Analyst**
+
+<img src="docs/gifs/analysis.gif" alt="AI Generated Project Analysis" width="600">
 
 *Google Gemini-powered insights providing project summaries, risk analysis, and actionable recommendations*
 
 ---
 
-## 🎬 **Complete Workflow Demonstration**
+
+### ** Real-Time Collaboration Demo**
+
+
+![Real-time Collaboration](docs/gifs/realtime.gif)
+
+## ** Multi-user simultaneous editing → Live drag & drop → Text updates → Node resizing → All synchronized instantly*
+
+##  **Complete Workflow Demonstration**
 
 *Experience the full collaborative journey from canvas creation to real-time editing*
 
@@ -195,14 +205,11 @@ synapse-monorepo/
 **Step 3:** *Review collaboration requests → User details verification → Accept or decline access permissions*
 
 ### **4️⃣ Seamless Canvas Access**
-![Canvas Reload After Access](docs/gifs/reload-vid.gif)
+![Canvas Reload After Access](docs/gifs/reload.gif)
 
-**Step 4:** *Instant canvas synchronization → Real-time data loading → Ready for collaborative editing*
+**Step 4:** *loading canvas → Ready for collaborative editing*
 
-### **5️⃣ Real-Time Collaboration Engine**
-![Real-time Collaboration](docs/gifs/realtime.gif)
 
-**Step 5:** *Multi-user simultaneous editing → Live drag & drop → Text updates → Node resizing → All synchronized instantly*
 
 ---
 
@@ -213,14 +220,14 @@ synapse-monorepo/
 
 *Select multiple nodes → AI analysis via Hugging Face → Automatic intelligent tagging → Organized workspace*
 
-### **📊 Analytics Dashboard**
+### ** Analytics Dashboard**
 ![Snapshot Analytics](docs/gifs/SnapShot.gif)
 
 *Real-time canvas insights → Interactive pie charts → Checklist completion tracking → Project health metrics*
 
 ---
 
-## 🎯 **Use Cases**
+##  **Use Cases**
 
 - **Product Teams**: Feature planning, user journey mapping, sprint planning
 - **Designers**: Mood boards, design systems, collaborative wireframing  
@@ -230,7 +237,7 @@ synapse-monorepo/
 
 ---
 
-## 📊 **Performance & Scale**
+## **Performance & Scale**
 
 - **Real-time Updates**: Sub-100ms synchronization across clients
 - **Serverless Architecture**: Auto-scaling based on demand
@@ -239,46 +246,21 @@ synapse-monorepo/
 
 ---
 
-## 🤝 **Contributing**
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## 👤 **Author**
 
-**Your Name**
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
-- LinkedIn: [linkedin.com/in/yourname](https://linkedin.com/in/yourname)
-- Email: your.email@example.com
-
----
-
-## 🙏 **Acknowledgments**
-
-- Firebase team for real-time infrastructure
-- ReactFlow community for canvas capabilities
-- Google Gemini for AI intelligence
-- Hugging Face for ML model access
+**Suyash Upadhyay**
+- LinkedIn: [Suyash Upadhyay](https://www.linkedin.com/in/suyash-upadhyay-49554b333/)
+- Email: suyash.upadhyay01@gmail.com
 
 ---
 
 <div align="center">
 
-**⭐ Star this repository if you found it helpful!**
+**⭐ Heres a link to live demo**
 
-[Live Demo](https://your-synapse-app.netlify.app) • [Documentation](https://docs.synapse.com) • [Report Bug](https://github.com/yourusername/synapse/issues)
+[Live Demo](https://synapse-workspace.netlify.app) 
 
 </div>
