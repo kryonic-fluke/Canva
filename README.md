@@ -1,7 +1,7 @@
 
 
 #  Synapse
-### AI-Powered Real-Time Collaboration Workspace**
+### **AI-Powered Real-Time Collaboration Workspace**
 
 > **Transform scattered ideas into structured, collaborative plans with real-time intelligence**
 
