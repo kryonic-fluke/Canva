@@ -111,7 +111,7 @@ const performDeletion = async () => {
     throttle( (   canvasId: string,   nodeId: string,   position: { x: number; y: number } ) => {   updateNodes(canvasId, nodeId, { position }).catch((err) => {
           console.error("Throttled update failed", err);
         });
-      },
+      },r
       100
     )
   ).current;
