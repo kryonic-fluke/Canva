@@ -82,7 +82,7 @@ export const ProfileCard = ({ setIsOpen, buttonRef }: ProfileCardProps) => {
                   alt="add user"
                   className="object-contain h-5 w-5 mr-2"
                 />
-                <p>Switch Account</p>
+                <p>Add Account</p>
               </>
             )}
           </button>

@@ -131,8 +131,9 @@ export const EditableNode = memo(
               className="w-full h-full text-left outline-none bg-transparent resize-none font-medium"
             />
             ) : (
- <p className="w-full h-full text-left font-medium whitespace-pre-wrap break-words">
-              {data.label}
+ <p className="text-2xl text-gray-800   font-medium  text-left
+          whitespace-pre-wrap break-words overflow-y-auto" >
+              {data.label || "Double tap to Edit..."}
             </p>            )}
            
         </div>
