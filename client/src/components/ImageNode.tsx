@@ -185,8 +185,8 @@ const filePath = `canvas-images/${canvasId}/${Date.now()}_${file.name}`;
                          text-gray-400 hover:bg-gray-50 transition-colors rounded-lg"
               aria-label="Upload an image"
             >
-              <img src="/img/img2.png" alt="Upload placeholder" className="h-12 object-contain"/>
-              <span className="text-xs mt-2 font-semibold hover:text-blue-500">Click to upload image</span>
+              <img src="/img/img2.png" alt="Upload placeholder" className="h-14 w-14 object-contain"/>
+              <span className="text-md mt-6 font-semibold hover:text-blue-500">Click to upload image</span>
             </button>
           ) : isLoading ? (
             <div className="text-center text-gray-500">

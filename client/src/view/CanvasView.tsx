@@ -111,7 +111,7 @@ const performDeletion = async () => {
     throttle( (   canvasId: string,   nodeId: string,   position: { x: number; y: number } ) => {   updateNodes(canvasId, nodeId, { position }).catch((err) => {
           console.error("Throttled update failed", err);
         });
-      },r
+      },
       100
     )
   ).current;
@@ -445,7 +445,7 @@ const hydratedNodes = useMemo(() => {
 
         <div className="absolute top-2 right-6 z-10">
           <button
-            className="px-3 py-2 bg-purple-600 text-700 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:shadow-700 transition-all"
+            className="px-3 py-2 bg-blue-500 text-700 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:shadow-700 transition-all"
             onClick={() => setIsSidebarOpen(true)}
           >
               <img src="/img/stats4.png" className="h-[1.8rem] w-[1.5rem]  "/>

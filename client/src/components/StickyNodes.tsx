@@ -172,11 +172,11 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
             onChange={(e) => setText(e.target.value)}
             onBlur={saveAndExit}
             onKeyDown={handleKeyDown}
-            className="w-full h-full  p-2 resize-none font-medium outline-none bg-transparent text-sm placeholder-gray-500"
+            className="w-full h-full  p-2 resize-none font-medium outline-none bg-transparent text-2xl placeholder-gray-500"
             placeholder="Type your note here... "
           />
         ) : (
-          <p className="text-sm text-gray-800   font-medium  
+          <p className="text-2xl text-gray-800   font-medium  
           whitespace-pre-wrap break-words overflow-y-auto">
             {data.text || "Double-click to edit..."}
           </p>

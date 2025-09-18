@@ -5,6 +5,7 @@ import { LayoutProvider } from "./context/LayoutContext";
 import { Spinner } from "./components/Spinner";
 import { lazy, Suspense } from "react";
 import { ReactFlowProvider } from "reactflow";
+import { SidebarProvider } from "./context/Sidebarcontext";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((module) => ({ default: module.HomePage }))
@@ -51,6 +52,8 @@ const App = () => {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
+          <SidebarProvider>
+
         <LayoutProvider>
           <Suspense
             fallback={
@@ -58,7 +61,7 @@ const App = () => {
                 <Spinner size="lg" text="Loading Synapse..." />
               </div>
             }
-          >
+            >
             <Routes>
               <Route element={<PublicLayout />}>
                 <Route path="/" element={<HomePage />} />
@@ -75,25 +78,24 @@ const App = () => {
                      </ReactFlowProvider>
                   </ProtectedRoute>
                 }
-              >
+                >
                 <Route index element={<AppIndexRedirect />}/>
                 <Route
                   path="/app/canvas/:_id"
                   element={
-                   
-                      <CanvasView />
-              
+                    <CanvasView />
                   }
-                />
+                  />
               </Route>
               <Route
                 path="/join/:_id/:inviteToken"
                 element={<JoinCanvasPage />}
-              />
+                />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </LayoutProvider>
+                </SidebarProvider>
       </QueryClientProvider>
     </BrowserRouter>
   );

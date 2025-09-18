@@ -8,12 +8,14 @@ import { Link } from "react-router-dom";
 import { useLayout } from "../context/LayoutContext";
 import { useState } from "react";
 import { Spinner } from "./Spinner";
+import { useSidebarContext } from "../context/Sidebarcontext";
 
 export const SideBar = () => {
   const { mutate: createNewCanvas, isPending: isCreating } = useCanvasCreate();
   const { data: canvases, isLoading: isLoadingCanvases } = useGetCanvases();
+    const { selectedCanvasId, setSelectedCanvasId } = useSidebarContext();
+
   const [isCreatingNewCanvas, setIsCreatingNewCanvas] = useState(false);
-  const [selectedCanvasId, setSelectedCanvasId] = useState(canvases?.[0]?._id || ""); 
 
   const { user } = useAuth();
   const { closeSidebar } = useLayout();
@@ -68,7 +70,6 @@ export const SideBar = () => {
                 <Spinner size="sm" />
               </div>
             ): (hasCanvases || isCreatingNewCanvas) ? (
-              // 1. Show the list if it has items OR if we are adding the first item.
               <CanvasList
                 canvases={canvases || []}
                 isCreating={isCreatingNewCanvas}

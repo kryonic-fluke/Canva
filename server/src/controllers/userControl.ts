@@ -46,7 +46,7 @@ export const createOrUpdateUser = async (req: AuthentucatedRequestCheck, res: Re
     res.status(200).json(user);
 
   } catch (error) {
-    console.error("❌ error in createOrUpdateUser:", error);
+    console.error(" error in createOrUpdateUser:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

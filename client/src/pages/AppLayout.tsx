@@ -9,6 +9,7 @@ import { useEffect } from "react";
 
 export function AppLayout() {
   const { isSidebarOpen } = useLayout();
+
   const { user } = useAuth();
   const { data: canvases, isSuccess } = useGetCanvases();
   const params = useParams();

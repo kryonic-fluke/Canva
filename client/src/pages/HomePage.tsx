@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useLayout } from '../context/LayoutContext';
 import { useAuth } from '../context/AuthContext';
+import { useSidebarContext } from '../context/Sidebarcontext';
 
 export const HomePage = () => {
 
 const {isSidebarOpen}  = useLayout();
+  const { selectedCanvasId } = useSidebarContext();
+ 
  const { user } = useAuth();
   return (
     <div className="relative h-full w-full">
@@ -25,7 +28,7 @@ const {isSidebarOpen}  = useLayout();
               Ready to continue planning? Jump back into your projects and keep the ideas flowing.
             </p>
             <Link 
-              to="/app" 
+              to={`/app/canvas/${selectedCanvasId}`}
               className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105 duration-300 shadow-xl"
             >
               Go to Your Canvases
