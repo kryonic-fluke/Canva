@@ -66,8 +66,9 @@ export const SideBar = () => {
 
           <div className=" flex flex-col overflow-y-auto">
             {isLoadingCanvases  ?(
-              <div className="flex justify-center my-2">
-                <Spinner size="sm" />
+              <div className="flex justify-center item-center
+              my-2">
+                <Spinner size="lg" />
               </div>
             ): (hasCanvases || isCreatingNewCanvas) ? (
               <CanvasList

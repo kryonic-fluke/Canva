@@ -413,8 +413,8 @@ const hydratedNodes = useMemo(() => {
 
  if (isNodesLoading || isEdgesLoading) {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-gray-900">
-      <Spinner size="lg" variant="light" text="Loading Canvas..." />
+    <div className="w-full h-full flex items-center justify-center bg-[3b82f6]">
+      <Spinner size="lg" variant="primary" text="Loading Canvas..." />
     </div>
   );
 }
