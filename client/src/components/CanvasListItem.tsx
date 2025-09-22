@@ -189,6 +189,7 @@ export const CanvasListItem = ({
                         }  group flex justify-center w-full items-center gap-3 rounded-md px-3 py-2 text-md disabled:opacity-50 text-left font-medium transition-colors duration-400 ease-in-out`}
                       >
                         <p>{isDeleting ? "Deleting..." : "Delete Canvas"}</p>
+                        {/* <IoShareOutline/> */}
                         <img src="/img/trash-bin.png" className="h-[1.2rem]" />
                       </button>
                     )}

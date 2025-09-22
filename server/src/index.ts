@@ -11,23 +11,32 @@ import canvasRoutes from "./routes/canvasRoutes";
 dotenv.config();
 
 if (admin.apps.length === 0) {
-  let credential;
-  
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    credential = admin.credential.cert(
-      JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-    );
-  } else {
+  let appOptions = {};
+
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    appOptions = {};
+    console.log("Firebase credentials sourced from GOOGLE_APPLICATION_CREDENTIALS.");
+  }
+  else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    appOptions = {
+      credential: admin.credential.cert(
+        JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+      ),
+    };
+  }
+  else {
     try {
       const serviceAccount = require("../../serviceAccountKey.json");
-      credential = admin.credential.cert(serviceAccount);
+      appOptions = {
+        credential: admin.credential.cert(serviceAccount),
+      };
     } catch (error) {
-      console.error("neither FIREBASE_SERVICE_ACCOUNT env var nor local file found");
+      console.error("No Firebase credentials found (env vars or local file).");
       throw new Error("Firebase credentials not configured properly");
     }
   }
-  
-  admin.initializeApp({ credential });
+
+  admin.initializeApp(appOptions);
   console.log("Firebase Admin SDK Initialized.");
 }
 

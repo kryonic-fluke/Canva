@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  server:
+    build: ./server
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./server:/app
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json
+      - /app/node_modules
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/serviceAccountKey.json
+     
+    env_file:
+      - ./server/.env
+
+  client:
+    build: ./client
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5001
+    depends_on:
+      - server
