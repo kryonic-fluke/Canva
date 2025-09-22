@@ -155,48 +155,67 @@ synapse-monorepo/
 
 ## **Getting Started**
 
-### **Prerequisites**
-- Node.js 18+ and npm
-- MongoDB instance
-- Firebase project with Authentication and Firestore
-- Google Gemini API key
-- Hugging Face API access
+### **Quick Start (Docker)**
 
-### **Quick Start**
+This is the recommended way to run the project for local development.
 
-1. **Clone and Install**
-   ```bash
-   git clone https://github.com/yourusername/synapse
-   cd synapse
-   npm install
-   ```
+1.  **Prerequisites**
+    *   [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+    *   [Git](https://git-scm.com/) installed.
 
-2. **Environment Setup**
-   ```bash
-   # Client environment
-   cp client/.env.example client/.env
-   
-   # Server environment
-   cp server/.env.example server/.env
-   ```
+2.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/yourusername/synapse
+    cd synapse
+    ```
 
-3. **Development Mode**
-   ```bash
-   # Start both client and server
-   npm run dev
-   
-   # Or individually
-   npm run dev:client
-   npm run dev:server
-   ```
+3.  **Environment Setup**
+    This project uses environment variables for configuration. You'll need to create a `.env` file for the server and a `serviceAccountKey.json` for Firebase.
 
-4. **Production Build**
-   ```bash
-   npm run build
-   ```
+    *   **Server Environment:** Copy the example file and fill in your details (e.g., MongoDB credentials).
+        ```bash
+        cp server/.env.example server/.env
+        ```
+
+    *   **Firebase Credentials:** Place your `serviceAccountKey.json` file in the **root** of the project directory. This file is required and is securely ignored by git.
+
+4.  **Launch the Application**
+    From the root directory, run the following command. Docker will build the images, install dependencies, and start the client and server.
+
+    ```bash
+    docker-compose up --build
+    ```
+    *The initial build may take a few minutes. Subsequent launches will be much faster due to caching.*
+
+    Once complete, the application will be available at:
+    *   **Frontend (React App):** `http://localhost:5174`
+    *   **Backend (Express API):** `http://localhost:5001`
 
 ---
 
+### **Manual Installation (Legacy)**
+
+If you prefer not to use Docker, you can run the project natively on your machine.
+
+1.  **Prerequisites**
+    *   Node.js v20+
+
+2.  **Clone and Install Dependencies**
+    ```bash
+    git clone https://github.com/yourusername/synapse
+    cd synapse
+    npm install
+    ```
+
+3.  **Environment Setup**
+    *   **Server:** Create a `.env` file in the `/server` directory and provide your MongoDB and other required variables.
+    *   **Firebase:** Place your `serviceAccountKey.json` in the root directory.
+
+4.  **Run Development Servers**
+    ```bash
+    # Start both client and server concurrently
+    npm run dev
+    ```
 
 ##  **Use Cases**
 
