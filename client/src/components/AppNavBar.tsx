@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { ProfileCard } from "./ProfileCard";
 import { useRef, useState } from "react";
 import { useLayout } from "../context/LayoutContext";
+import { Bars3Icon, ChevronDoubleLeftIcon } from "@heroicons/react/24/outline";
 
 export const Navbar = () => {
   const { user: currentUser } = useAuth();
@@ -21,19 +22,15 @@ export const Navbar = () => {
           >
             {isSidebarOpen ? (
               <div className="hover:opacity-40 rounded-full p-1 transition-all duration-300">
-                <img
-                  src="/img/back-button.png"
-                  alt="Left arrow icon"
-                  className="h-7 w-7"
-                />
+      <ChevronDoubleLeftIcon className="h-7 w-7" />
+
+             
+
               </div>
             ) : (
               <div className="hover:opacity-40 rounded-full p-1 transition-all duration-300">
-                <img
-                  src="/img/burger-menu.png"
-                  alt="Burger menu icon"
-                  className="h-7 w-7"
-                />
+                     <Bars3Icon className="h- 10 w-10" aria-hidden="true" />
+
               </div>
             )}
           </button>

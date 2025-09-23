@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import type { Connection, Edge, Node } from "reactflow";
-import { db } from "../services/firebase";
+import { auth, db } from "../services/firebase";
 interface NewCanvasData {
   name: string;
 }
@@ -170,6 +170,28 @@ export const declineRequest = async (data: {
   return response.data;
 };
 
+
+export const  removeContributor=async(params: { canvasId: string; userId: string })=>{
+  const { canvasId: _id, userId } = params;
+
+
+  if (!auth.currentUser) {
+    throw new Error("You must be logged in to perform this action.");
+  }      const idToken = await auth.currentUser.getIdToken();
+    
+
+    const response = await axios.delete(
+  `${apiBaseUrl}/canvases/${_id}/contributors/${userId}`,
+  {
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  }
+);
+
+  return response.data;
+
+}
 export interface PendingRequest {
   id: string;
   userName: string;

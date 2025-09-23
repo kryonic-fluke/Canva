@@ -9,7 +9,7 @@ const canvasSchema = new Schema({
     required: true,
   }
 ,
-  collaborators: [{ type: Schema.Types.ObjectId, ref: "User" }],  // ADD THIS
+  collaborators: [{ type: Schema.Types.ObjectId, ref: "User" }],  
   inviteToken: { type: String, unique: true }
 
 

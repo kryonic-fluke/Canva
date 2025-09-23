@@ -247,8 +247,8 @@ export const deleteCanvas = async (req: Request, res: Response) => {
   const { _id } = req.params;
   const firebaseUid = req.user?.uid;
 
-  console.log("id:", _id);
-  console.log("firebaseUid:", firebaseUid);
+  // console.log("id:", _id);
+  // console.log("firebaseUid:", firebaseUid);
 
   try {
     const canvas = await Canvas.findById(_id);
@@ -257,14 +257,14 @@ export const deleteCanvas = async (req: Request, res: Response) => {
       console.log(`Canvas with ID: ${_id} not found in MongoDB.`);
       return res.status(404).json({ message: "Canvas not found." });
     }
-    console.log("Found canvas to delete:", canvas);
+    // console.log("Found canvas to delete:", canvas);
 
     const user = await User.findOne({ firebaseUid });
 
     if (!user) {
-      console.log(
-        `User with Firebase UID: ${firebaseUid} not found in our User collection.`
-      );
+      // console.log(
+      //   `User with Firebase UID: ${firebaseUid} not found in our User collection.`
+      // );
       return res.status(403).json({ message: "User not found." });
     }
     console.log("Found requesting user in DB:", user);
@@ -294,3 +294,42 @@ export const deleteCanvas = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error during canvas deletion." });
   }
 };
+
+
+export const removeContributor = async (req: Request, res: Response) => {
+
+  try{
+  const { _id, userId: userIdToRemove } = req.params;
+
+console.log("\n--- Received request to remove contributor ---");
+  console.log("Canvas ID received from URL:", _id);
+  console.log("Firebase UID received from URL:", userIdToRemove);
+   const userToRemove = await User.findOne({ firebaseUid: userIdToRemove });
+      const canvas = await Canvas.findById(_id);
+
+    if (!canvas || !userToRemove) {
+      return res.status(404).json({ message: "Canvas or user not found." });
+    }
+
+        const mongoUserIdToRemove = userToRemove._id;
+
+
+  await Canvas.updateOne(
+    { _id: _id },
+    
+    { $pull: { collaborators: mongoUserIdToRemove} }
+  );
+
+await User.updateOne(
+  { _id: userToRemove._id }, 
+  { $pull: { joinedCanvases: _id } } 
+);
+
+res.status(200).json({ message: "Contributor removed successfully." });
+  }
+
+  catch (error) {
+    console.error("Error removing contributor:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}

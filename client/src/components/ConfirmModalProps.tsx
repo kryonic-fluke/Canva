@@ -18,8 +18,8 @@ export const ConfirmModal = ({   isOpen,   title,   message,   onConfirm,   onCa
       
       <div className="bg-zinc-900  rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
         
-        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-        <p className="mt-2 text-sm text-gray-600">{message}</p>
+        <h3 className="text-sm font-bold text-gray-900">{title}</h3>
+        <p className="mt-2 text-[15px] text-gray-300">{message}</p>
         
         <div className="mt-6 flex justify-end space-x-3">
           <button 
