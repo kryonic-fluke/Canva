@@ -33,14 +33,14 @@ export const AuthPage = () => {
     >
       {/* <div className="absolute inset-0 bg-gray-900 bg-opacity-60" /> */}
 
-      <div className="relative w-full max-w-md p-8 space-y-8 bg-gray-800 bg-opacity-80 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-2xl">
+      <div className="relative w-full max-w-[29rem] h-[28rem]  p-8 space-y-8 bg-gray-800 bg-opacity-80 backdrop-blur-sm border border-gray-700 rounded shadow-2xl">
         
         <div className="text-center">
-          <img src="/img/image.png" alt="Synapse Logo" className="w-20 h-[4rem] mx-auto mb-4"/>
-          <h1 className="text-3xl font-bold text-white tracking-tight">
+          <img src="/img/image.png" alt="Synapse Logo" className="w-[6rem] h-[5rem] mx-auto mb-4  object-contain"/>
+          <h1 className="text-3xl font-bold text-white tracking-tight mt-8">
             Sign in to Synapse
           </h1>
-          <p className="mt-2 text-gray-400">
+          <p className="mt-3 text-gray-400">
             Your real-time canvas for creativity.
           </p>
         </div>
@@ -49,7 +49,7 @@ export const AuthPage = () => {
           {isSigningIn ? (
             <Spinner text="Signing In..." size="md" variant="light" />
           ) : (
-            <div className="w-full space-y-4">
+            <div className="w-full space-y-4 mt-6">
               <button
                 onClick={handleGoogleSignIn}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-800 rounded-lg font-semibold shadow-md hover:bg-gray-200 transition-colors duration-200"
