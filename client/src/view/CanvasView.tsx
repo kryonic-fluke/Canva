@@ -1,13 +1,28 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef,
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
-import ReactFlow, {  Controls,  Background,  applyNodeChanges,  applyEdgeChanges,  type OnEdgesChange,  type NodeChange,  type Node,  type Connection,  useReactFlow,  Edge,
+import ReactFlow, {
+  Controls,
+  Background,
+  applyNodeChanges,
+  applyEdgeChanges,
+  type OnEdgesChange,
+  type NodeChange,
+  type Node,
+  type Connection,
+  useReactFlow,
+  Edge,
 } from "reactflow";
 import { throttle } from "lodash";
 import "reactflow/dist/style.css";
 import { useCanvasNodes } from "../hooks/useCanvasNodes";
 import { useCanvasEdges } from "../hooks/useCanvasEdges";
-import {createEdge,createNode, updateNodes, } from "../api/canvas";
+import { createEdge, createNode, updateNodes } from "../api/canvas";
 import { useParams } from "react-router-dom";
 import { EditableNode } from "../components/EditableNode";
 import { usePresence } from "../hooks/usePresence";
@@ -26,93 +41,90 @@ import { Spinner } from "../components/Spinner";
 import { deleteObject, getStorage, ref } from "firebase/storage";
 
 export const CanvasView = () => {
-  const {  nodes: rawNodes,  setNodes,  isLoading: isNodesLoading,} = useCanvasNodes();
+  const {
+    nodes: rawNodes,
+    setNodes,
+    isLoading: isNodesLoading,
+  } = useCanvasNodes();
   const { edges, setEdges, isLoading: isEdgesLoading } = useCanvasEdges();
   const { _id: canvasId } = useParams<{ _id: string }>();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
- const { mutate: deleteNode } = useDeleteNode();
+  const { mutate: deleteNode } = useDeleteNode();
   const { mutate: deleteEdge } = useDeleteEdge();
-  const [itemsToDelete, setItemsToDelete] = useState<{ nodes: Node[], edges: Edge[] } | null>(null);
+  const [itemsToDelete, setItemsToDelete] = useState<{  nodes: Node[];  edges: Edge[];} | null>(null);
   const stats = useCanvasStats();
 
   const { getNodes } = useReactFlow();
-  const { mutate: categorize, isPending: isCategorizing } = useCategorizeNodes();
+  
+  const { mutate: categorize, isPending: isCategorizing } =
+    useCategorizeNodes();
 
   const activePresenceMap = usePresence(canvasId!);
   const currentUserId = getAuth().currentUser?.uid;
 
-
-
-   const handleNodesDelete = useCallback((nodesToDelete: Node[]) => {
-    setItemsToDelete({ nodes: nodesToDelete, edges: [] });
-  }, []);
-
-  const handleEdgesDelete = useCallback((edgesToDelete: Edge[]) => {
-    setItemsToDelete({ nodes: [], edges: edgesToDelete });
-  }, []);
+ 
 
   const deletionMessage = useMemo(() => {
-  if (!itemsToDelete) return "";
+    if (!itemsToDelete) return "";
 
-  const nodeCount = itemsToDelete.nodes.length;
-  const edgeCount = itemsToDelete.edges.length;
+    const nodeCount = itemsToDelete.nodes.length;
+    const edgeCount = itemsToDelete.edges.length;
 
-  if (nodeCount > 0 && edgeCount > 0) {
-    return `Are you sure you want to delete ${nodeCount} node(s) and ${edgeCount} edge(s)?`;
-  }
-  
-  if (nodeCount > 0) {
-    return `Are you sure you want to delete ${nodeCount} node(s)?`;
-  }
-
-  if (edgeCount > 0) {
-    return `Are you sure you want to delete ${edgeCount} edge(s)?`;
-  }
-  
-  return "Are you sure? This action cannot be undone.";
-
-}, [itemsToDelete]);
-
-
-
-const performDeletion = async () => { 
-  if (!itemsToDelete || !canvasId) return;
-
-  for (const node of itemsToDelete.nodes) {
-    if (
-      node.type === 'image' && 
-      node.data.path
-    ) {
-      try {
-        const storage = getStorage();
-        const imageRef = ref(storage, node.data.path);
-        await deleteObject(imageRef);
-        console.log(`Successfully deleted image for node ${node.id}`);
-      } catch (error) {
-        console.warn(`Failed to delete image for node ${node.id}:`, error);
-      }
+    if (nodeCount > 0 && edgeCount > 0) {
+      return `Are you sure you want to delete ${nodeCount} node(s) and ${edgeCount} edge(s)?`;
     }
 
-    deleteNode({ canvasId, nodeId: node.id });
-  }
-  
-  for (const edge of itemsToDelete.edges) {
-    deleteEdge({ canvasId, edgeId: edge.id });
-  }
+    if (nodeCount > 0) {
+      return `Are you sure you want to delete ${nodeCount} node(s)?`;
+    }
 
-  setItemsToDelete(null);
-};
-   const cancelDeletion = () => {
+    if (edgeCount > 0) {
+      return `Are you sure you want to delete ${edgeCount} edge(s)?`;
+    }
+
+    return "Are you sure? This action cannot be undone.";
+  }, [itemsToDelete]);
+
+  const performDeletion = async () => {
+
+    
+    if (!itemsToDelete || !canvasId) return;
+
+   
+    for (const node of itemsToDelete.nodes) {
+      if (node.type === "image" && node.data.path) {
+        try {
+          const storage = getStorage();
+          const imageRef = ref(storage, node.data.path);
+          await deleteObject(imageRef);
+          console.log(`Successfully deleted image for node ${node.id}`);
+        } catch (error) {
+          console.warn(`Failed to delete image for node ${node.id}:`, error);
+        }
+      }
+      deleteNode({ canvasId, nodeId: node.id });
+    }
+    for (const edge of itemsToDelete.edges) {
+      deleteEdge({ canvasId, edgeId: edge.id });
+    }
+    setItemsToDelete(null);
+  };
+  const cancelDeletion = () => {
     setItemsToDelete(null);
   };
 
-
   const NodeChangeThrottle = useRef(
-    throttle( (   canvasId: string,   nodeId: string,   position: { x: number; y: number } ) => {   updateNodes(canvasId, nodeId, { position }).catch((err) => {
+    throttle(
+      (
+        canvasId: string,
+        nodeId: string,
+        position: { x: number; y: number }
+      ) => {
+        updateNodes(canvasId, nodeId, { position }).catch((err) => {
           console.error("Throttled update failed", err);
         });
       },
-      100
+      50
     )
   ).current;
 
@@ -193,7 +205,7 @@ const performDeletion = async () => {
 
   const handleNodeDataChange = useCallback(
     (nodeId: string, updates: object) => {
-      if (!nodeId || !canvasId ) return;
+      if (!nodeId || !canvasId) return;
       setNodes((currentNodes) =>
         currentNodes.map((node) => {
           if (node.id !== nodeId) return node;
@@ -247,19 +259,21 @@ const performDeletion = async () => {
   //   },
   //   [canvasId, rawNodes, setNodes]
   // );
-const hydratedNodes = useMemo(() => {
+  const hydratedNodes = useMemo(() => {
     return rawNodes.map((node) => {
       const isBeingEdited = activePresenceMap.has(node.id);
       const editorId = activePresenceMap.get(node.id);
-      
+
       const commonNodeDataProps = {
-        onDataChange: (updates: object) => handleNodeDataChange(node.id, updates),
-        
-        onNodeResize: (style: { width: number; height: number }) => handleNodeResize(node.id, style),
-        
+        onDataChange: (updates: object) =>
+          handleNodeDataChange(node.id, updates),
+
+        onNodeResize: (style: { width: number; height: number }) =>
+          handleNodeResize(node.id, style),
+
         isBeingEditedByAnotherUser: isBeingEdited && editorId !== currentUserId,
-        
-        canvasId: canvasId, 
+
+        canvasId: canvasId,
       };
 
       return {
@@ -271,10 +285,22 @@ const hydratedNodes = useMemo(() => {
         style: { width: node.width ?? 200, height: node.height ?? 150 },
       };
     });
-  }, [    rawNodes,    activePresenceMap,    currentUserId,    handleNodeDataChange,     handleNodeResize,    canvasId,  ]);
+  }, [
+    rawNodes,
+    activePresenceMap,
+    currentUserId,
+    handleNodeDataChange,
+    handleNodeResize,
+    canvasId,
+  ]);
 
   const nodeTypes = useMemo(
-    () => ({   editableNode: EditableNode,   checklist: ChecklistNode,   sticky: StickyNote,   image: ImageNode, }),
+    () => ({
+      editableNode: EditableNode,
+      checklist: ChecklistNode,
+      sticky: StickyNote,
+      image: ImageNode,
+    }),
     []
   );
 
@@ -284,12 +310,33 @@ const hydratedNodes = useMemo(() => {
     };
   }, [NodeChangeThrottle]);
 
-  const onNodesChange: (changes: NodeChange[]) => void = useCallback(
-    (changes) => {
-      if (!canvasId) return;
-      setNodes((nds) => applyNodeChanges(changes, nds));
+ const onNodesChange: (changes: NodeChange[]) => void = useCallback(
+  (changes) => {
+    if (!canvasId) return;
 
-      changes.forEach((change) => {
+    const removeChanges = changes.filter((change) => change.type === "remove");
+    const otherChanges = changes.filter((change) => change.type !== "remove");
+//filter the chagnes 
+    if (removeChanges.length > 0) {
+      const nodeIdsToDelete = new Set(removeChanges.map((c) => c.id));
+      //get the nodes ids that have to be removed , using set to ensure uniqness
+      const nodesToDelete = rawNodes.filter((node) => nodeIdsToDelete.has(node.id));
+      //get the nodes using i
+      const connectedEdgesToDelete = edges.filter(
+        (edge) => nodeIdsToDelete.has(edge.source) || nodeIdsToDelete.has(edge.target)
+      );
+      
+      setItemsToDelete({ 
+          nodes: nodesToDelete, 
+          edges: connectedEdgesToDelete 
+      });
+
+    }
+
+    if (otherChanges.length > 0) {
+      setNodes((nds) => applyNodeChanges(otherChanges, nds));
+      
+      otherChanges.forEach((change) => {
         if (change.type === "position" && change.position) {
           NodeChangeThrottle(canvasId, change.id, change.position);
 
@@ -302,24 +349,38 @@ const hydratedNodes = useMemo(() => {
             );
           }
         }
-       
       });
-    },
-    [canvasId, setNodes, NodeChangeThrottle]
-  );
+    }
+  },
+  [canvasId, setNodes, NodeChangeThrottle, edges,rawNodes] 
+);
+const onEdgesChange: OnEdgesChange = useCallback(
+  (changes) => {
+    if (!canvasId) return;
 
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => {
-      if (!canvasId) return;
-      setEdges((eds) => applyEdgeChanges(changes, eds));
-     
-    },
-    [canvasId, setEdges]
-  );
+    const removeChanges = changes.filter((change) => change.type === "remove");
+    const otherChanges = changes.filter((change) => change.type !== "remove");
+
+    if (removeChanges.length > 0) {
+      const edgeIdsToDelete = new Set(removeChanges.map((c) => c.id));
+      const edgesToDelete = edges.filter((edge) => edgeIdsToDelete.has(edge.id));
+      
+      setItemsToDelete(prev => ({ 
+        nodes: prev?.nodes || [], 
+        edges: [...(prev?.edges || []), ...edgesToDelete]
+      }));
+    }
+
+    if (otherChanges.length > 0) {
+      setEdges((eds) => applyEdgeChanges(otherChanges, eds));
+    }
+  },
+  [canvasId, setEdges, edges] 
+);
 
   const addNode = useCallback(
     (nodeType: "editableNode" | "checklist" | "sticky" | "image") => {
-      if (!canvasId ) return;
+      if (!canvasId) return;
       const newNodeId = `node_${+new Date()}`;
       let nodeData;
 
@@ -333,9 +394,8 @@ const hydratedNodes = useMemo(() => {
                 text: "First item",
                 completed: false,
               },
-              
             ],
-              
+
             category: null,
             isBeingEditedByAnotherUser: false,
           };
@@ -345,7 +405,7 @@ const hydratedNodes = useMemo(() => {
             url: "",
             isBeingEditedByAnotherUser: false,
             category: null,
-            path: ""
+            path: "",
           };
 
           break;
@@ -411,17 +471,17 @@ const hydratedNodes = useMemo(() => {
 
   const { fitView } = useReactFlow();
 
- if (isNodesLoading || isEdgesLoading) {
-  return (
-    <div className="w-full h-full flex items-center justify-center bg-[3b82f6]">
-      <Spinner size="lg" variant="primary" text="Loading Canvas..." />
-    </div>
-  );
-}
+  if (isNodesLoading || isEdgesLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-[3b82f6]">
+        <Spinner size="lg" variant="primary" text="Loading Canvas..." />
+      </div>
+    );
+  }
 
   return (
     <>
-     <ConfirmModal 
+      <ConfirmModal
         isOpen={itemsToDelete !== null}
         title="Confirm Deletion"
         message={deletionMessage}
@@ -436,10 +496,8 @@ const hydratedNodes = useMemo(() => {
             disabled={isCategorizing}
             className="flex items-center justify-center gap-3 bg-blue-600 text-white font-semibold px-4 py-2 rounded-md shadow-lg hover:bg-blue-700 focus:outline-none focus:shadow-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all"
           >
-          <p>
-            {isCategorizing ? "Thinking..." : "Categorize"}
-            </p>  
-            <img src="/img/ai.png" className="h-[1.8rem] w-[1.5rem]"/>
+            <p>{isCategorizing ? "Thinking..." : "Categorize"}</p>
+            <img src="/img/ai.png" className="h-[1.8rem] w-[1.5rem]" />
           </button>
         </div>
 
@@ -448,7 +506,7 @@ const hydratedNodes = useMemo(() => {
             className="px-3 py-2 bg-blue-500 text-700 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:shadow-700 transition-all"
             onClick={() => setIsSidebarOpen(true)}
           >
-              <img src="/img/stats4.png" className="h-[1.8rem] w-[1.5rem]  "/>
+            <img src="/img/stats4.png" className="h-[1.8rem] w-[1.5rem]  " />
           </button>
         </div>
 
@@ -457,12 +515,9 @@ const hydratedNodes = useMemo(() => {
             <div className="relative inline-block text-left">
               <div>
                 <Menu.Button className=" bg-indigo-500  hover:bg-indigo-600 focus:outline-none   justify-center w-full rounded-md border shadow-sm px-3 py-1  text-lg text-white   font-semibold   focus:ring-indigo-500 translate-all duration-300 ease-in-out">
-                    +
+                  +
                 </Menu.Button>
               </div>
-
-
-
 
               <Menu.Items className="absolute left-0 mt-2 w-56 origin-top-left bg-gray-200 rounded-md divide-y divide-gray-100  shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none translate-all duration-300 ease-in-out">
                 <div className="px-1 py-1 ">
@@ -536,8 +591,7 @@ const hydratedNodes = useMemo(() => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
-           onNodesDelete={handleNodesDelete}
-        onEdgesDelete={handleEdgesDelete}
+         
           onConnect={onConnect}
         >
           <Controls />
