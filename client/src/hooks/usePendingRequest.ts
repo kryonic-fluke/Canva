@@ -18,7 +18,7 @@ export const usePendingRequests = (_id: string | undefined) => {
     });
 
     return () => {
-      console.log("Cleaning up pending requests listener for canvas:", _id);
+      // console.log("Cleaning up pending requests listener for canvas:", _id);
       unsubscribe();
     };
     

@@ -14,7 +14,7 @@ export const useDeleteCanvas = ()=>{
         mutationFn: (_id:string)=>deleteCanvasApi(_id) ,
          onSuccess:()=>{
             toast.success('Canvas deleted successfully');
-               console.log('canvas deleted successfully');
+            //    console.log('canvas deleted successfully');
                      queryClient.invalidateQueries({ queryKey: ['canvases'] });
 
         },

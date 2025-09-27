@@ -20,7 +20,7 @@ export const userBackEndSyncData = async (userData: UserSyncDataBackEnd) => {
           },
         }
       );
-      console.log('Backend sync successful:', response.data);
+      // console.log('Backend sync successful:', response.data);
       return response.data;
     } else {
       console.error("No user is signed in.");

@@ -18,11 +18,11 @@ export const useSocialSignIn = (options?: UseSocialSignInOptions) => {
     mutationFn: signInWithProvider,
 
     onSuccess: async (result) => {
-      console.log("signIn in provider is successfull");
+      // console.log("signIn in provider is successfull");
       const additionalInfo = getAdditionalUserInfo(result);
       //after successful sign in we add the user to firestore database
       if (additionalInfo) {
-        console.log("New user detected , syncing with our backend");
+        // console.log("New user detected , syncing with our backend");
         await userBackEndSyncData({
           firebaseUid: result.user.uid,
           email: result.user.email,
@@ -30,7 +30,7 @@ export const useSocialSignIn = (options?: UseSocialSignInOptions) => {
         });
       } else {
         toast.success("Signin successful")
-        console.log("old user deteced");
+        // console.log("old user deteced");
       }
 
       options?.onSuccess?.(result);

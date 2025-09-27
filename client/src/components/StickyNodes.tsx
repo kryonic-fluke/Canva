@@ -69,7 +69,7 @@ export const StickyNote = memo(({ data, id,selected }: NodeProps<StickyNoteData>
 
   const saveAndExit = () => {
     setIsEditing(false);
-    console.log("text===>",text);
+    // console.log("text===>",text);
     
     data.onDataChange( { text });
   };

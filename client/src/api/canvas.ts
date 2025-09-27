@@ -32,10 +32,10 @@ export const createCanvasRequestAPI = async (canvasData: NewCanvasData) => {
           },
         }
       );
-      console.log("Successfully created canvas", response.data);
+      // console.log("Successfully created canvas", response.data);
       return response.data;
     } else {
-      console.error("No user is signed in.");
+      // console.error("No user is signed in.");
 
       throw new Error("No user signed in.");
     }
@@ -80,7 +80,7 @@ export const deleteCanvasApi = async (_id: string) => {
 
 export const getinviteLinkAPi = async (_id: string) => {
   const auth = getAuth();
-  console.log("ran invitelink api");
+  // console.log("ran invitelink api");
 
   if (auth.currentUser) {
     const idToken = await auth.currentUser.getIdToken();
@@ -277,13 +277,13 @@ export const createNode = async (
 
   if (!canvasId)
     throw new Error("Canvas ID must be provided to create a node.");
-console.log("new Data",newData);
+// console.log("new Data",newData);
 
 
   try {
     const nodeDocRef = doc(db, "canvases", canvasId, "nodes", newData.id);
     await setDoc(nodeDocRef, newData);
-    console.log("Successfully created new node with ID:", newData.id);
+    // console.log("Successfully created new node with ID:", newData.id);
 
     return nodeDocRef;
   } catch (error) {
@@ -357,7 +357,7 @@ export const clearEditingPresence=async(canvasId:string ,userId:string)=>{
     }  
     
     const signalDoc= doc(db,'canvases',canvasId,'presence',userId);
-console.log(`API: Clearing presence for user ${userId} in canvas ${canvasId}`);
+// console.log(`API: Clearing presence for user ${userId} in canvas ${canvasId}`);
   await deleteDoc(signalDoc);
 }
 

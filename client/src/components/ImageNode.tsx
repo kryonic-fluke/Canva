@@ -76,7 +76,7 @@ const handleFileUpload = useCallback(
           const storage = getStorage();
           const oldImageRef = ref(storage, oldImagePath);
           await deleteObject(oldImageRef); 
-          console.log("Successfully deleted old image.");
+          // console.log("Successfully deleted old image.");
         }
 
         const storage = getStorage();

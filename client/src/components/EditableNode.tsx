@@ -39,7 +39,7 @@ export const EditableNode = memo(
 
         return () => {
           if (canvasId && userId) {
-            console.log("CLEANUP: useEffect cleanup is running!");
+            // console.log("CLEANUP: useEffect cleanup is running!");
             clearEditingPresence(canvasId, userId).catch((err) =>
               console.error("Failed to clear presence:", err)
             );
@@ -62,7 +62,7 @@ export const EditableNode = memo(
     
 
     const handleDoubleClick = () => {
-        console.log("Click detected on node:💥💥", id);
+        // console.log("Click detected on node:💥💥", id);
 
       setIsEditing(true);
 
@@ -70,7 +70,7 @@ export const EditableNode = memo(
 
 
     const saveAndExit = () => {
-            console.log("ACTION: saveAndExit triggered. Setting isEditing to false."); 
+            // console.log("ACTcION: saveAndExit triggered. Setting isEditing to false."); 
 
       setIsEditing(false);
       if (label !== data.label) {

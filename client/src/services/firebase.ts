@@ -38,7 +38,7 @@ export const signInWithProvider = async (
 
   try {
     const result = await signInWithPopup(auth, provider);
-    console.log(`Successfull signin with ${result.user.displayName}`);
+    // console.log(`Successfull signin with ${result.user.displayName}`);
     return result;
   }catch (error) {
      console.error(`Error during ${providerName} sign-In`, error);

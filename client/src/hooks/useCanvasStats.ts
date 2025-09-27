@@ -31,61 +31,61 @@ type ProgressAccumulator = {
 };
 
 
-export const mockCanvasStats: CanvasStats = {
-  nodeCountsByType: {
-    "checklist": 4,
-    "note": 6,
-    "task": 8,
-    "flowchart": 3,
-    "diagram": 2,
-    "textNode": 5
-  },
-  nodeCountsByCategory: {
-    "Development": 8,
-    "Design": 6,
-    "Testing": 4,
-    "Documentation": 5,
-    "Planning": 3,
-    "Uncategorized": 2
-  },
-  checklistProgress: {
-    totalTasks: 45,
-    completedTasks: 28,
-    incompleteTasks: 17,
-    completionPercentage: 62,
-    details: [
-      {
-        id: "checklist-1",
-        title: "Frontend Development",
-        total: 12,
-        completed: 8,
-        percentage: 67
-      },
-      {
-        id: "checklist-2", 
-        title: "Backend API Setup",
-        total: 15,
-        completed: 12,
-        percentage: 80
-      },
-      {
-        id: "checklist-3",
-        title: "Database Configuration",
-        total: 8,
-        completed: 5,
-        percentage: 63
-      },
-      {
-        id: "checklist-4",
-        title: "Testing & Quality Assurance",
-        total: 10,
-        completed: 3,
-        percentage: 30
-      }
-    ]
-  }
-};
-
+// export const mockCanvasStats: CanvasStats = {
+//   nodeCountsByType: {
+//     "checklist": 4,
+//     "note": 6,
+//     "task": 8,
+//     "flowchart": 3,
+//     "diagram": 2,
+//     "textNode": 5
+//   },
+//   nodeCountsByCategory: {
+//     "Development": 8,
+//     "Design": 6,
+//     "Testing": 4,
+//     "Documentation": 5,
+//     "Planning": 3,
+//     "Uncategorized": 2
+//   },
+//   checklistProgress: {
+//     totalTasks: 45,
+//     completedTasks: 28,
+//     incompleteTasks: 17,
+//     completionPercentage: 62,
+//     details: [
+//       {
+//         id: "checklist-1",
+//         title: "Frontend Development",
+//         total: 12,
+//         completed: 8,
+//         percentage: 67
+//       },
+//       {
+//         id: "checklist-2", 
+//         title: "Backend API Setup",
+//         total: 15,
+//         completed: 12,
+//         percentage: 80
+//       },
+//       {
+//         id: "checklist-3",
+//         title: "Database Configuration",
+//         total: 8,
+//         completed: 5,
+//         percentage: 63
+//       },
+//       {
+//         id: "checklist-4",
+//         title: "Testing & Quality Assurance",
+//         total: 10,
+//         completed: 3,
+//         percentage: 30
+//       }
+//     ]
+//   }
+// };
+//demo data not for use now, kept for future testing 
 export const useCanvasStats = (): CanvasStats | undefined=> {
   const { getNodes } = useReactFlow();
 

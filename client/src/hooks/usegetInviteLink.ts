@@ -9,7 +9,7 @@ export const useGetInviteLink = () => {
     onSuccess: (data) => {
       const { inviteLink } = data;
       toast.success("Invite Link Generated!");
-      console.log("Invite Link Generated:", inviteLink);
+      // console.log("Invite Link Generated:", inviteLink);
 
       navigator.clipboard.writeText(inviteLink);
       

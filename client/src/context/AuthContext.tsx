@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
-      console.log("User signed out successfully.");
+      // console.log("User signed out successfully.");
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -45,12 +45,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             displayName: user.displayName || "New User",
           };
 
-          console.log(
-            "AuthProvider: Syncing user to backend...",
-            userDataToSync
-          );
+          // console.log(
+          //   "AuthProvider: Syncing user to backend...",
+          //   userDataToSync
+          // );
           await userBackEndSyncData(userDataToSync);
-          console.log("AuthProvider: User sync successful.");
+          // console.log("AuthProvider: User sync successful.");
         } catch (error) {
           console.error(
             "AuthProvider: Failed to sync user on auth state change.",
